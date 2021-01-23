@@ -1,0 +1,49 @@
+package main
+
+import (
+	"flag"
+	"fmt"
+	"log"
+	"os"
+
+	"github.com/uhppoted/uhppote-core/uhppote"
+	"github.com/uhppoted/uhppoted-api/command"
+	"github.com/uhppoted/uhppoted-api/config"
+	"github.com/uhppoted/uhppoted-app-wild-apricot/commands"
+)
+
+var cli = []uhppoted.Command{
+	&uhppoted.Version{
+		Application: commands.APP,
+		Version:     uhppote.VERSION,
+	},
+}
+
+var options = commands.Options{
+	Config: config.DefaultConfig,
+	Debug:  false,
+}
+
+var help = uhppoted.NewHelp("uhppoted-app-wild-apricot", cli, nil)
+
+func main() {
+	flag.StringVar(&options.Config, "config", options.Config, "uhppoted configuration file path")
+	flag.BoolVar(&options.Debug, "debug", options.Debug, "Enable debugging information")
+	flag.Parse()
+
+	cmd, err := uhppoted.Parse(cli, nil, help)
+	if err != nil {
+		fmt.Printf("\nError parsing command line: %v\n\n", err)
+		os.Exit(1)
+	}
+
+	if cmd == nil {
+		help.Execute()
+		os.Exit(1)
+	}
+
+	if err = cmd.Execute(&options); err != nil {
+		log.Fatalf("ERROR: %v", err)
+		os.Exit(1)
+	}
+}
