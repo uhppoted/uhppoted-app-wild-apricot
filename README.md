@@ -2,6 +2,8 @@
 
 # uhppoted-app-wild-apricot
 
+** IN DEVELOPMENT **
+
 ```cron```'able command line utility to transfer access control lists from a [Wild Apricot](https://www.wildapricot.com) 
 organisational account to a set of UHPPOTE UTO311-L0x access access controllers. 
 
