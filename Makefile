@@ -58,7 +58,7 @@ bump:
 	go get -u github.com/uhppoted/uhppoted-api
 
 debug: build
-	$(CLI) --debug version
+	$(CLI) --debug get
 
 # GENERAL COMMANDS
 
@@ -73,3 +73,5 @@ version: build
 
 # ACL COMMANDS
 
+get: build
+	$(CLI) --debug get
