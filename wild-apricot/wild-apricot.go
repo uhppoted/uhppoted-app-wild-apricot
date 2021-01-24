@@ -11,6 +11,20 @@ import (
 	"time"
 )
 
+type permission struct {
+	AccountID         uint32   `json:"AccountId"`
+	SecurityProfileId uint32   `json:"SecurityProfileId"`
+	AvailableScopes   []string `json:AvailableScopes"`
+}
+
+type authorisation struct {
+	AccessToken  string       `json:"access_token"`
+	TokenType    string       `json:"token_type"`
+	ExpiresIn    int          `json:"expires_in"`
+	RefreshToken string       `json:"refresh_token"`
+	Permissions  []permission `json:"Permissions"`
+}
+
 func Authorize(apiKey string) (string, error) {
 	client := http.Client{
 		Timeout: 10 * time.Second,
@@ -44,25 +58,13 @@ func Authorize(apiKey string) (string, error) {
 		return "", err
 	}
 
-	//	type permission struct {
-	//		AccountID         uint32   `json:"AccountId"`
-	//		SecurityProfileId uint32   `json:"SecurityProfileId"`
-	//		AvailableScopes   []string `json:AvailableScopes"`
-	//	}
+	authx := authorisation{}
 
-	result := struct {
-		AccessToken string `json:"access_token"`
-		//		TokenType    string       `json:"token_type"`
-		//		ExpiresIn    int          `json:"expires_in"`
-		//		RefreshToken string       `json:"refresh_token"`
-		//		Permissions  []permission `json:"Permissions"`
-	}{}
-
-	if err := json.Unmarshal(body, &result); err != nil {
+	if err := json.Unmarshal(body, &authx); err != nil {
 		return "", err
 	}
 
-	return result.AccessToken, nil
+	return authx.AccessToken, nil
 }
 
 func GetContacts(accountId uint32, token string) ([]Contact, error) {
@@ -99,10 +101,48 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 	for _, c := range data.Contacts {
 		contacts = append(contacts, Contact{
 			ID:    c.ID,
-			Name:  c.DisplayName,
+			Name:  fmt.Sprintf("%[1]s %[2]s", c.FirstName, c.LastName),
 			Email: c.Email,
 		})
 	}
 
 	return contacts, nil
+}
+
+func GetMemberGroups(accountId uint32, token string) ([]Group, error) {
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	url := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups", accountId)
+	rq, err := http.NewRequest("GET", url, nil)
+
+	rq.Header.Set("Accept", "application/json")
+	rq.Header.Set("Authorization", "Bearer "+token)
+	response, err := client.Do(rq)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	data := []group{}
+	if err := json.Unmarshal(body, &data); err != nil {
+		return nil, err
+	}
+
+	groups := []Group{}
+	for _, g := range data {
+		groups = append(groups, Group{
+			ID:   g.ID,
+			Name: g.Name,
+		})
+	}
+
+	return groups, nil
 }

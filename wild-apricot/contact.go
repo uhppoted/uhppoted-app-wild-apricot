@@ -1,6 +1,8 @@
 package wildapricot
 
-import ()
+import (
+	"time"
+)
 
 type Contact struct {
 	ID    uint32
@@ -9,22 +11,27 @@ type Contact struct {
 }
 
 type contact struct {
-	ID                 uint32     `json:"Id"`
-	Email              string     `json:"Email"`
-	DisplayName        string     `json:"DisplayName"`
-	FirstName          string     `json:"FirstName"`
-	LastName           string     `json:"LastName"`
-	MembershipEnabled  bool       `json:"MembershipEnabled"`
-	Status             string     `json:"Status"`
+	ID                uint32    `json:"Id"`
+	Email             string    `json:"Email"`
+	FirstName         string    `json:"FirstName"`
+	LastName          string    `json:"LastName"`
+	DisplayName       string    `json:"DisplayName"`
+	Status            string    `json:"Status"`
+	MembershipEnabled bool      `json:"MembershipEnabled"`
+	Updated           time.Time `json:"ProfileLastUpdated"`
+	Fields            []field   `json:"FieldValues"`
+
+	Administrator      bool       `json:"IsAccountAdministrator"`
 	MembershipLevel    membership `json:"MembershipLevel"`
 	Organization       string     `json:"Organization"`
 	TermsOfUseAccepted bool       `json:"TermsOfUseAccepted"`
-	Fields             []field    `json:"FieldValues"`
+	URL                string     `json:"Url"`
 }
 
 type membership struct {
 	ID   uint32 `json:"Id"`
 	Name string `json:"Name"`
+	URL  string `json:"Url"`
 }
 
 type field struct {

@@ -88,9 +88,19 @@ func (cmd *Get) Execute(args ...interface{}) error {
 		return err
 	}
 
+	groups, err := wildapricot.GetMemberGroups(credentials.Account, token)
+	if err != nil {
+		return err
+	}
+
 	fmt.Printf("CONTACTS:\n")
 	for _, c := range contacts {
 		fmt.Printf("  %v\n", c)
+	}
+
+	fmt.Printf("GROUPS:\n")
+	for _, g := range groups {
+		fmt.Printf("  %v\n", g)
 	}
 
 	// ... save to TSV file
