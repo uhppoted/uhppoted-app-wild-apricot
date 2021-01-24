@@ -1,27 +1,39 @@
 package commands
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"strings"
 )
 
 const APP = "uhppoted-app-wild-apricot"
 
+type credentials struct {
+	Account uint32 `json:"account"`
+	APIKey  string `json:"api-key"`
+}
+
+func getCredentials(file string) (*credentials, error) {
+	bytes, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, fmt.Errorf("Unable to retrieve credentials (%v)", err)
+	}
+
+	c := credentials{}
+
+	if err := json.Unmarshal(bytes, &c); err != nil {
+		return nil, fmt.Errorf("Unable to retrieve credentials (%v)", err)
+	}
+
+	return &c, nil
+}
+
 type Options struct {
 	Config string
 	Debug  bool
-}
-
-type report struct {
-	top     int64
-	left    string
-	title   string
-	headers string
-	data    string
-	columns map[string]string
-	xref    map[int]int
 }
 
 func helpOptions(flagset *flag.FlagSet) {
