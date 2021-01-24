@@ -93,6 +93,11 @@ func (cmd *Get) Execute(args ...interface{}) error {
 		return err
 	}
 
+	members, err := makeMemberList(contacts, groups)
+	if err != nil {
+		return err
+	}
+
 	fmt.Printf("CONTACTS:\n")
 	for _, c := range contacts {
 		fmt.Printf("  %v\n", c)
@@ -102,6 +107,13 @@ func (cmd *Get) Execute(args ...interface{}) error {
 	for _, g := range groups {
 		fmt.Printf("  %v\n", g)
 	}
+
+	text, err := members.MarshalTextIndent("  ")
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("MEMBERS:\n%s\n", string(text))
 
 	// ... save to TSV file
 	//	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")

@@ -5,21 +5,25 @@ import (
 )
 
 type Contact struct {
-	ID    uint32
-	Name  string
-	Email string
+	ID          uint32
+	Name        string
+	Email       string
+	Active      bool
+	Suspended   bool
+	MemberSince *time.Time
+	Renew       *time.Time
 }
 
 type contact struct {
-	ID                uint32    `json:"Id"`
-	Email             string    `json:"Email"`
-	FirstName         string    `json:"FirstName"`
-	LastName          string    `json:"LastName"`
-	DisplayName       string    `json:"DisplayName"`
-	Status            string    `json:"Status"`
-	MembershipEnabled bool      `json:"MembershipEnabled"`
-	Updated           time.Time `json:"ProfileLastUpdated"`
-	Fields            []field   `json:"FieldValues"`
+	ID          uint32    `json:"Id"`
+	Email       string    `json:"Email"`
+	FirstName   string    `json:"FirstName"`
+	LastName    string    `json:"LastName"`
+	DisplayName string    `json:"DisplayName"`
+	Status      string    `json:"Status"`
+	Enabled     bool      `json:"MembershipEnabled"`
+	Updated     time.Time `json:"ProfileLastUpdated"`
+	Fields      []field   `json:"FieldValues"`
 
 	Administrator      bool       `json:"IsAccountAdministrator"`
 	MembershipLevel    membership `json:"MembershipLevel"`

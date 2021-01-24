@@ -99,11 +99,44 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 
 	contacts := []Contact{}
 	for _, c := range data.Contacts {
-		contacts = append(contacts, Contact{
+		contact := Contact{
 			ID:    c.ID,
 			Name:  fmt.Sprintf("%[1]s %[2]s", c.FirstName, c.LastName),
 			Email: c.Email,
-		})
+		}
+
+		if c.Enabled && strings.ToLower(c.Status) == "active" {
+			contact.Active = true
+		}
+
+		for _, f := range c.Fields {
+			switch {
+			case strings.ToLower(f.SystemCode) == "issuspendedmember":
+				if v, ok := f.Value.(bool); ok {
+					contact.Suspended = v
+				}
+
+			case strings.ToLower(f.SystemCode) == "membersince":
+				if v, ok := f.Value.(string); ok {
+					if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
+						return nil, err
+					} else {
+						contact.MemberSince = &d
+					}
+				}
+
+			case strings.ToLower(f.SystemCode) == "renewaldue":
+				if v, ok := f.Value.(string); ok {
+					if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
+						return nil, err
+					} else {
+						contact.Renew = &d
+					}
+				}
+			}
+		}
+
+		contacts = append(contacts, contact)
 	}
 
 	return contacts, nil

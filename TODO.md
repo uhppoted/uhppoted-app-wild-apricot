@@ -3,12 +3,13 @@
 ### IN PROGRESS
 
 - [ ] `get` command
-- [ ] GetContacts
-      - Exclude archived contacts
-      - Filter for members only
-      - Implement async fetch
-      - Return Contact struct
+      - [ ] Get member list
+            - Exclude archived contacts
+            - Filter for members only
+            - Implement async fetch
+      - [ ] Tabularize contacts and groups
 
+- [x] Get member groups
 - [x] App skeleton
 - [x] `version` command
 - [x] `help` command
@@ -16,3 +17,6 @@
 
 # TODO
 
+# NOTES
+
+- Use MemberRole for Exec ?
