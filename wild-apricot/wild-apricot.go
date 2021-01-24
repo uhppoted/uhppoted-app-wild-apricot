@@ -14,7 +14,7 @@ import (
 type permission struct {
 	AccountID         uint32   `json:"AccountId"`
 	SecurityProfileId uint32   `json:"SecurityProfileId"`
-	AvailableScopes   []string `json:AvailableScopes"`
+	AvailableScopes   []string `json:"AvailableScopes"`
 }
 
 type authorisation struct {
