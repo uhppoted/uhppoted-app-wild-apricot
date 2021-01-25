@@ -89,57 +89,57 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 		return nil, err
 	}
 
-	data := struct {
-		Contacts []contact `json:"Contacts"`
+	contacts := struct {
+		Contacts []Contact `json:"Contacts"`
 	}{}
 
-	if err := json.Unmarshal(body, &data); err != nil {
+	if err := json.Unmarshal(body, &contacts); err != nil {
 		return nil, err
 	}
 
-	contacts := []Contact{}
-	for _, c := range data.Contacts {
-		contact := Contact{
-			ID:    c.ID,
-			Name:  fmt.Sprintf("%[1]s %[2]s", c.FirstName, c.LastName),
-			Email: c.Email,
-		}
+	//	contacts := []Contact{}
+	//	for _, c := range data.Contacts {
+	//		contact := Contact{
+	//			ID:    c.ID,
+	//			Name:  fmt.Sprintf("%[1]s %[2]s", c.FirstName, c.LastName),
+	//			Email: c.Email,
+	//		}
+	//
+	//		if c.Enabled && strings.ToLower(c.Status) == "active" {
+	//			contact.Active = true
+	//		}
+	//
+	//		for _, f := range c.Fields {
+	//			switch {
+	//			case strings.ToLower(f.SystemCode) == "issuspendedmember":
+	//				if v, ok := f.Value.(bool); ok {
+	//					contact.Suspended = v
+	//				}
+	//
+	//			case strings.ToLower(f.SystemCode) == "membersince":
+	//				if v, ok := f.Value.(string); ok {
+	//					if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
+	//						return nil, err
+	//					} else {
+	//						contact.MemberSince = &d
+	//					}
+	//				}
+	//
+	//			case strings.ToLower(f.SystemCode) == "renewaldue":
+	//				if v, ok := f.Value.(string); ok {
+	//					if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
+	//						return nil, err
+	//					} else {
+	//						contact.Renew = &d
+	//					}
+	//				}
+	//			}
+	//		}
+	//
+	//		contacts = append(contacts, contact)
+	//	}
 
-		if c.Enabled && strings.ToLower(c.Status) == "active" {
-			contact.Active = true
-		}
-
-		for _, f := range c.Fields {
-			switch {
-			case strings.ToLower(f.SystemCode) == "issuspendedmember":
-				if v, ok := f.Value.(bool); ok {
-					contact.Suspended = v
-				}
-
-			case strings.ToLower(f.SystemCode) == "membersince":
-				if v, ok := f.Value.(string); ok {
-					if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
-						return nil, err
-					} else {
-						contact.MemberSince = &d
-					}
-				}
-
-			case strings.ToLower(f.SystemCode) == "renewaldue":
-				if v, ok := f.Value.(string); ok {
-					if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
-						return nil, err
-					} else {
-						contact.Renew = &d
-					}
-				}
-			}
-		}
-
-		contacts = append(contacts, contact)
-	}
-
-	return contacts, nil
+	return contacts.Contacts, nil
 }
 
 func GetMemberGroups(accountId uint32, token string) ([]Group, error) {

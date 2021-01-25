@@ -98,22 +98,16 @@ func (cmd *Get) Execute(args ...interface{}) error {
 		return err
 	}
 
-	fmt.Printf("CONTACTS:\n")
-	for _, c := range contacts {
-		fmt.Printf("  %v\n", c)
-	}
+	//	fmt.Printf("GROUPS:\n")
+	//	for _, g := range groups {
+	//		fmt.Printf("  %v\n", g)
+	//	}
 
-	fmt.Printf("GROUPS:\n")
-	for _, g := range groups {
-		fmt.Printf("  %v\n", g)
+	if cmd.debug {
+		if text, err := members.MarshalTextIndent("  "); err == nil {
+			fmt.Printf("MEMBERS:\n%s\n", string(text))
+		}
 	}
-
-	text, err := members.MarshalTextIndent("  ")
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("MEMBERS:\n%s\n", string(text))
 
 	// ... save to TSV file
 	//	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")

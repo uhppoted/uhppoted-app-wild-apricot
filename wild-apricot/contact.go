@@ -4,17 +4,17 @@ import (
 	"time"
 )
 
-type Contact struct {
-	ID          uint32
-	Name        string
-	Email       string
-	Active      bool
-	Suspended   bool
-	MemberSince *time.Time
-	Renew       *time.Time
-}
+// type Contact struct {
+// 	ID          uint32
+// 	Name        string
+// 	Email       string
+// 	Active      bool
+// 	Suspended   bool
+// 	MemberSince *time.Time
+// 	Renew       *time.Time
+// }
 
-type contact struct {
+type Contact struct {
 	ID          uint32    `json:"Id"`
 	Email       string    `json:"Email"`
 	FirstName   string    `json:"FirstName"`
@@ -25,14 +25,14 @@ type contact struct {
 	Updated     time.Time `json:"ProfileLastUpdated"`
 	Fields      []field   `json:"FieldValues"`
 
-	Administrator      bool       `json:"IsAccountAdministrator"`
-	MembershipLevel    membership `json:"MembershipLevel"`
-	Organization       string     `json:"Organization"`
-	TermsOfUseAccepted bool       `json:"TermsOfUseAccepted"`
-	URL                string     `json:"Url"`
+	Administrator      bool            `json:"IsAccountAdministrator"`
+	MembershipLevel    MembershipLevel `json:"MembershipLevel"`
+	Organization       string          `json:"Organization"`
+	TermsOfUseAccepted bool            `json:"TermsOfUseAccepted"`
+	URL                string          `json:"Url"`
 }
 
-type membership struct {
+type MembershipLevel struct {
 	ID   uint32 `json:"Id"`
 	Name string `json:"Name"`
 	URL  string `json:"Url"`
