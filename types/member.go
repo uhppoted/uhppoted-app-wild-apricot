@@ -19,7 +19,7 @@ type Members struct {
 type Member struct {
 	ID         uint32
 	Name       string
-	CardNumber *card
+	CardNumber *CardNumber
 	Active     bool
 	Suspended  bool
 	Registered *date
@@ -27,9 +27,9 @@ type Member struct {
 	Groups     map[uint32]struct{}
 }
 
-type card uint32
+type CardNumber uint32
 
-func (c *card) String() string {
+func (c *CardNumber) String() string {
 	if c != nil {
 		return fmt.Sprintf("%v", *c)
 	}
@@ -189,7 +189,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 					return nil, err
 				} else {
 					nn := uint32(n)
-					member.CardNumber = (*card)(&nn)
+					member.CardNumber = (*CardNumber)(&nn)
 				}
 			}
 

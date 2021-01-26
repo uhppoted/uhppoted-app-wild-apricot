@@ -7,7 +7,12 @@
             - Exclude archived contacts
             - Filter for members only
             - Implement async fetch
-      - [ ] Tabularize contacts and groups
+      - [x] Tabularize contacts and groups
+
+- [ ] ACL
+      - [ ] Default start date
+      - [ ] Default end date
+      - [ ] Doors
 
 - [x] Get member groups
 - [x] App skeleton

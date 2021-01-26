@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/uhppoted/uhppoted-app-wild-apricot/rules"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
@@ -97,11 +98,26 @@ func (cmd *Get) Execute(args ...interface{}) error {
 	members, err := types.MakeMemberList(contacts, groups)
 	if err != nil {
 		return err
+	} else if members == nil {
+		return fmt.Errorf("Invalid members list")
 	}
 
 	if cmd.debug {
 		if text, err := members.MarshalTextIndent("  "); err == nil {
 			fmt.Printf("MEMBERS:\n%s\n", string(text))
+		}
+	}
+
+	// ... create ACL
+
+	acl, err := rules.MakeACL(*members)
+	if err != nil {
+		return err
+	}
+
+	if cmd.debug {
+		if text, err := acl.MarshalTextIndent("  "); err == nil {
+			fmt.Printf("ACL:\n%s\n", string(text))
 		}
 	}
 
