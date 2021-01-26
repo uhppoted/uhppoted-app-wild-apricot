@@ -7,9 +7,6 @@ import (
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
-type Rules {
-}
-
 type ACL []record
 
 type record struct {
