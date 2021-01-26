@@ -142,7 +142,7 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 	return contacts.Contacts, nil
 }
 
-func GetMemberGroups(accountId uint32, token string) ([]Group, error) {
+func GetMemberGroups(accountId uint32, token string) ([]MemberGroup, error) {
 	client := http.Client{
 		Timeout: 10 * time.Second,
 	}
@@ -164,17 +164,9 @@ func GetMemberGroups(accountId uint32, token string) ([]Group, error) {
 		return nil, err
 	}
 
-	data := []group{}
-	if err := json.Unmarshal(body, &data); err != nil {
+	groups := []MemberGroup{}
+	if err := json.Unmarshal(body, &groups); err != nil {
 		return nil, err
-	}
-
-	groups := []Group{}
-	for _, g := range data {
-		groups = append(groups, Group{
-			ID:   g.ID,
-			Name: g.Name,
-		})
 	}
 
 	return groups, nil

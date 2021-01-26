@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
@@ -93,15 +94,10 @@ func (cmd *Get) Execute(args ...interface{}) error {
 		return err
 	}
 
-	members, err := makeMemberList(contacts, groups)
+	members, err := types.MakeMemberList(contacts, groups)
 	if err != nil {
 		return err
 	}
-
-	//	fmt.Printf("GROUPS:\n")
-	//	for _, g := range groups {
-	//		fmt.Printf("  %v\n", g)
-	//	}
 
 	if cmd.debug {
 		if text, err := members.MarshalTextIndent("  "); err == nil {

@@ -2,12 +2,7 @@ package wildapricot
 
 import ()
 
-type Group struct {
-	ID   uint32
-	Name string
-}
-
-type group struct {
+type MemberGroup struct {
 	ID          uint32 `json:"Id"`
 	Name        string `json:"Name"`
 	Description string `json:"Description"`

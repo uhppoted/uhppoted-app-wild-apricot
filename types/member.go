@@ -1,4 +1,4 @@
-package commands
+package types
 
 import (
 	"bytes"
@@ -47,7 +47,7 @@ func (d *date) String() string {
 	return ""
 }
 
-func makeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.Group) (*Members, error) {
+func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup) (*Members, error) {
 	groups := map[uint32]string{}
 	for _, g := range memberGroups {
 		groups[g.ID] = g.Name
