@@ -12,7 +12,7 @@ import (
 )
 
 type Members struct {
-	Groups  map[uint32]string
+	Groups  []Group
 	Members []Member
 }
 
@@ -48,16 +48,22 @@ func (d *date) String() string {
 }
 
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup) (*Members, error) {
-	groups := map[uint32]string{}
+	groups := []Group{}
 	for _, g := range memberGroups {
-		groups[g.ID] = g.Name
+		groups = append(groups, Group{
+			ID:   g.ID,
+			Name: g.Name,
+		})
 	}
 
-	members, err := transcode(contacts)
-	if err != nil {
-		return nil, err
+	members := []Member{}
+	for _, c := range contacts {
+		if m, err := transcode(c); err != nil {
+			return nil, err
+		} else if m != nil {
+			members = append(members, *m)
+		}
 	}
-
 	return &Members{
 		Members: members,
 		Groups:  groups,
@@ -82,14 +88,9 @@ func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
 			"Expires",
 		}
 
-		groups := []uint32{}
-		for k, _ := range members.Groups {
-			groups = append(groups, k)
-		}
-
-		sort.SliceStable(groups, func(i, j int) bool { return groups[i] < groups[j] })
-		for _, gid := range groups {
-			header = append(header, members.Groups[gid])
+		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].ID < members.Groups[j].ID })
+		for _, group := range members.Groups {
+			header = append(header, group.Name)
 		}
 
 		table = append(table, header)
@@ -108,8 +109,8 @@ func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
 			row = append(row, fmt.Sprintf("%v", m.Registered))
 			row = append(row, fmt.Sprintf("%v", m.Expires))
 
-			for _, gid := range groups {
-				if _, ok := m.Groups[gid]; ok {
+			for _, g := range members.Groups {
+				if _, ok := m.Groups[g.ID]; ok {
 					row = append(row, "Y")
 				} else {
 					row = append(row, "N")
@@ -148,70 +149,64 @@ func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-func transcode(contacts []wildapricot.Contact) ([]Member, error) {
-	members := []Member{}
+func transcode(contact wildapricot.Contact) (*Member, error) {
+	member := Member{
+		ID:     contact.ID,
+		Name:   fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
+		Active: contact.Enabled && strings.ToLower(contact.Status) == "active",
+		Groups: map[uint32]struct{}{},
+	}
 
-	for _, c := range contacts {
-		member := Member{
-			ID:     c.ID,
-			Name:   fmt.Sprintf("%[1]s %[2]s", c.FirstName, c.LastName),
-			Active: c.Enabled && strings.ToLower(c.Status) == "active",
-			Groups: map[uint32]struct{}{},
-		}
+	for _, f := range contact.Fields {
+		switch {
+		case normalise(f.SystemCode) == "issuspendedmember":
+			if v, ok := f.Value.(bool); ok {
+				member.Suspended = v
+			}
 
-		for _, f := range c.Fields {
-			switch {
-			case normalise(f.SystemCode) == "issuspendedmember":
-				if v, ok := f.Value.(bool); ok {
-					member.Suspended = v
+		case normalise(f.SystemCode) == "membersince":
+			if v, ok := f.Value.(string); ok {
+				if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
+					return nil, err
+				} else {
+					member.Registered = (*date)(&d)
 				}
+			}
 
-			case normalise(f.SystemCode) == "membersince":
-				if v, ok := f.Value.(string); ok {
-					if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
-						return nil, err
-					} else {
-						member.Registered = (*date)(&d)
-					}
+		case normalise(f.SystemCode) == "renewaldue":
+			if v, ok := f.Value.(string); ok {
+				if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
+					return nil, err
+				} else {
+					expires := d.AddDate(0, 0, -1)
+					member.Expires = (*date)(&expires)
 				}
+			}
 
-			case normalise(f.SystemCode) == "renewaldue":
-				if v, ok := f.Value.(string); ok {
-					if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
-						return nil, err
-					} else {
-						expires := d.AddDate(0, 0, -1)
-						member.Expires = (*date)(&expires)
-					}
+		case normalise(f.Name) == "cardnumber":
+			if v, ok := f.Value.(string); ok {
+				if n, err := strconv.ParseUint(v, 10, 32); err != nil {
+					return nil, err
+				} else {
+					nn := uint32(n)
+					member.CardNumber = (*card)(&nn)
 				}
+			}
 
-			case normalise(f.Name) == "cardnumber":
-				if v, ok := f.Value.(string); ok {
-					if n, err := strconv.ParseUint(v, 10, 32); err != nil {
-						return nil, err
-					} else {
-						nn := uint32(n)
-						member.CardNumber = (*card)(&nn)
-					}
-				}
-
-			case normalise(f.SystemCode) == "groups":
-				if groups, ok := f.Value.([]interface{}); ok {
-					for _, g := range groups {
-						if group, ok := g.(map[string]interface{}); ok {
-							if v, ok := group["Id"]; ok {
-								if gid, ok := v.(float64); ok {
-									member.Groups[uint32(gid)] = struct{}{}
-								}
+		case normalise(f.SystemCode) == "groups":
+			if groups, ok := f.Value.([]interface{}); ok {
+				for _, g := range groups {
+					if group, ok := g.(map[string]interface{}); ok {
+						if v, ok := group["Id"]; ok {
+							if gid, ok := v.(float64); ok {
+								member.Groups[uint32(gid)] = struct{}{}
 							}
 						}
 					}
 				}
 			}
 		}
-
-		members = append(members, member)
 	}
 
-	return members, nil
+	return &member, nil
 }
