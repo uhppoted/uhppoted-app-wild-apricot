@@ -9,9 +9,9 @@ type Group struct {
 	Name string
 }
 
-func NewGroup(g wildapricot.MemberGroup) Group {
+func NewGroup(g wildapricot.MemberGroup) (Group, error) {
 	return Group{
 		ID:   g.ID,
 		Name: g.Name,
-	}
+	}, nil
 }

@@ -9,3 +9,17 @@ type MemberGroup struct {
 	URL         string `json:"Url"`
 	Contacts    int    `json:"ContactsCount"`
 }
+
+func (mg *MemberGroup) Flatten() (map[string]interface{}, error) {
+	flattened := map[string]interface{}{}
+
+	if mg != nil {
+		flattened["id"] = mg.ID
+		flattened["name"] = mg.Name
+		flattened["description"] = mg.Description
+		flattened["contacts"] = mg.Contacts
+		flattened["url"] = mg.URL
+	}
+
+	return flattened, nil
+}
