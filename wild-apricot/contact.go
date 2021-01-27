@@ -4,16 +4,6 @@ import (
 	"time"
 )
 
-// type Contact struct {
-// 	ID          uint32
-// 	Name        string
-// 	Email       string
-// 	Active      bool
-// 	Suspended   bool
-// 	MemberSince *time.Time
-// 	Renew       *time.Time
-// }
-
 type Contact struct {
 	ID          uint32    `json:"Id"`
 	Email       string    `json:"Email"`

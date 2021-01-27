@@ -22,8 +22,8 @@ type Member struct {
 	CardNumber *CardNumber
 	Active     bool
 	Suspended  bool
-	Registered *date
-	Expires    *date
+	Registered *Date
+	Expires    *Date
 	Groups     map[uint32]struct{}
 }
 
@@ -37,14 +37,8 @@ func (c *CardNumber) String() string {
 	return ""
 }
 
-type date time.Time
-
-func (d *date) String() string {
-	if d != nil {
-		return time.Time(*d).Format("2006-01-02")
-	}
-
-	return ""
+func (m *Member) HasRegistered() bool {
+	return m != nil && m.Registered != nil
 }
 
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup) (*Members, error) {
@@ -169,7 +163,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 				if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
 					return nil, err
 				} else {
-					member.Registered = (*date)(&d)
+					member.Registered = (*Date)(&d)
 				}
 			}
 
@@ -179,7 +173,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 					return nil, err
 				} else {
 					expires := d.AddDate(0, 0, -1)
-					member.Expires = (*date)(&expires)
+					member.Expires = (*Date)(&expires)
 				}
 			}
 

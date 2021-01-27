@@ -3,6 +3,7 @@ LDFLAGS     = -ldflags "-X uhppote.VERSION=$(VERSION)"
 DIST       ?= development
 CLI         = ./bin/uhppoted-app-wild-apricot
 CREDENTIALS = ../runtime/wild-apricot/.credentials.json
+RULES       = ../runtime/wild-apricot/wild-apricot.grl
 
 DATETIME  = $(shell date "+%Y-%m-%d %H:%M:%S")
 DEBUG    ?= --debug
@@ -75,4 +76,4 @@ version: build
 # ACL COMMANDS
 
 get: build
-	$(CLI) --debug get --credentials $(CREDENTIALS)
+	$(CLI) --debug get --credentials $(CREDENTIALS) --rules $(RULES)

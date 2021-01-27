@@ -7,14 +7,15 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/rules"
+	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
 var GetCmd = Get{
 	workdir:     DEFAULT_WORKDIR,
-	credentials: filepath.Join(DEFAULT_WORKDIR, ".wild-apricot", "credentials.json"),
+	credentials: filepath.Join(DEFAULT_CONFIG, ".wild-apricot", "credentials.json"),
+	rules:       filepath.Join(DEFAULT_CONFIG, "wild-apricot.grl"),
 	file:        time.Now().Format("2006-01-02T150405.tsv"),
 	debug:       false,
 }
@@ -22,6 +23,7 @@ var GetCmd = Get{
 type Get struct {
 	workdir     string
 	credentials string
+	rules       string
 	file        string
 	debug       bool
 }
@@ -58,6 +60,7 @@ func (cmd *Get) FlagSet() *flag.FlagSet {
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
+	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "Path for the 'grule' rules file. Defaults to "+cmd.rules)
 	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.tsv'")
 
 	return flagset
@@ -71,6 +74,13 @@ func (cmd *Get) Execute(args ...interface{}) error {
 	// ... check parameters
 	if strings.TrimSpace(cmd.credentials) == "" {
 		return fmt.Errorf("Invalid credentials file")
+	}
+
+	// ... load rules
+
+	rules, err := acl.NewRules(cmd.rules)
+	if err != nil {
+		return err
 	}
 
 	// ... get contacts list and member groups

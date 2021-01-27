@@ -1,22 +1,39 @@
-package rules
+package acl
 
 import (
 	"bytes"
 	"sort"
+	"time"
+
+	"github.com/hyperjumptech/grule-rule-engine/ast"
+	"github.com/hyperjumptech/grule-rule-engine/builder"
+	"github.com/hyperjumptech/grule-rule-engine/engine"
+	"github.com/hyperjumptech/grule-rule-engine/pkg"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 type ACL []record
 
-type record struct {
-	ID         uint32
-	Name       string
-	CardNumber uint32
+type Rules struct {
+	library *ast.KnowledgeLibrary
 }
 
-func MakeACL(members types.Members) (ACL, error) {
+func NewRules(file string) (*Rules, error) {
+	kb := ast.NewKnowledgeLibrary()
+	if err := builder.NewRuleBuilder(kb).BuildRuleFromResource("acl", "0.0.0", pkg.NewFileResource(file)); err != nil {
+		return nil, err
+	}
+
+	return &Rules{
+		library: kb,
+	}, nil
+}
+
+func (rules *Rules) MakeACL(members types.Members) (ACL, error) {
 	acl := ACL{}
+
+	startDate := startOfYear()
 
 	for _, m := range members.Members {
 		if m.CardNumber != nil {
@@ -24,6 +41,11 @@ func MakeACL(members types.Members) (ACL, error) {
 				ID:         m.ID,
 				Name:       m.Name,
 				CardNumber: uint32(*m.CardNumber),
+				StartDate:  startDate,
+			}
+
+			if err := rules.eval(m, &r); err != nil {
+				return nil, err
 			}
 
 			acl = append(acl, r)
@@ -33,6 +55,23 @@ func MakeACL(members types.Members) (ACL, error) {
 	sort.SliceStable(acl, func(i, j int) bool { return acl[i].ID < acl[j].ID })
 
 	return acl, nil
+}
+
+func (rules *Rules) eval(m types.Member, r *record) error {
+	context := ast.NewDataContext()
+
+	if err := context.Add("member", &m); err != nil {
+		return err
+	}
+
+	if err := context.Add("record", r); err != nil {
+		return err
+	}
+
+	enjin := engine.NewGruleEngine()
+	kb := rules.library.NewKnowledgeBaseInstance("acl", "0.0.0")
+
+	return enjin.Execute(context, kb)
 }
 
 func (a *ACL) MarshalText() ([]byte, error) {
@@ -112,4 +151,8 @@ func (a *ACL) MarshalTextIndent(indent string) ([]byte, error) {
 	//	}
 
 	return b.Bytes(), nil
+}
+
+func startOfYear() time.Time {
+	return time.Date(time.Now().Year(), time.January, 1, 0, 0, 0, 0, time.Local)
 }
