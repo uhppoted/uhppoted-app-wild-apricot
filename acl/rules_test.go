@@ -5,10 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/hyperjumptech/grule-rule-engine/ast"
-	"github.com/hyperjumptech/grule-rule-engine/builder"
-	"github.com/hyperjumptech/grule-rule-engine/pkg"
-
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
@@ -39,6 +35,7 @@ var harry = types.Member{
 	CardNumber: &C6000001,
 	Active:     true,
 	Suspended:  false,
+	Expires:    dateFromString("2021-06-30"),
 }
 
 var hermione = types.Member{
@@ -48,6 +45,7 @@ var hermione = types.Member{
 	Active:     false,
 	Suspended:  false,
 	Registered: dateFromString("2020-06-25"),
+	Expires:    dateFromString("2021-06-30"),
 }
 
 var voldemort = types.Member{
@@ -64,9 +62,16 @@ rule StartDate "Sets the start date to the 'registered' field" {
      when
 		member.HasRegistered()
 	 then
-Log("ID:" + member.ID);
          record.SetStartDate(member.Registered);
          Retract("StartDate");
+}
+
+rule EndDate "Sets the end date to the 'expires' field" {
+     when
+		member.HasExpires()
+	 then
+         record.SetEndDate(member.Expires);
+         Retract("EndDate");
 }
 
 `
@@ -81,32 +86,35 @@ func TestMakeACL(t *testing.T) {
 			Name:       "Albus Dumbledore",
 			CardNumber: 1000001,
 			StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
+			EndDate:    endOfYear().AddDate(0, 1, 0),
 		},
 		record{
 			ID:         57944165,
 			Name:       "Tom Riddle",
 			CardNumber: 2000001,
 			StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
+			EndDate:    endOfYear().AddDate(0, 1, 0),
 		},
 		record{
 			ID:         57944170,
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
 			StartDate:  startOfYear(),
+			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
 		},
 		record{
 			ID:         57944920,
 			Name:       "Hermione Granger",
 			CardNumber: 6000002,
 			StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
+			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
 		},
 	}
 
-	r := Rules{
-		library: ast.NewKnowledgeLibrary(),
+	r, err := NewRules([]byte(grules))
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
 	}
-
-	builder.NewRuleBuilder(r.library).MustBuildRuleFromResource("acl", "0.0.0", pkg.NewBytesResource([]byte(grules)))
 
 	acl, err := r.MakeACL(members)
 	if err != nil {

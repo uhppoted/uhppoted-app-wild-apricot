@@ -51,7 +51,9 @@ func (cmd *Get) Help() {
 
 	fmt.Println()
 	fmt.Println("  Examples:")
-	fmt.Println(`    uhppote-app-wild-apricot --debug get --credentials ".credentials/wild-apricot.json" --file "example.tsv"`)
+	fmt.Println(`    uhppote-app-wild-apricot --debug get --credentials ".credentials/wild-apricot.json" \"`)
+	fmt.Println(`                                         --rules "wild-apricot.grl" \`)
+	fmt.Println(`                                         --file "example.tsv"`)
 	fmt.Println()
 }
 
@@ -60,7 +62,7 @@ func (cmd *Get) FlagSet() *flag.FlagSet {
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
-	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "Path for the 'grule' rules file. Defaults to "+cmd.rules)
+	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP, HTTPS, s3:// and file://. Defaults to "+cmd.rules)
 	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.tsv'")
 
 	return flagset
@@ -78,7 +80,12 @@ func (cmd *Get) Execute(args ...interface{}) error {
 
 	// ... load rules
 
-	rules, err := acl.NewRules(cmd.rules)
+	ruleset, err := fetch(cmd.rules)
+	if err != nil {
+		return err
+	}
+
+	rules, err := acl.NewRules(ruleset)
 	if err != nil {
 		return err
 	}

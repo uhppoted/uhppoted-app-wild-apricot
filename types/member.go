@@ -41,6 +41,10 @@ func (m *Member) HasRegistered() bool {
 	return m != nil && m.Registered != nil
 }
 
+func (m *Member) HasExpires() bool {
+	return m != nil && m.Expires != nil
+}
+
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup) (*Members, error) {
 	groups := []Group{}
 	for _, g := range memberGroups {

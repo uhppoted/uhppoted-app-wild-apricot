@@ -19,9 +19,9 @@ type Rules struct {
 	library *ast.KnowledgeLibrary
 }
 
-func NewRules(file string) (*Rules, error) {
+func NewRules(ruleset []byte) (*Rules, error) {
 	kb := ast.NewKnowledgeLibrary()
-	if err := builder.NewRuleBuilder(kb).BuildRuleFromResource("acl", "0.0.0", pkg.NewFileResource(file)); err != nil {
+	if err := builder.NewRuleBuilder(kb).BuildRuleFromResource("acl", "0.0.0", pkg.NewBytesResource(ruleset)); err != nil {
 		return nil, err
 	}
 
@@ -34,6 +34,7 @@ func (rules *Rules) MakeACL(members types.Members) (ACL, error) {
 	acl := ACL{}
 
 	startDate := startOfYear()
+	endDate := endOfYear().AddDate(0, 1, 0)
 
 	for _, m := range members.Members {
 		if m.CardNumber != nil {
@@ -42,6 +43,7 @@ func (rules *Rules) MakeACL(members types.Members) (ACL, error) {
 				Name:       m.Name,
 				CardNumber: uint32(*m.CardNumber),
 				StartDate:  startDate,
+				EndDate:    endDate,
 			}
 
 			if err := rules.eval(m, &r); err != nil {
@@ -155,4 +157,8 @@ func (a *ACL) MarshalTextIndent(indent string) ([]byte, error) {
 
 func startOfYear() time.Time {
 	return time.Date(time.Now().Year(), time.January, 1, 0, 0, 0, 0, time.Local)
+}
+
+func endOfYear() time.Time {
+	return time.Date(time.Now().Year(), time.December, 31, 23, 59, 59, 0, time.Local)
 }
