@@ -20,6 +20,11 @@ func (r *record) SetStartDate(t interface{}) {
 	}
 
 	switch v := t.(type) {
+	case string:
+		if date, err := time.Parse("2006-01-02", v); err == nil {
+			r.StartDate = date
+		}
+
 	case *time.Time:
 		if v != nil {
 			r.StartDate = *v
@@ -38,6 +43,11 @@ func (r *record) SetEndDate(t interface{}) {
 	}
 
 	switch v := t.(type) {
+	case string:
+		if date, err := time.Parse("2006-01-02", v); err == nil {
+			r.EndDate = date
+		}
+
 	case *time.Time:
 		if v != nil {
 			r.EndDate = *v

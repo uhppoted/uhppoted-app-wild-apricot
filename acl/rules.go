@@ -9,7 +9,9 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
 	"github.com/hyperjumptech/grule-rule-engine/engine"
+	"github.com/hyperjumptech/grule-rule-engine/logger"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
+	"github.com/sirupsen/logrus"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
@@ -20,7 +22,13 @@ type Rules struct {
 	library *ast.KnowledgeLibrary
 }
 
-func NewRules(ruleset []byte) (*Rules, error) {
+func NewRules(ruleset []byte, debug bool) (*Rules, error) {
+	if debug {
+		logger.SetLogLevel(logrus.TraceLevel)
+	} else {
+		logger.SetLogLevel(logrus.ErrorLevel)
+	}
+
 	kb := ast.NewKnowledgeLibrary()
 	if err := builder.NewRuleBuilder(kb).BuildRuleFromResource("acl", "0.0.0", pkg.NewBytesResource(ruleset)); err != nil {
 		return nil, err

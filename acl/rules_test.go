@@ -111,7 +111,7 @@ func TestMakeACL(t *testing.T) {
 		},
 	}
 
-	r, err := NewRules([]byte(grules))
+	r, err := NewRules([]byte(grules), true)
 	if err != nil {
 		t.Fatalf("Unexpected error (%v)", err)
 	}

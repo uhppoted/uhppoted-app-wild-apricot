@@ -86,7 +86,7 @@ func (cmd *Get) Execute(args ...interface{}) error {
 		return err
 	}
 
-	rules, err := acl.NewRules(ruleset)
+	rules, err := acl.NewRules(ruleset, cmd.debug)
 	if err != nil {
 		return err
 	}

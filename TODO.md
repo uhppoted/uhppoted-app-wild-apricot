@@ -7,11 +7,12 @@
             - Exclude archived contacts
             - Filter for members only
             - Implement async fetch
+            - Add `role` to `Member`
       - [x] Tabularize contacts and groups
 
 - [ ] ACL
-      - [ ] Default start date
-      - [ ] Default end date
+      - [x] Default start date
+      - [x] Default end date
       - [ ] Doors
 
 - [x] Get member groups

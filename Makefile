@@ -77,3 +77,9 @@ version: build
 
 get: build
 	$(CLI) --debug get --credentials $(CREDENTIALS) --rules $(RULES)
+
+get-file: build
+	$(CLI) --debug get --credentials $(CREDENTIALS) --rules "file://../documentation/wild-apricot/wild-apricot.grl"
+
+get-drive: build
+	$(CLI) --debug get --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1JOj4O4s9X15M2CWMhTdWBygJ5TDNeRjD"	
