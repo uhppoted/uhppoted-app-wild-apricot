@@ -37,14 +37,15 @@ func (cmd *Get) Description() string {
 }
 
 func (cmd *Get) Usage() string {
-	return "--credentials <file> --file <file>"
+	return "--credentials <file> --rules <url> --file <file>"
 }
 
 func (cmd *Get) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] get [--credentials <file>] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] get [--credentials <file>] [--rules <url>] [--file <file>]\n", APP)
 	fmt.Println()
-	fmt.Println("  Downloads an access control list from a Wild Apricot member database and stores it to a TSV file")
+	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and")
+	fmt.Println("  stores the generated access control list to a TSV file")
 	fmt.Println()
 
 	helpOptions(cmd.FlagSet())
@@ -62,7 +63,7 @@ func (cmd *Get) FlagSet() *flag.FlagSet {
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
-	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP, HTTPS, s3:// and file://. Defaults to "+cmd.rules)
+	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
 	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.tsv'")
 
 	return flagset
