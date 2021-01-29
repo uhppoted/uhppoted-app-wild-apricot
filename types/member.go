@@ -24,7 +24,7 @@ type Member struct {
 	Suspended  bool
 	Registered *Date
 	Expires    *Date
-	Groups     map[uint32]struct{}
+	Groups     map[uint32]Group
 }
 
 type CardNumber uint32
@@ -37,12 +37,56 @@ func (c *CardNumber) String() string {
 	return ""
 }
 
+func (m *Member) HasCardNumber(card interface{}) bool {
+	if m != nil && m.CardNumber != nil {
+		switch v := card.(type) {
+		case int64:
+			if v == int64(*m.CardNumber) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (m *Member) HasRegistered() bool {
 	return m != nil && m.Registered != nil
 }
 
 func (m *Member) HasExpires() bool {
 	return m != nil && m.Expires != nil
+}
+
+func (m *Member) IsActive() bool {
+	return m != nil && m.Active
+}
+
+func (m *Member) IsSuspended() bool {
+	return m != nil && m.Suspended
+}
+
+func (m *Member) HasGroup(group interface{}) bool {
+	if m != nil {
+		switch v := group.(type) {
+		case string:
+			vv := normalise(v)
+			for _, g := range m.Groups {
+				if vv == normalise(g.Name) {
+					return true
+				}
+			}
+
+		case int64:
+			for _, g := range m.Groups {
+				if v == int64(g.ID) {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }
 
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup) (*Members, error) {
@@ -152,7 +196,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 		ID:     contact.ID,
 		Name:   fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
 		Active: contact.Enabled && strings.ToLower(contact.Status) == "active",
-		Groups: map[uint32]struct{}{},
+		Groups: map[uint32]Group{},
 	}
 
 	for _, f := range contact.Fields {
@@ -165,7 +209,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 		case normalise(f.SystemCode) == "membersince":
 			if v, ok := f.Value.(string); ok {
 				if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
-					return nil, err
+					return nil, fmt.Errorf("Unable to parse 'Member since' date '%v' (%v)", v, err)
 				} else {
 					member.Registered = (*Date)(&d)
 				}
@@ -174,7 +218,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 		case normalise(f.SystemCode) == "renewaldue":
 			if v, ok := f.Value.(string); ok {
 				if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
-					return nil, err
+					return nil, fmt.Errorf("Unable to parse 'Renewal' date '%v' (%v)", v, err)
 				} else {
 					expires := d.AddDate(0, 0, -1)
 					member.Expires = (*Date)(&expires)
@@ -183,23 +227,35 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 
 		case normalise(f.Name) == "cardnumber":
 			if v, ok := f.Value.(string); ok {
-				if n, err := strconv.ParseUint(v, 10, 32); err != nil {
-					return nil, err
-				} else {
-					nn := uint32(n)
-					member.CardNumber = (*CardNumber)(&nn)
+				if v != "" {
+					if n, err := strconv.ParseUint(v, 10, 32); err != nil {
+						return nil, fmt.Errorf("Error parsing card number '%v' (%v)", v, err)
+					} else {
+						nn := uint32(n)
+						member.CardNumber = (*CardNumber)(&nn)
+					}
 				}
 			}
 
 		case normalise(f.SystemCode) == "groups":
 			if groups, ok := f.Value.([]interface{}); ok {
 				for _, g := range groups {
-					if group, ok := g.(map[string]interface{}); ok {
-						if v, ok := group["Id"]; ok {
-							if gid, ok := v.(float64); ok {
-								member.Groups[uint32(gid)] = struct{}{}
+					if gg, ok := g.(map[string]interface{}); ok {
+						group := Group{}
+
+						if v, ok := gg["Id"]; ok {
+							if id, ok := v.(float64); ok {
+								group.ID = uint32(id)
 							}
 						}
+
+						if v, ok := gg["Label"]; ok {
+							if name, ok := v.(string); ok {
+								group.Name = name
+							}
+						}
+
+						member.Groups[group.ID] = group
 					}
 				}
 			}

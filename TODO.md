@@ -8,12 +8,14 @@
             - Filter for members only
             - Implement async fetch
             - Add `role` to `Member`
+      - [ ] `strict` 
       - [x] Tabularize contacts and groups
 
 - [ ] ACL
       - [x] Default start date
       - [x] Default end date
-      - [ ] Doors
+      - [x] Grant/revoke access
+      - [ ] Export as TSV
 
 - [x] Get member groups
 - [x] App skeleton

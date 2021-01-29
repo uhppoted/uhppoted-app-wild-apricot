@@ -1,6 +1,6 @@
 package commands
 
 const (
-	DEFAULT_CONFIG  = "/etc/uhppoted"
-	DEFAULT_WORKDIR = "/var/uhppoted"
+	DEFAULT_CONFIG_DIR = "/etc/uhppoted"
+	DEFAULT_WORKDIR    = "/var/uhppoted"
 )

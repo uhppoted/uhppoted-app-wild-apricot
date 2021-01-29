@@ -1,39 +1,16 @@
 package commands
 
 import (
-	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"log"
-	"net/http"
-	"regexp"
+	"sort"
 	"strings"
+
+	"github.com/uhppoted/uhppoted-api/config"
 )
 
 const APP = "uhppoted-app-wild-apricot"
-
-type credentials struct {
-	Account uint32 `json:"account"`
-	APIKey  string `json:"api-key"`
-}
-
-func getCredentials(file string) (*credentials, error) {
-	bytes, err := ioutil.ReadFile(file)
-	if err != nil {
-		return nil, fmt.Errorf("Unable to retrieve credentials (%v)", err)
-	}
-
-	c := credentials{}
-
-	if err := json.Unmarshal(bytes, &c); err != nil {
-		return nil, fmt.Errorf("Unable to retrieve credentials (%v)", err)
-	}
-
-	return &c, nil
-}
 
 type Options struct {
 	Config string
@@ -59,42 +36,31 @@ func helpOptions(flagset *flag.FlagSet) {
 	}
 }
 
-func fetch(uri string) ([]byte, error) {
-	f := ioutil.ReadFile
-	if strings.HasPrefix(uri, "http://") || strings.HasPrefix(uri, "https://") {
-		f = fetchHTTP
-	} else if strings.HasPrefix(uri, "file://") {
-		f = fetchFile
+func getDoors(file string) ([]string, error) {
+	conf := config.NewConfig()
+	if err := conf.Load(file); err != nil {
+		return nil, fmt.Errorf("WARN  Could not load configuration (%v)", err)
 	}
 
-	return f(uri)
-}
+	doors := map[string]string{}
+	for _, device := range conf.Devices {
+		for _, d := range device.Doors {
+			if _, ok := doors[normalise(d)]; ok {
+				return nil, fmt.Errorf("WARN  Duplicate door in configuration (%v)", d)
+			}
 
-// Ref. https://stackoverflow.com/questions/18177419/download-public-file-from-google-drive-golang
-//      Need to use https://drive.google.com/uc?export=download&id=<ID> for Google Drive shares.
-func fetchHTTP(url string) ([]byte, error) {
-	response, err := http.Get(url)
-	if err != nil {
-		return nil, err
+			doors[normalise(d)] = clean(d)
+		}
 	}
 
-	defer response.Body.Close()
-
-	var b bytes.Buffer
-	if _, err = io.Copy(&b, response.Body); err != nil {
-		return nil, err
+	list := []string{}
+	for _, d := range doors {
+		list = append(list, d)
 	}
 
-	return b.Bytes(), nil
-}
+	sort.SliceStable(list, func(i, j int) bool { return list[i] < list[j] })
 
-func fetchFile(url string) ([]byte, error) {
-	match := regexp.MustCompile("^file://(.*)").FindStringSubmatch(url)
-	if len(match) != 2 {
-		return nil, fmt.Errorf("Invalid file URI (%s)", url)
-	}
-
-	return ioutil.ReadFile(match[1])
+	return list, nil
 }
 
 func normalise(v string) string {
