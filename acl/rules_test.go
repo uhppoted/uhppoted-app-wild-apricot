@@ -80,34 +80,46 @@ func TestMakeACL(t *testing.T) {
 	members := types.Members{
 		Members: []types.Member{dumbledore, admin, harry, hermione, voldemort}}
 
+	doors := []string{}
+
 	expected := ACL{
-		record{
-			ID:         57944160,
-			Name:       "Albus Dumbledore",
-			CardNumber: 1000001,
-			StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
-			EndDate:    endOfYear().AddDate(0, 1, 0),
-		},
-		record{
-			ID:         57944165,
-			Name:       "Tom Riddle",
-			CardNumber: 2000001,
-			StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
-			EndDate:    endOfYear().AddDate(0, 1, 0),
-		},
-		record{
-			ID:         57944170,
-			Name:       "Harry Potter",
-			CardNumber: 6000001,
-			StartDate:  startOfYear(),
-			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-		},
-		record{
-			ID:         57944920,
-			Name:       "Hermione Granger",
-			CardNumber: 6000002,
-			StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
-			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		records: []record{
+			record{
+				ID:         57944160,
+				Name:       "Albus Dumbledore",
+				CardNumber: 1000001,
+				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
+				EndDate:    endOfYear().AddDate(0, 1, 0),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				ID:         57944165,
+				Name:       "Tom Riddle",
+				CardNumber: 2000001,
+				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
+				EndDate:    endOfYear().AddDate(0, 1, 0),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				ID:         57944170,
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				ID:         57944920,
+				Name:       "Hermione Granger",
+				CardNumber: 6000002,
+				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
 		},
 	}
 
@@ -116,22 +128,56 @@ func TestMakeACL(t *testing.T) {
 		t.Fatalf("Unexpected error (%v)", err)
 	}
 
-	acl, err := r.MakeACL(members)
+	acl, err := r.MakeACL(members, doors)
 	if err != nil {
 		t.Fatalf("Unexpected error (%v)", err)
 	}
 
 	if !reflect.DeepEqual(acl, expected) {
-		if len(acl) != len(expected) {
-			t.Errorf("Invalid ACL - expected %v records, got %v", len(expected), len(acl))
+		if len(acl.records) != len(expected.records) {
+			t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 		} else {
-			for i, _ := range expected {
-				if !reflect.DeepEqual(acl[i], expected[i]) {
-					t.Errorf("Invalid ACL - record %v, expected:%v, got:%v", i+1, expected[i], acl[i])
-				}
+			for i, _ := range expected.records {
+				compare(acl.records[i], expected.records[i], t)
 			}
 		}
 	}
+}
+
+func compare(r, expected record, t *testing.T) {
+	if reflect.DeepEqual(r, expected) {
+		return
+	}
+
+	if r.ID != expected.ID {
+		t.Errorf("Invalid ACL record ID - expected:%v, got:%v", r.ID, expected.ID)
+	}
+
+	if r.Name != expected.Name {
+		t.Errorf("Invalid ACL record 'name' - expected:%v, got:%v", r.Name, expected.Name)
+	}
+
+	if r.CardNumber != expected.CardNumber {
+		t.Errorf("Invalid ACL record 'card number' - expected:%v, got:%v", r.CardNumber, expected.CardNumber)
+	}
+
+	if r.StartDate.Format("2006-01-02") != expected.StartDate.Format("2006-01-02") {
+		t.Errorf("Invalid ACL record 'start date' - expected:%v, got:%v", r.StartDate.Format("2006-01-02"), expected.StartDate.Format("2006-01-02"))
+	}
+
+	if r.EndDate.Format("2006-01-02") != expected.EndDate.Format("2006-01-02") {
+		t.Errorf("Invalid ACL record 'end date' - expected:%v, got:%v", r.EndDate.Format("2006-01-02"), expected.EndDate.Format("2006-01-02"))
+	}
+
+	if !reflect.DeepEqual(r.Granted, expected.Granted) {
+		t.Errorf("Invalid ACL record 'granted' - expected:%#v, got:%#v", r.Granted, expected.Granted)
+	}
+
+	if !reflect.DeepEqual(r.Revoked, expected.Granted) {
+		t.Errorf("Invalid ACL record 'revoked' - expected:%#v, got:%#v", r.Revoked, expected.Revoked)
+	}
+
+	t.Errorf("Invalid ACL record - expected:%v, got:%v", r, expected)
 }
 
 // TODO test with duplicate cards
