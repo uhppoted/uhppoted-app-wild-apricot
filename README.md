@@ -28,7 +28,9 @@ Installation is straightforward - download the archive and extract it to a direc
 information:
 
 - `uhppoted.conf` configuration file
+- Wild Apricot account ID
 - Wild Apricot API key with read permission for  contact lists and member groups
+- [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules file that defines the member access permissions
 
 ### `uhppoted.conf`
 
@@ -105,9 +107,9 @@ information from the worksheet for scripts on the local host managing the access
 
 Command line:
 
-```uhppoted-app-wild-apricot get-acl``` 
+```uhppoted-app-wild-apricot get-acl --credentials <file> --rules <uri>``` 
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> [--rules <uri>] [--workdir <dir>] [--file <TSV>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--workdir <dir>] [--file <TSV>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wid Apricot account ID and API key.
