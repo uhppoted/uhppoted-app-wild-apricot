@@ -75,11 +75,11 @@ version: build
 
 # ACL COMMANDS
 
-get: build
-	$(CLI) --debug get --credentials $(CREDENTIALS) --rules $(RULES)
+get-acl: build
+	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "../runtime/wild-apricot/ACL.tsv"
 
-get-file: build
-	$(CLI) --debug get --credentials $(CREDENTIALS) --rules "file://../documentation/wild-apricot/wild-apricot.grl"
+get-acl-file: build
+	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "../runtime/wild-apricot/ACL.tsv"
 
-get-drive: build
-	$(CLI) --debug get --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1JOj4O4s9X15M2CWMhTdWBygJ5TDNeRjD"	
+get-acl-drive: build
+	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "../runtime/wild-apricot/ACL.tsv"

@@ -2,7 +2,9 @@ package acl
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"sort"
 	"strings"
 	"time"
@@ -13,31 +15,82 @@ type ACL struct {
 	records []record
 }
 
+func (acl *ACL) ToTSV(f io.Writer) error {
+	header, data := acl.asTable()
+
+	w := csv.NewWriter(f)
+	w.Comma = '\t'
+
+	w.Write(header)
+	for _, row := range data {
+		w.Write(row)
+	}
+
+	w.Flush()
+
+	return nil
+}
+
 func (acl *ACL) MarshalTextIndent(indent string) ([]byte, error) {
+	header, data := acl.asTable()
+
 	table := [][]string{}
 
+	table = append(table, header)
+	table = append(table, data...)
+
+	var b bytes.Buffer
+
+	if len(table) > 0 {
+		widths := make([]int, len(table[0]))
+		for _, row := range table {
+			for i, field := range row {
+				if len(field) > widths[i] {
+					widths[i] = len(field)
+				}
+			}
+		}
+
+		for i := 1; i < len(widths); i++ {
+			widths[i-1] += 1
+		}
+
+		for _, row := range table {
+			fmt.Fprintf(&b, "%s", indent)
+			for i, field := range row {
+				fmt.Fprintf(&b, "%-*v", widths[i], field)
+			}
+			fmt.Fprintln(&b)
+		}
+	}
+
+	return b.Bytes(), nil
+}
+
+func (acl *ACL) asTable() ([]string, [][]string) {
+	header := []string{}
+	data := [][]string{}
+
 	if acl != nil {
-		header := []string{
-			"ID",
-			"Name",
+		header = append(header, []string{
+			//"ID",
+			//"Name",
 			"Card Number",
 			"Start Date",
 			"End Date",
-		}
+		}...)
 
 		sort.SliceStable(acl.doors, func(i, j int) bool { return acl.doors[i] < acl.doors[j] })
 		for _, door := range acl.doors {
 			header = append(header, door)
 		}
 
-		table = append(table, header)
-
 		sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
 
 		for _, r := range acl.records {
 			row := []string{}
-			row = append(row, fmt.Sprintf("%v", r.ID))
-			row = append(row, fmt.Sprintf("%v", r.Name))
+			// row = append(row, fmt.Sprintf("%v", r.ID))
+			// row = append(row, fmt.Sprintf("%v", r.Name))
 			row = append(row, fmt.Sprintf("%v", r.CardNumber))
 			row = append(row, r.StartDate.Format("2006-01-02"))
 			row = append(row, r.EndDate.Format("2006-01-02"))
@@ -69,36 +122,11 @@ func (acl *ACL) MarshalTextIndent(indent string) ([]byte, error) {
 				}
 			}
 
-			table = append(table, row)
+			data = append(data, row)
 		}
 	}
 
-	var b bytes.Buffer
-
-	if len(table) > 0 {
-		widths := make([]int, len(table[0]))
-		for _, row := range table {
-			for i, field := range row {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 1
-		}
-
-		for _, row := range table {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-	}
-
-	return b.Bytes(), nil
+	return header, data
 }
 
 func normalise(v string) string {

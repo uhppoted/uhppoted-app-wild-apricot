@@ -13,7 +13,7 @@ import (
 )
 
 var cli = []uhppoted.Command{
-	&commands.GetCmd,
+	&commands.GetACLCmd,
 
 	&uhppoted.Version{
 		Application: commands.APP,
