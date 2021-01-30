@@ -75,7 +75,7 @@ Supported commands:
 
 - `help`
 - `version`
-- `get`
+- `get-acl`
 - `load-acl`
 - `compare-acl`
 
@@ -97,29 +97,91 @@ Command line:
 
 ```uhppoted-app-wild-apricot version```
 
-### `get`
+### `get-acl`
 
-Fetches contact lists and membership groups from a Wild Apricot membership database stores it as a TSV file. Intended for use in
-a `cron` task that routinely transfers information from the worksheet for scripts on the local host managing the access control
-system. 
+Fetches contact lists and membership groups from a Wild Apricot membership database, applies the access rules and 
+stores the resulting access control list as a TSV file. Intended for use in a `cron` task that routinely transfers
+information from the worksheet for scripts on the local host managing the access control system. 
 
 Command line:
 
-```uhppoted-app-wild-apricot get``` 
+```uhppoted-app-wild-apricot get-acl``` 
 
-```uhppoted-app-wild-apricot [--debug] get [--file <TSV>] [--workdir <dir>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> [--rules <uri>] [--workdir <dir>] [--file <TSV>]```
 
 ```
-  --file        File path for the destination TSV file. Defaults to <yyyy-mm-dd HHmmss>.tsv
-  
-  --workdir     Directory for working files, in particular the tokens, revisions, etc
-                that provide access to Wild Apricot. Defaults to:
-                - /var/uhppoted on Linux
-                - /usr/local/var/com.github.uhppoted on MacOS
-                - ./uhppoted on Microsoft Windows
-  
+  --credentials <file> File path for the credentials file with the Wid Apricot account ID and API key.
+
+  --rules <uri>  URI for the Grule file that defines the rules used to grant revoke access. Assumes
+                 a local file if the URI does not start with http://, https:// or file://. 
+                 
+                 For rules files stored on Google Drive the URI should be of the form:
+                   https://drive.google.com/uc?export=download&id=<file ID>
+
+  --workdir      Directory for working files, in particular the tokens, revisions, etc
+                 that provide access to Wild Apricot. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --file <file> File path for the destination TSV file. Defaults to <yyyy-mm-dd HHmmss>.tsv
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
   --debug       Displays verbose debugging information, in particular the communications
                 with the UHPPOTE controllers
+```
+
+A _credentials_ file should be a valid JSON file that contains the Wild Apricot account ID and API KEY e.g.:
+```
+  { 
+    "account": 615252,
+    "api-key": "8dhuwyeb7262jdufhde87bhbdehdes"
+  }
+```
+
+The _rules_ file is a text file containing the [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules 
+that define the member access e.g.:
+```
+rule Teacher "Grants a teacher access to common areas and Hogsmeade" {
+     when
+         member.HasGroup("Teacher")
+     then
+         record.Grant("Great Hall");
+         record.Grant("Gryffindor");
+         record.Grant("Hufflepuff");
+         record.Grant("Ravenclaw");
+         record.Grant("Slytherin");
+         record.Grant("Hogsmeade");
+         Retract("Teacher");
+}
+
+rule Staff "Grants ordinary staff access to common areas, Hogsmeade and kitchen" {
+     when
+         member.HasGroup(601422)
+     then
+         record.Grant("Great Hall");
+         record.Grant("Gryffindor");
+         record.Grant("Hufflepuff");
+         record.Grant("Ravenclaw");
+         record.Grant("Slytherin");
+         record.Grant("Hogsmeade");
+         record.Grant("Kitchen");
+         Retract("Staff");
+}
+
+rule Gryffindor "Grants a Gryffindor student access to common areas and Gryffindor" {
+     when
+         member.HasGroup("Student") && member.HasGroup("Gryffindor")
+     then
+         record.Grant("Great Hall");
+         record.Grant("Gryffindor");
+         Retract("Gryffindor");
+}
 ```
 
 ### `load-acl`
