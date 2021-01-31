@@ -33,7 +33,6 @@ func (acl *ACL) ToTSV(f io.Writer) error {
 
 func (acl *ACL) MarshalTextIndent(indent string) ([]byte, error) {
 	header, data := acl.asTable()
-
 	table := [][]string{}
 
 	table = append(table, header)

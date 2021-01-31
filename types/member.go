@@ -2,7 +2,9 @@ package types
 
 import (
 	"bytes"
+	"encoding/csv"
 	"fmt"
+	"io"
 	"sort"
 	"strconv"
 	"strings"
@@ -112,56 +114,32 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	}, nil
 }
 
+func (members *Members) ToTSV(f io.Writer) error {
+	header, data := members.asTable()
+
+	w := csv.NewWriter(f)
+	w.Comma = '\t'
+
+	w.Write(header)
+	for _, row := range data {
+		w.Write(row)
+	}
+
+	w.Flush()
+
+	return nil
+}
+
 func (members *Members) MarshalText() ([]byte, error) {
 	return members.MarshalTextIndent("")
 }
 
 func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
+	header, data := members.asTable()
 	table := [][]string{}
 
-	if members != nil {
-		header := []string{
-			"ID",
-			"Name",
-			"Card Number",
-			"Active",
-			"Suspended",
-			"Registered",
-			"Expires",
-		}
-
-		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].ID < members.Groups[j].ID })
-		for _, group := range members.Groups {
-			header = append(header, group.Name)
-		}
-
-		table = append(table, header)
-
-		sort.SliceStable(members.Members, func(i, j int) bool {
-			return strings.ToLower(members.Members[i].Name) < strings.ToLower(members.Members[j].Name)
-		})
-
-		for _, m := range members.Members {
-			row := []string{}
-			row = append(row, fmt.Sprintf("%v", m.ID))
-			row = append(row, fmt.Sprintf("%v", m.Name))
-			row = append(row, fmt.Sprintf("%v", m.CardNumber))
-			row = append(row, fmt.Sprintf("%v", m.Active))
-			row = append(row, fmt.Sprintf("%v", m.Suspended))
-			row = append(row, fmt.Sprintf("%v", m.Registered))
-			row = append(row, fmt.Sprintf("%v", m.Expires))
-
-			for _, g := range members.Groups {
-				if _, ok := m.Groups[g.ID]; ok {
-					row = append(row, "Y")
-				} else {
-					row = append(row, "N")
-				}
-			}
-
-			table = append(table, row)
-		}
-	}
+	table = append(table, header)
+	table = append(table, data...)
 
 	var b bytes.Buffer
 
@@ -189,6 +167,54 @@ func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
 	}
 
 	return b.Bytes(), nil
+}
+
+func (members *Members) asTable() ([]string, [][]string) {
+	header := []string{
+		"ID",
+		"Name",
+		"Card Number",
+		"Active",
+		"Suspended",
+		"Registered",
+		"Expires",
+	}
+
+	data := [][]string{}
+
+	if members != nil {
+		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].ID < members.Groups[j].ID })
+		for _, group := range members.Groups {
+			header = append(header, group.Name)
+		}
+
+		sort.SliceStable(members.Members, func(i, j int) bool {
+			return strings.ToLower(members.Members[i].Name) < strings.ToLower(members.Members[j].Name)
+		})
+
+		for _, m := range members.Members {
+			row := []string{}
+			row = append(row, fmt.Sprintf("%v", m.ID))
+			row = append(row, fmt.Sprintf("%v", m.Name))
+			row = append(row, fmt.Sprintf("%v", m.CardNumber))
+			row = append(row, fmt.Sprintf("%v", m.Active))
+			row = append(row, fmt.Sprintf("%v", m.Suspended))
+			row = append(row, fmt.Sprintf("%v", m.Registered))
+			row = append(row, fmt.Sprintf("%v", m.Expires))
+
+			for _, g := range members.Groups {
+				if _, ok := m.Groups[g.ID]; ok {
+					row = append(row, "Y")
+				} else {
+					row = append(row, "N")
+				}
+			}
+
+			data = append(data, row)
+		}
+	}
+
+	return header, data
 }
 
 func transcode(contact wildapricot.Contact) (*Member, error) {

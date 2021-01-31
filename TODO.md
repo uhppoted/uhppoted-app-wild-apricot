@@ -19,10 +19,10 @@
       - [x] Grant/revoke access
       - [ ] Export as TSV
 
-- [ ] `get-members`
 - [ ] `compare-acl`
 - [ ] `load-acl`
 
+- [x] `get-members`
 - [x] Get member groups
 - [x] App skeleton
 - [x] `version` command

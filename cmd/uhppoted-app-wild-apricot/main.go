@@ -13,6 +13,7 @@ import (
 )
 
 var cli = []uhppoted.Command{
+	&commands.GetMembersCmd,
 	&commands.GetACLCmd,
 
 	&uhppoted.Version{

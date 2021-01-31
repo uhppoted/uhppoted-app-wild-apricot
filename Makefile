@@ -83,3 +83,7 @@ get-acl-file: build
 
 get-acl-drive: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "../runtime/wild-apricot/ACL.tsv"
+
+get-members: build
+	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "../runtime/wild-apricot/members.tsv"
+

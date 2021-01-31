@@ -99,6 +99,46 @@ Command line:
 
 ```uhppoted-app-wild-apricot version```
 
+### `get-members`
+
+Fetches contact lists and membership groups from a Wild Apricot membership database, reformats as table and 
+stores the resulting member summary list as a TSV file. Intended for use in a `cron` task that routinely 
+transfers information from the worksheet for scripts on the local host managing the access control system. 
+
+Command line:
+
+```uhppoted-app-wild-apricot get-members --credentials <file>``` 
+
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-members [--credentials <file>] [--workdir <dir>] [--file <TSV>]```
+
+```
+  --credentials <file> File path for the credentials file with the Wid Apricot account ID and API key.
+
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --file <file> File path for the destination TSV file. Defaults to 'members <yyyy-mm-dd HHmmss>.tsv'
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
+  --debug       Displays verbose debugging information, in particular the communications
+                with the UHPPOTE controllers
+```
+
+A _credentials_ file should be a valid JSON file that contains the Wild Apricot account ID and API KEY e.g.:
+```
+  { 
+    "account": 615252,
+    "api-key": "8dhuwyeb7262jdufhde87bhbdehdes"
+  }
+```
+
 ### `get-acl`
 
 Fetches contact lists and membership groups from a Wild Apricot membership database, applies the access rules and 
@@ -120,13 +160,12 @@ Command line:
                  For rules files stored on Google Drive the URI should be of the form:
                    https://drive.google.com/uc?export=download&id=<file ID>
 
-  --workdir      Directory for working files, in particular the tokens, revisions, etc
-                 that provide access to Wild Apricot. Defaults to:
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
                  - /var/uhppoted on Linux
                  - /usr/local/var/com.github.uhppoted on MacOS
                  - ./uhppoted on Microsoft Windows
 
-  --file <file> File path for the destination TSV file. Defaults to <yyyy-mm-dd HHmmss>.tsv
+  --file <file> File path for the destination TSV file. Defaults to 'ACL <yyyy-mm-dd HHmmss>.tsv'
     
   --config      File path to the uhppoted.conf file containing the access
                 controller configuration information. Defaults to:
