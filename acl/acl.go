@@ -8,11 +8,22 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	api "github.com/uhppoted/uhppoted-api/acl"
 )
 
 type ACL struct {
 	doors   []string
 	records []record
+}
+
+func (acl *ACL) AsTable() api.Table {
+	header, data := acl.asTable()
+
+	return api.Table{
+		Header:  header,
+		Records: data,
+	}
 }
 
 func (acl *ACL) ToTSV(f io.Writer) error {
@@ -72,11 +83,9 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 
 	if acl != nil {
 		header = append(header, []string{
-			//"ID",
-			//"Name",
 			"Card Number",
-			"Start Date",
-			"End Date",
+			"From",
+			"To",
 		}...)
 
 		sort.SliceStable(acl.doors, func(i, j int) bool { return acl.doors[i] < acl.doors[j] })
@@ -87,12 +96,11 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 		sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
 
 		for _, r := range acl.records {
-			row := []string{}
-			// row = append(row, fmt.Sprintf("%v", r.ID))
-			// row = append(row, fmt.Sprintf("%v", r.Name))
-			row = append(row, fmt.Sprintf("%v", r.CardNumber))
-			row = append(row, r.StartDate.Format("2006-01-02"))
-			row = append(row, r.EndDate.Format("2006-01-02"))
+			row := []string{
+				fmt.Sprintf("%v", r.CardNumber),
+				r.StartDate.Format("2006-01-02"),
+				r.EndDate.Format("2006-01-02"),
+			}
 
 			for _, door := range acl.doors {
 				granted := false

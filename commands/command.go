@@ -7,6 +7,7 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-api/config"
 )
 
@@ -36,12 +37,33 @@ func helpOptions(flagset *flag.FlagSet) {
 	}
 }
 
-func getDoors(file string) ([]string, error) {
-	conf := config.NewConfig()
-	if err := conf.Load(file); err != nil {
-		return nil, fmt.Errorf("WARN  Could not load configuration (%v)", err)
+func getDevices(conf *config.Config, debug bool) (uhppote.UHPPOTE, []*uhppote.Device) {
+	keys := []uint32{}
+	for id, _ := range conf.Devices {
+		keys = append(keys, id)
 	}
 
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	u := uhppote.UHPPOTE{
+		BindAddress:      conf.BindAddress,
+		BroadcastAddress: conf.BroadcastAddress,
+		ListenAddress:    conf.ListenAddress,
+		Devices:          make(map[uint32]*uhppote.Device),
+		Debug:            debug,
+	}
+
+	devices := []*uhppote.Device{}
+	for _, id := range keys {
+		d := conf.Devices[id]
+		u.Devices[id] = uhppote.NewDevice(id, d.Address, d.Rollover, d.Doors)
+		devices = append(devices, uhppote.NewDevice(id, d.Address, d.Rollover, d.Doors))
+	}
+
+	return u, devices
+}
+
+func getDoors(conf *config.Config) ([]string, error) {
 	doors := map[string]string{}
 	for _, device := range conf.Devices {
 		for _, d := range device.Doors {

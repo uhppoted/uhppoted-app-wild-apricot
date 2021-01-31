@@ -75,6 +75,9 @@ version: build
 
 # ACL COMMANDS
 
+get-members: build
+	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "../runtime/wild-apricot/members.tsv"
+
 get-acl: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "../runtime/wild-apricot/ACL.tsv"
 
@@ -84,6 +87,6 @@ get-acl-file: build
 get-acl-drive: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "../runtime/wild-apricot/ACL.tsv"
 
-get-members: build
-	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "../runtime/wild-apricot/members.tsv"
+compare-acl: build
+	$(CLI) --debug compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "../runtime/wild-apricot/ACL.rpt"
 

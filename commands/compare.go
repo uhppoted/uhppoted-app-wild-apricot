@@ -6,46 +6,50 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"time"
 
+	"github.com/uhppoted/uhppote-core/device"
+	"github.com/uhppoted/uhppote-core/uhppote"
+	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-var GetACLCmd = GetACL{
+var CompareACLCmd = CompareACL{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
-	file:        time.Now().Format("ACL 2006-01-02T150405.tsv"),
+	report:      time.Now().Format("ACL 2006-01-02T150405.rpt"),
 	debug:       false,
 }
 
-type GetACL struct {
+type CompareACL struct {
 	workdir     string
 	credentials string
 	rules       string
-	file        string
+	report      string
 	debug       bool
 }
 
-func (cmd *GetACL) Name() string {
-	return "get-acl"
+func (cmd *CompareACL) Name() string {
+	return "compare-acl"
 }
 
-func (cmd *GetACL) Description() string {
-	return "Retrieves an access control list from a Wild Apricot member database and stores it to a file"
+func (cmd *CompareACL) Description() string {
+	return "Retrieves an access control list from a Wild Apricot member database and compares it to the current controllers card lists"
 }
 
-func (cmd *GetACL) Usage() string {
-	return "--credentials <file> --rules <url> --file <file>"
+func (cmd *CompareACL) Usage() string {
+	return "--credentials <file> --rules <url> --report <file>"
 }
 
-func (cmd *GetACL) Help() {
+func (cmd *CompareACL) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-acl [--credentials <file>] [--rules <url>] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <url>] [--file <file>]\n", APP)
 	fmt.Println()
 	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and")
 	fmt.Println("  stores the generated access control list to a TSV file")
@@ -55,24 +59,24 @@ func (cmd *GetACL) Help() {
 
 	fmt.Println()
 	fmt.Println("  Examples:")
-	fmt.Println(`    uhppote-app-wild-apricot --debug get-acl --credentials ".credentials/wild-apricot.json" \"`)
-	fmt.Println(`                                             --rules "wild-apricot.grl" \`)
-	fmt.Println(`                                             --file "example.tsv"`)
+	fmt.Println(`    uhppote-app-wild-apricot --debug --config uhppoted.conf compare-acl --credentials ".credentials/wild-apricot.json" \"`)
+	fmt.Println(`                                                                         --rules "wild-apricot.grl" \`)
+	fmt.Println(`                                                                         --file "example.tsv"`)
 	fmt.Println()
 }
 
-func (cmd *GetACL) FlagSet() *flag.FlagSet {
-	flagset := flag.NewFlagSet("get-acl", flag.ExitOnError)
+func (cmd *CompareACL) FlagSet() *flag.FlagSet {
+	flagset := flag.NewFlagSet("compare-acl", flag.ExitOnError)
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
-	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.tsv'")
+	flagset.StringVar(&cmd.report, "report", cmd.report, "Report file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.rpt'")
 
 	return flagset
 }
 
-func (cmd *GetACL) Execute(args ...interface{}) error {
+func (cmd *CompareACL) Execute(args ...interface{}) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug
@@ -86,7 +90,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Invalid rules file")
 	}
 
-	if strings.TrimSpace(cmd.file) == "" {
+	if strings.TrimSpace(cmd.report) == "" {
 		return fmt.Errorf("Invalid output file")
 	}
 
@@ -97,6 +101,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	// ... load rules
+
 	ruleset, err := fetch(cmd.rules)
 	if err != nil {
 		return err
@@ -108,6 +113,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	// ... get contacts list and member groups
+
 	credentials, err := getCredentials(cmd.credentials)
 	if err != nil {
 		return err
@@ -141,7 +147,8 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		}
 	}
 
-	// ... create ACL
+	// ... make ACL
+
 	doors, err := getDoors(conf)
 	if err != nil {
 		return err
@@ -166,8 +173,17 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		}
 	}
 
-	// ... save to TSV file
-	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")
+	// ... compare
+
+	u, devices := getDevices(conf, cmd.debug)
+
+	diff, err := compare(&u, devices, acl)
+	if err != nil {
+		return err
+	}
+
+	// ... save to report file
+	tmp, err := ioutil.TempFile(os.TempDir(), "RPT")
 	if err != nil {
 		return err
 	}
@@ -177,22 +193,82 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		os.Remove(tmp.Name())
 	}()
 
-	if err := acl.ToTSV(tmp); err != nil {
-		return fmt.Errorf("Error creating TSV file (%v)", err)
+	keys := []uint32{}
+	for k, _ := range *diff {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	for _, k := range keys {
+		if v, ok := (*diff)[k]; ok {
+			fmt.Fprintf(tmp, "%v\n", k)
+
+			if len(v.Updated) > 0 {
+				for _, c := range v.Updated {
+					fmt.Fprintf(tmp, "  UPDATED %-10v\n", c.CardNumber)
+				}
+			}
+
+			if len(v.Added) > 0 {
+				for _, c := range v.Added {
+					fmt.Fprintf(tmp, "  ADDED   %-10v\n", c.CardNumber)
+				}
+			}
+
+			if len(v.Deleted) > 0 {
+				for _, c := range v.Deleted {
+					fmt.Fprintf(tmp, "  DELETED %-10v\n", c.CardNumber)
+				}
+			}
+
+			fmt.Fprintln(tmp)
+		}
 	}
 
 	tmp.Close()
 
-	dir := filepath.Dir(cmd.file)
+	dir := filepath.Dir(cmd.report)
 	if err := os.MkdirAll(dir, 0770); err != nil {
 		return err
 	}
 
-	if err := os.Rename(tmp.Name(), cmd.file); err != nil {
+	if err := os.Rename(tmp.Name(), cmd.report); err != nil {
 		return err
 	}
 
-	info(fmt.Sprintf("Retrieved ACL to file %s\n", cmd.file))
+	info(fmt.Sprintf("Compare report saved to file %s\n", cmd.report))
 
 	return nil
+}
+
+func compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
+	current, err := api.GetACL(u, devices)
+	if err != nil {
+		return nil, err
+	}
+
+	table := cards.AsTable()
+
+	acl, warnings, err := api.ParseTable(&table, devices, false)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, w := range warnings {
+		warn(w.Error())
+	}
+
+	if acl == nil {
+		return nil, fmt.Errorf("Error creating ACL from cards (%v)", cards)
+	}
+
+	d, err := api.Compare(current, *acl)
+	if err != nil {
+		return nil, err
+	}
+
+	diff := api.SystemDiff(d)
+
+	return &diff, nil
 }

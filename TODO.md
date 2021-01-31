@@ -2,26 +2,26 @@
 
 ### IN PROGRESS
 
-- [ ] `get-acl`
-      - [ ] Get member list
-            - Exclude archived contacts
-            - Filter for members only
-            - Implement async fetch
-            - Add `role` to `Member`
-            - Unit tests for grant/revoke
-      - [ ] `strict` 
-      - [x] Tabularize contacts and groups
-      - [x] Export as TSV
+- [ ] `compare-acl`
+
+- [ ] Get member list
+      - Exclude archived contacts
+      - Filter for members only
+      - Implement async fetch
+      - Add `role` to `Member`
 
 - [ ] ACL
       - [x] Default start date
       - [x] Default end date
       - [x] Grant/revoke access
-      - [ ] Export as TSV
+      - [x] Export as TSV
+      - [ ] Unit tests for grant/revoke
+      - [ ] `strict` 
 
-- [ ] `compare-acl`
 - [ ] `load-acl`
+- [ ] Move `help` to bottom of listed commands in help text
 
+- [x] `get-acl`
 - [x] `get-members`
 - [x] Get member groups
 - [x] App skeleton
@@ -32,5 +32,3 @@
 # TODO
 
 # NOTES
-
-- Use MemberRole for Exec ?

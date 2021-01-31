@@ -15,6 +15,7 @@ import (
 var cli = []uhppoted.Command{
 	&commands.GetMembersCmd,
 	&commands.GetACLCmd,
+	&commands.CompareACLCmd,
 
 	&uhppoted.Version{
 		Application: commands.APP,
