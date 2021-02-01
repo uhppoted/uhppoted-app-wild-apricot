@@ -42,6 +42,11 @@ type summary struct {
 	data   [][]string
 }
 
+type report struct {
+	header []string
+	data   [][]string
+}
+
 func (cmd *CompareACL) Name() string {
 	return "compare-acl"
 }
@@ -188,42 +193,11 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 
 	// ... summary?
 	if cmd.summary {
-		if err := cmd.summarize(*diff); err != nil {
-			return err
-		}
-
-		info(fmt.Sprintf("ACL compare report summary saved to %s\n", cmd.file))
-
-		return nil
+		return cmd.summarize(*diff)
 	}
 
-	// ... write report
-	//	var b bytes.Buffer
-	//
-	//	if err := cmd.report(&b, *diff); err != nil {
-	//		return err
-	//	}
-	//
-	//	// ... write to stdout
-	//
-	//	if cmd.file == "" {
-	//		//	text, err := acl.MarshalText()
-	//		//	if err != nil {
-	//		//		return fmt.Errorf("Error formatting ACL (%v)", err)
-	//		//	}
-	//
-	//		fmt.Fprintln(os.Stdout, string(b.Bytes()))
-	//
-	//		return nil
-	//	}
-	//
-	//	if err := write(cmd.file, b.Bytes()); err != nil {
-	//		return fmt.Errorf("Error writing 'compare' report to file (%v)", err)
-	//	}
-
-	info(fmt.Sprintf("Compare report saved to file %s\n", cmd.file))
-
-	return nil
+	// ... detail report
+	return cmd.report(*members, *diff)
 }
 
 func compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
@@ -285,6 +259,42 @@ func (cmd *CompareACL) summarize(diff api.SystemDiff) error {
 	if err := write(cmd.file, b.Bytes()); err != nil {
 		return err
 	}
+
+	info(fmt.Sprintf("ACL compare report summary saved to %s\n", cmd.file))
+
+	return nil
+}
+
+func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error {
+	rpt, err := detail(members, diff)
+	if err != nil {
+		return err
+	}
+
+	if cmd.file == "" {
+		text, err := rpt.MarshalTextIndent("  ")
+		if err != nil {
+			return err
+		}
+
+		fmt.Println()
+		fmt.Printf("  ACL Compare Report %s\n", time.Now().Format("2006-01-02 15:03:04"))
+		fmt.Println()
+		fmt.Printf("%v\n", string(text))
+		fmt.Println()
+		return nil
+	}
+
+	var b bytes.Buffer
+	if err := rpt.toTSV(&b); err != nil {
+		return fmt.Errorf("Error creating TSV file from 'compare' report (%v)", err)
+	}
+
+	if err := write(cmd.file, b.Bytes()); err != nil {
+		return err
+	}
+
+	info(fmt.Sprintf("ACL compare report saved to %s\n", cmd.file))
 
 	return nil
 }
@@ -355,6 +365,74 @@ func summarize(diff api.SystemDiff) (*summary, error) {
 	}
 
 	return &summary{header, data}, nil
+}
+
+func detail(members types.Members, diff api.SystemDiff) (*report, error) {
+	type card struct {
+		cardnumber uint32
+		action     string
+	}
+
+	cards := map[uint32]card{}
+
+	for _, v := range diff {
+		for _, c := range v.Updated {
+			cards[c.CardNumber] = card{
+				cardnumber: c.CardNumber,
+				action:     "update",
+			}
+		}
+	}
+
+	for _, v := range diff {
+		for _, c := range v.Added {
+			if _, ok := cards[c.CardNumber]; !ok {
+				cards[c.CardNumber] = card{
+					cardnumber: c.CardNumber,
+					action:     "add",
+				}
+			}
+		}
+	}
+
+	for _, v := range diff {
+		for _, c := range v.Deleted {
+			cards[c.CardNumber] = card{
+				cardnumber: c.CardNumber,
+				action:     "delete",
+			}
+		}
+	}
+
+	names := map[uint32]string{}
+	for _, v := range members.Members {
+		if v.CardNumber != nil {
+			names[uint32(*v.CardNumber)] = clean(v.Name)
+		}
+	}
+
+	keys := []uint32{}
+	for k, _ := range cards {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	timestamp := time.Now().Format("2006-01-02 15:03:04")
+	header := []string{"Timestamp", "Name", "Card Number", "Action"}
+	data := [][]string{}
+	for _, k := range keys {
+		if card, ok := cards[k]; ok {
+			data = append(data, []string{
+				fmt.Sprintf("%s", timestamp),
+				fmt.Sprintf("%s", names[card.cardnumber]),
+				fmt.Sprintf("%v", card.cardnumber),
+				fmt.Sprintf("%s", card.action),
+			})
+		}
+	}
+
+	return &report{header, data}, nil
 }
 
 func (rpt *summary) MarshalText() ([]byte, error) {
@@ -429,6 +507,58 @@ func (rpt *summary) MarshalTextIndent(indent string) ([]byte, error) {
 }
 
 func (rpt *summary) toTSV(f io.Writer) error {
+	w := csv.NewWriter(f)
+	w.Comma = '\t'
+
+	w.Write(rpt.header)
+	for _, row := range rpt.data {
+		w.Write(row)
+	}
+
+	w.Flush()
+
+	return nil
+}
+
+func (rpt *report) MarshalText() ([]byte, error) {
+	return rpt.MarshalTextIndent("")
+}
+
+func (rpt *report) MarshalTextIndent(indent string) ([]byte, error) {
+	table := [][]string{}
+
+	table = append(table, rpt.header)
+	table = append(table, rpt.data...)
+
+	var b bytes.Buffer
+
+	if len(table) > 0 && len(table[0]) > 1 {
+		widths := make([]int, len(table[0][1:]))
+		for _, row := range table {
+			for i, field := range row[1:] {
+				if len(field) > widths[i] {
+					widths[i] = len(field)
+				}
+			}
+		}
+
+		for i := 1; i < len(widths); i++ {
+			widths[i-1] += 2
+		}
+
+		for _, row := range table {
+			fmt.Fprintf(&b, "%s", indent)
+			for i, field := range row[1:] {
+				fmt.Fprintf(&b, "%-*v", widths[i], field)
+			}
+			fmt.Fprintln(&b)
+		}
+	}
+
+	return b.Bytes(), nil
+}
+
+func (rpt *report) toTSV(f io.Writer) error {
 	w := csv.NewWriter(f)
 	w.Comma = '\t'
 

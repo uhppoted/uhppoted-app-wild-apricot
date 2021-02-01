@@ -89,7 +89,7 @@ get-acl-drive: build
 
 compare-acl: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
-#	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "../runtime/wild-apricot/ACL.rpt"
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "../runtime/wild-apricot/ACL.rpt"
 
 compare-acl-summary: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary

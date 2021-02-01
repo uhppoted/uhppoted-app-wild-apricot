@@ -2,14 +2,15 @@
 
 ### IN PROGRESS
 
-- [ ] `compare-acl`
-       - write as TSV
+- [ ] `load-acl`
+- [ ] Move `help` to bottom of listed commands in help text
 
 - [ ] Get member list
       - Exclude archived contacts
       - Filter for members only
       - Implement async fetch
       - Add `role` to `Member`
+      - Extend timeout (or retry?)
 
 - [ ] ACL
       - [x] Default start date
@@ -19,9 +20,7 @@
       - [ ] Unit tests for grant/revoke
       - [ ] `strict` 
 
-- [ ] `load-acl`
-- [ ] Move `help` to bottom of listed commands in help text
-
+- [x] `compare-acl`
 - [x] `get-acl`
 - [x] `get-members`
 - [x] Get member groups
@@ -31,5 +30,7 @@
 - [x] Get auth token
 
 # TODO
+
+- [ ] Use templates for report output
 
 # NOTES
