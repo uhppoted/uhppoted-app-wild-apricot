@@ -3,7 +3,7 @@
 ### IN PROGRESS
 
 - [ ] `compare-acl`
-       - default to stdout
+       - write as TSV
 
 - [ ] Get member list
       - Exclude archived contacts
