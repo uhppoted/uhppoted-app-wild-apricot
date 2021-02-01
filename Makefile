@@ -60,7 +60,7 @@ bump:
 	go get -u github.com/uhppoted/uhppoted-api
 
 debug: build
-	$(CLI) --debug get
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 # GENERAL COMMANDS
 
@@ -82,10 +82,10 @@ get-acl: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "../runtime/wild-apricot/ACL.tsv"
 
 get-acl-file: build
-	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "../runtime/wild-apricot/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "../runtime/wild-apricot/ACL.tsv"
 
 get-acl-drive: build
-	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "../runtime/wild-apricot/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "../runtime/wild-apricot/ACL.tsv"
 
 compare-acl: build
 	$(CLI) --debug compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "../runtime/wild-apricot/ACL.rpt"

@@ -1,13 +1,12 @@
 package commands
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
@@ -19,7 +18,6 @@ var GetACLCmd = GetACL{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
-	file:        time.Now().Format("ACL 2006-01-02T150405.tsv"),
 	debug:       false,
 }
 
@@ -67,7 +65,7 @@ func (cmd *GetACL) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
-	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.tsv'")
+	flagset.StringVar(&cmd.file, "file", cmd.file, "Output file name. Defaults to stdout")
 
 	return flagset
 }
@@ -84,10 +82,6 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 
 	if strings.TrimSpace(cmd.rules) == "" {
 		return fmt.Errorf("Invalid rules file")
-	}
-
-	if strings.TrimSpace(cmd.file) == "" {
-		return fmt.Errorf("Invalid output file")
 	}
 
 	// ... load config
@@ -166,33 +160,31 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		}
 	}
 
-	// ... save to TSV file
-	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")
-	if err != nil {
-		return err
+	// ... write to stdout
+
+	if cmd.file == "" {
+		text, err := acl.MarshalText()
+		if err != nil {
+			return fmt.Errorf("Error formatting ACL (%v)", err)
+		}
+
+		fmt.Fprintln(os.Stdout, string(text))
+
+		return nil
 	}
 
-	defer func() {
-		tmp.Close()
-		os.Remove(tmp.Name())
-	}()
+	// ... write to TSV file
 
-	if err := acl.ToTSV(tmp); err != nil {
+	var b bytes.Buffer
+	if err := acl.ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 
-	tmp.Close()
-
-	dir := filepath.Dir(cmd.file)
-	if err := os.MkdirAll(dir, 0770); err != nil {
+	if err := write(cmd.file, b.Bytes()); err != nil {
 		return err
 	}
 
-	if err := os.Rename(tmp.Name(), cmd.file); err != nil {
-		return err
-	}
-
-	info(fmt.Sprintf("Retrieved ACL to file %s\n", cmd.file))
+	info(fmt.Sprintf("ACL saved to %s\n", cmd.file))
 
 	return nil
 }

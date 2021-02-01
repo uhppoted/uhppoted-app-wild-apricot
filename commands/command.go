@@ -3,7 +3,10 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"os"
+	"path/filepath"
 	"sort"
 	"strings"
 
@@ -83,6 +86,32 @@ func getDoors(conf *config.Config) ([]string, error) {
 	sort.SliceStable(list, func(i, j int) bool { return list[i] < list[j] })
 
 	return list, nil
+}
+
+func write(file string, bytes []byte) error {
+	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		tmp.Close()
+		os.Remove(tmp.Name())
+	}()
+
+	fmt.Fprintf(tmp, "%s", string(bytes))
+	tmp.Close()
+
+	dir := filepath.Dir(file)
+	if err := os.MkdirAll(dir, 0770); err != nil {
+		return err
+	}
+
+	if err := os.Rename(tmp.Name(), file); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func normalise(v string) string {

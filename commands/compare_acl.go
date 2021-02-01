@@ -3,6 +3,7 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -23,7 +24,8 @@ var CompareACLCmd = CompareACL{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
-	report:      time.Now().Format("ACL 2006-01-02T150405.rpt"),
+	file:        time.Now().Format("ACL 2006-01-02T150405.rpt"),
+	summary:     false,
 	debug:       false,
 }
 
@@ -31,7 +33,8 @@ type CompareACL struct {
 	workdir     string
 	credentials string
 	rules       string
-	report      string
+	file        string
+	summary     bool
 	debug       bool
 }
 
@@ -49,10 +52,10 @@ func (cmd *CompareACL) Usage() string {
 
 func (cmd *CompareACL) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <url>] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <url>] [--summary] [--file <file>]\n", APP)
 	fmt.Println()
-	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and")
-	fmt.Println("  stores the generated access control list to a TSV file")
+	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and stores the generated")
+	fmt.Println("  access control list to a TSV file")
 	fmt.Println()
 
 	helpOptions(cmd.FlagSet())
@@ -71,7 +74,8 @@ func (cmd *CompareACL) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
-	flagset.StringVar(&cmd.report, "report", cmd.report, "Report file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.rpt'")
+	flagset.BoolVar(&cmd.summary, "summary", cmd.summary, "Report only a summary of the comparison. Defaults to "+fmt.Sprintf("%v", cmd.summary))
+	flagset.StringVar(&cmd.file, "report", cmd.file, "Report file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.rpt'")
 
 	return flagset
 }
@@ -90,7 +94,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Invalid rules file")
 	}
 
-	if strings.TrimSpace(cmd.report) == "" {
+	if strings.TrimSpace(cmd.file) == "" {
 		return fmt.Errorf("Invalid output file")
 	}
 
@@ -182,6 +186,11 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		return err
 	}
 
+	// ... summary
+	if !cmd.summary {
+		cmd.summarize(os.Stdout, *diff)
+	}
+
 	// ... save to report file
 	tmp, err := ioutil.TempFile(os.TempDir(), "RPT")
 	if err != nil {
@@ -228,12 +237,12 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 
 	tmp.Close()
 
-	dir := filepath.Dir(cmd.report)
+	dir := filepath.Dir(cmd.file)
 	if err := os.MkdirAll(dir, 0770); err != nil {
 		return err
 	}
 
-	if err := os.Rename(tmp.Name(), cmd.report); err != nil {
+	if err := os.Rename(tmp.Name(), cmd.file); err != nil {
 		return err
 	}
 
@@ -271,4 +280,54 @@ func compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.
 	diff := api.SystemDiff(d)
 
 	return &diff, nil
+}
+
+func (cmd *CompareACL) summarize(f io.Writer, diff api.SystemDiff) {
+	keys := []uint32{}
+	for k, _ := range diff {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	for _, k := range keys {
+		if v, ok := diff[k]; ok {
+			fmt.Fprintf(f, "%v  updated:%-5v added:%-5v deleted:%-5v\n", k, len(v.Updated), len(v.Added), len(v.Deleted))
+		}
+	}
+}
+
+func (cmd *CompareACL) report(f io.Writer, diff api.SystemDiff) {
+	keys := []uint32{}
+	for k, _ := range diff {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+
+	for _, k := range keys {
+		if v, ok := diff[k]; ok {
+			fmt.Fprintf(f, "%v\n", k)
+
+			if len(v.Updated) > 0 {
+				for _, c := range v.Updated {
+					fmt.Fprintf(f, "  UPDATED %-10v\n", c.CardNumber)
+				}
+			}
+
+			if len(v.Added) > 0 {
+				for _, c := range v.Added {
+					fmt.Fprintf(f, "  ADDED   %-10v\n", c.CardNumber)
+				}
+			}
+
+			if len(v.Deleted) > 0 {
+				for _, c := range v.Deleted {
+					fmt.Fprintf(f, "  DELETED %-10v\n", c.CardNumber)
+				}
+			}
+
+			fmt.Fprintln(f)
+		}
+	}
 }

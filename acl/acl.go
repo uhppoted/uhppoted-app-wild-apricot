@@ -42,6 +42,10 @@ func (acl *ACL) ToTSV(f io.Writer) error {
 	return nil
 }
 
+func (acl *ACL) MarshalText() ([]byte, error) {
+	return acl.MarshalTextIndent("")
+}
+
 func (acl *ACL) MarshalTextIndent(indent string) ([]byte, error) {
 	header, data := acl.asTable()
 	table := [][]string{}
