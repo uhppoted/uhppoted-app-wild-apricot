@@ -16,6 +16,7 @@ var cli = []uhppoted.Command{
 	&commands.GetMembersCmd,
 	&commands.GetACLCmd,
 	&commands.CompareACLCmd,
+	&commands.LoadACLCmd,
 
 	&uhppoted.Version{
 		Application: commands.APP,

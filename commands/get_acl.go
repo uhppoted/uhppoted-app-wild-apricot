@@ -9,9 +9,6 @@ import (
 	"strings"
 
 	"github.com/uhppoted/uhppoted-api/config"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
 var GetACLCmd = GetACL{
@@ -84,49 +81,20 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Invalid rules file")
 	}
 
-	// ... load config
+	// ... get config, members and rules
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	// ... load rules
-	ruleset, err := fetch(cmd.rules)
+	members, err := getMembers(cmd.credentials)
 	if err != nil {
 		return err
 	}
 
-	rules, err := acl.NewRules(ruleset, cmd.debug)
+	rules, err := getRules(cmd.rules, cmd.debug)
 	if err != nil {
 		return err
-	}
-
-	// ... get contacts list and member groups
-	credentials, err := getCredentials(cmd.credentials)
-	if err != nil {
-		return err
-	}
-
-	token, err := wildapricot.Authorize(credentials.APIKey)
-	if err != nil {
-		return err
-	}
-
-	contacts, err := wildapricot.GetContacts(credentials.Account, token)
-	if err != nil {
-		return err
-	}
-
-	groups, err := wildapricot.GetMemberGroups(credentials.Account, token)
-	if err != nil {
-		return err
-	}
-
-	members, err := types.MakeMemberList(contacts, groups)
-	if err != nil {
-		return err
-	} else if members == nil {
-		return fmt.Errorf("Invalid members list")
 	}
 
 	if cmd.debug {

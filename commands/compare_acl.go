@@ -17,7 +17,6 @@ import (
 	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
 var CompareACLCmd = CompareACL{
@@ -52,7 +51,7 @@ func (cmd *CompareACL) Name() string {
 }
 
 func (cmd *CompareACL) Description() string {
-	return "Retrieves an access control list from a Wild Apricot member database and compares it to the current controllers card lists"
+	return "Retrieves an access control list from a Wild Apricot member database and compares card lists on the configured controllers"
 }
 
 func (cmd *CompareACL) Usage() string {
@@ -110,44 +109,16 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	// ... load rules
-
-	ruleset, err := fetch(cmd.rules)
-	if err != nil {
-		return err
-	}
-
-	rules, err := acl.NewRules(ruleset, cmd.debug)
+	rules, err := getRules(cmd.rules, cmd.debug)
 	if err != nil {
 		return err
 	}
 
 	// ... get contacts list and member groups
 
-	credentials, err := getCredentials(cmd.credentials)
+	members, err := getMembers(cmd.credentials)
 	if err != nil {
 		return err
-	}
-
-	token, err := wildapricot.Authorize(credentials.APIKey)
-	if err != nil {
-		return err
-	}
-
-	contacts, err := wildapricot.GetContacts(credentials.Account, token)
-	if err != nil {
-		return err
-	}
-
-	groups, err := wildapricot.GetMemberGroups(credentials.Account, token)
-	if err != nil {
-		return err
-	}
-
-	members, err := types.MakeMemberList(contacts, groups)
-	if err != nil {
-		return err
-	} else if members == nil {
-		return fmt.Errorf("Invalid members list")
 	}
 
 	if cmd.debug {
