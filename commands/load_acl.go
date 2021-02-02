@@ -12,7 +12,6 @@ import (
 	"github.com/uhppoted/uhppote-core/uhppote"
 	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 )
 
 var LoadACLCmd = LoadACL{
@@ -152,24 +151,34 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	// ... load
 
 	u, devices := getDevices(conf, cmd.debug)
+	cards := acl.AsTable()
 
-	rpt, err := cmd.load(&u, devices, acl)
+	updated, err := cmd.compare(&u, devices, &cards)
 	if err != nil {
 		return err
 	}
 
-	if rpt != nil {
-		for k, v := range rpt {
-			for _, err := range v.Errors {
-				fatal(fmt.Sprintf("%v  %v", k, err))
-			}
+	if cmd.force || updated {
+		rpt, err := cmd.load(&u, devices, &cards)
+		if err != nil {
+			return err
 		}
 
-		//		if !cmd.nolog {
-		//		}
-		//
-		//		if !cmd.noreport {
-		//		}
+		if rpt != nil {
+			for k, v := range rpt {
+				for _, err := range v.Errors {
+					fatal(fmt.Sprintf("%v  %v", k, err))
+				}
+			}
+
+			//		if !cmd.nolog {
+			//		}
+			//
+			//		if !cmd.noreport {
+			//		}
+		}
+	} else {
+		info("No changes - Nothing to do")
 	}
 
 	//	if version != nil {
@@ -179,48 +188,57 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	return nil
 }
 
-func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (map[uint32]api.Report, error) {
-	diff, err := compare(u, devices, cards)
+func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (bool, error) {
+	current, err := api.GetACL(u, devices)
+	if err != nil {
+		return false, err
+	}
+
+	acl, _, err := api.ParseTable(cards, devices, cmd.strict)
+	if err != nil {
+		return false, err
+	}
+
+	if acl == nil {
+		return false, fmt.Errorf("Error creating ACL from cards (%v)", cards)
+	}
+
+	diff, err := api.Compare(current, *acl)
+	if err != nil {
+		return false, err
+	}
+
+	for _, v := range diff {
+		if v.HasChanges() {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (map[uint32]api.Report, error) {
+	acl, warnings, err := api.ParseTable(cards, devices, cmd.strict)
 	if err != nil {
 		return nil, err
 	}
 
-	updated := false
-	for _, v := range *diff {
-		if v.HasChanges() {
-			updated = true
-		}
+	for _, w := range warnings {
+		warn(w.Error())
 	}
 
-	if cmd.force || updated {
-		table := cards.AsTable()
-
-		acl, warnings, err := api.ParseTable(&table, devices, cmd.strict)
-		if err != nil {
-			return nil, err
-		}
-
-		for _, w := range warnings {
-			warn(w.Error())
-		}
-
-		rpt, err := api.PutACL(u, *acl, cmd.dryrun)
-		if err != nil {
-			return nil, err
-		}
-
-		summary := api.Summarize(rpt)
-		format := "%v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v"
-		for _, v := range summary {
-			info(fmt.Sprintf(format, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings)))
-		}
-
-		return rpt, nil
-	} else {
-		info("No changes - Nothing to do")
+	rpt, err := api.PutACL(u, *acl, cmd.dryrun)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, nil
+	summary := api.Summarize(rpt)
+	format := "%v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v"
+	for _, v := range summary {
+		info(fmt.Sprintf(format, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings)))
+	}
+
+	return rpt, nil
 }
 
 func (cmd *LoadACL) lock() (string, error) {

@@ -3,16 +3,10 @@
 ### IN PROGRESS
 
 - [ ] `load-acl`
-       - versioning
        - warnings
        - log
        - report
-
-- [ ] `compare-acl`
-      - strict
-
-- [ ] `get-acl`
-      - strict
+       - versioning
 
 - [ ] Move `help` to bottom of listed commands in help text
 
@@ -31,6 +25,8 @@
       - [ ] Unit tests for grant/revoke
       - [ ] `strict` 
 
+- [x] `compare-acl`
+- [x] `get-acl`
 - [x] `get-members`
 - [x] Get member groups
 - [x] App skeleton

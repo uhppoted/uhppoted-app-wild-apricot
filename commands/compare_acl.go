@@ -24,6 +24,7 @@ var CompareACLCmd = CompareACL{
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
 	summary:     false,
+	strict:      false,
 	debug:       false,
 }
 
@@ -33,6 +34,7 @@ type CompareACL struct {
 	rules       string
 	file        string
 	summary     bool
+	strict      bool
 	debug       bool
 }
 
@@ -84,6 +86,7 @@ func (cmd *CompareACL) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
 	flagset.BoolVar(&cmd.summary, "summary", cmd.summary, "Report only a summary of the comparison. Defaults to "+fmt.Sprintf("%v", cmd.summary))
 	flagset.StringVar(&cmd.file, "report", cmd.file, "Report file name. Defaults to stdout")
+	flagset.BoolVar(&cmd.strict, "strict", cmd.strict, "Fails with an error if the members list contains duplicate card numbers")
 
 	return flagset
 }
@@ -157,7 +160,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 
 	u, devices := getDevices(conf, cmd.debug)
 
-	diff, err := compare(&u, devices, acl)
+	diff, err := cmd.compare(&u, devices, acl)
 	if err != nil {
 		return err
 	}
@@ -171,7 +174,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	return cmd.report(*members, *diff)
 }
 
-func compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
+func (cmd *CompareACL) compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
 	current, err := api.GetACL(u, devices)
 	if err != nil {
 		return nil, err
@@ -179,7 +182,7 @@ func compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.
 
 	table := cards.AsTable()
 
-	acl, warnings, err := api.ParseTable(&table, devices, false)
+	acl, warnings, err := api.ParseTable(&table, devices, cmd.strict)
 	if err != nil {
 		return nil, err
 	}
