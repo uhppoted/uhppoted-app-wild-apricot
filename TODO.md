@@ -8,8 +8,6 @@
        - report
        - versioning
 
-- [ ] Move `help` to bottom of listed commands in help text
-
 - [ ] Get member list
       - Exclude archived contacts
       - Filter for members only
@@ -33,6 +31,7 @@
 - [x] `version` command
 - [x] `help` command
 - [x] Get auth token
+- [x] Move `help` to bottom of listed commands in help text
 
 # TODO
 
