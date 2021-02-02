@@ -3,6 +3,8 @@ package commands
 import (
 	"flag"
 	"fmt"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -87,6 +89,17 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	if strings.TrimSpace(cmd.rules) == "" {
 		return fmt.Errorf("Invalid rules file")
 	}
+
+	// ... locked?
+	lockfile, err := cmd.lock()
+	if err != nil {
+		return err
+	}
+
+	defer func() {
+		info(fmt.Sprintf("Removing lockfile '%v'", lockfile))
+		os.Remove(lockfile)
+	}()
 
 	// ... get config, members and rules
 	conf := config.NewConfig()
@@ -208,4 +221,25 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *acl
 	}
 
 	return nil, nil
+}
+
+func (cmd *LoadACL) lock() (string, error) {
+	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
+	pid := fmt.Sprintf("%d\n", os.Getpid())
+
+	if err := os.MkdirAll(filepath.Dir(lockfile), 0770); err != nil {
+		return "", fmt.Errorf("Unable to create directory '%v' for lockfile (%v)", lockfile, err)
+	}
+
+	if _, err := os.Stat(lockfile); err == nil {
+		return "", fmt.Errorf("Locked by '%v'", lockfile)
+	} else if !os.IsNotExist(err) {
+		return "", fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
+	}
+
+	if err := ioutil.WriteFile(lockfile, []byte(pid), 0660); err != nil {
+		return "", fmt.Errorf("Unable to create lockfile '%v' (%v)", lockfile, err)
+	}
+
+	return lockfile, nil
 }
