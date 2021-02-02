@@ -3,6 +3,12 @@
 ### IN PROGRESS
 
 - [ ] `load-acl`
+       - lockfile
+       - versioning
+       - warnings
+       - log
+       - report
+
 - [ ] Move `help` to bottom of listed commands in help text
 
 - [ ] Get member list

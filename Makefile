@@ -96,5 +96,5 @@ compare-acl-summary: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "../runtime/wild-apricot/ACL.rpt"
 
 load-acl: build
-	$(CLI) --debug load-acl --credentials $(CREDENTIALS) --rules $(RULES)
+	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run
 
