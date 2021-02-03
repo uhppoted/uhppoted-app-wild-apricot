@@ -106,7 +106,9 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	members, err := getMembers(cmd.credentials, conf.WildApricot.CardNumber)
+	cardNumberField := conf.WildApricot.CardNumber
+	groupDisplayOrder := strings.Split(conf.WildApricot.GroupDisplayOrder, ",")
+	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
 	if err != nil {
 		return err
 	}

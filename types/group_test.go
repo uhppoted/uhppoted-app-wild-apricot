@@ -1,6 +1,7 @@
 package types
 
 import (
+	"math"
 	"reflect"
 	"testing"
 
@@ -17,8 +18,9 @@ func TestGroupConstructor(t *testing.T) {
 	}
 
 	expected := Group{
-		ID:   654321,
-		Name: "Gryffindor",
+		ID:    654321,
+		Name:  "Gryffindor",
+		index: math.MaxUint32,
 	}
 
 	group, err := NewGroup(mg)

@@ -8,9 +8,6 @@
        - check for updates/versioning
        - door display order
 
-- [ ] `get-members`
-       - set group display order
-
 - [ ] `get-groups`
 
 - [ ] Get member list
@@ -25,6 +22,7 @@
       - [ ] Unit tests for grant/revoke
       - [ ] `strict` 
 
+- [x] `get-members`
 - [x] `compare-acl`
 - [x] `get-acl`
 - [x] Get member groups

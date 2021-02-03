@@ -2,6 +2,7 @@ package acl
 
 import (
 	"reflect"
+	"sort"
 	"testing"
 	"time"
 
@@ -14,7 +15,6 @@ var C6000002 = types.CardNumber(6000002)
 var C2000001 = types.CardNumber(2000001)
 
 var dumbledore = types.Member{
-	ID:         57944160,
 	Name:       "Albus Dumbledore",
 	CardNumber: &C1000001,
 	Active:     true,
@@ -23,14 +23,12 @@ var dumbledore = types.Member{
 }
 
 var admin = types.Member{
-	ID:        57940902,
 	Name:      "admin",
 	Active:    false,
 	Suspended: false,
 }
 
 var harry = types.Member{
-	ID:         57944170,
 	Name:       "Harry Potter",
 	CardNumber: &C6000001,
 	Active:     true,
@@ -39,7 +37,6 @@ var harry = types.Member{
 }
 
 var hermione = types.Member{
-	ID:         57944920,
 	Name:       "Hermione Granger",
 	CardNumber: &C6000002,
 	Active:     false,
@@ -49,7 +46,6 @@ var hermione = types.Member{
 }
 
 var voldemort = types.Member{
-	ID:         57944165,
 	Name:       "Tom Riddle",
 	CardNumber: &C2000001,
 	Active:     false,
@@ -85,7 +81,6 @@ func TestMakeACL(t *testing.T) {
 	expected := ACL{
 		records: []record{
 			record{
-				ID:         57944160,
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
 				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
@@ -94,7 +89,6 @@ func TestMakeACL(t *testing.T) {
 				Revoked:    map[string]struct{}{},
 			},
 			record{
-				ID:         57944165,
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
 				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
@@ -103,7 +97,6 @@ func TestMakeACL(t *testing.T) {
 				Revoked:    map[string]struct{}{},
 			},
 			record{
-				ID:         57944170,
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
@@ -112,7 +105,6 @@ func TestMakeACL(t *testing.T) {
 				Revoked:    map[string]struct{}{},
 			},
 			record{
-				ID:         57944920,
 				Name:       "Hermione Granger",
 				CardNumber: 6000002,
 				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
@@ -133,6 +125,9 @@ func TestMakeACL(t *testing.T) {
 		t.Fatalf("Unexpected error (%v)", err)
 	}
 
+	sort.SliceStable(expected.records, func(i, j int) bool { return expected.records[i].CardNumber < expected.records[j].CardNumber })
+	sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
+
 	if !reflect.DeepEqual(acl, expected) {
 		if len(acl.records) != len(expected.records) {
 			t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
@@ -147,10 +142,6 @@ func TestMakeACL(t *testing.T) {
 func compare(r, expected record, t *testing.T) {
 	if reflect.DeepEqual(r, expected) {
 		return
-	}
-
-	if r.ID != expected.ID {
-		t.Errorf("Invalid ACL record ID - expected:%v, got:%v", r.ID, expected.ID)
 	}
 
 	if r.Name != expected.Name {

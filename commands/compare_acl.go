@@ -118,7 +118,9 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	// ... get contacts list and member groups
-	members, err := getMembers(cmd.credentials, conf.WildApricot.CardNumber)
+	cardNumberField := conf.WildApricot.CardNumber
+	groupDisplayOrder := strings.Split(conf.WildApricot.GroupDisplayOrder, ",")
+	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
 	if err != nil {
 		return err
 	}

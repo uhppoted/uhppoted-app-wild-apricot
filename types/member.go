@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"math"
 	"sort"
 	"strconv"
 	"strings"
@@ -104,7 +105,7 @@ func (m *Member) HasGroup(group interface{}) bool {
 	return false
 }
 
-func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string) (*Members, error) {
+func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string, displayOrder []string) (*Members, error) {
 	fields := map[Field]string{
 		fCardNumber: normalise(cardnumber),
 		fRegistered: normalise("MemberSince"),
@@ -114,9 +115,19 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 
 	groups := []Group{}
 	for _, g := range memberGroups {
+		index := uint32(math.MaxUint32)
+		for i := range displayOrder {
+			name := normalise(displayOrder[i])
+			if normalise(g.Name) == name {
+				index = uint32(i + 1)
+				break
+			}
+		}
+
 		groups = append(groups, Group{
-			ID:   g.ID,
-			Name: g.Name,
+			ID:    g.ID,
+			Name:  g.Name,
+			index: index,
 		})
 	}
 
@@ -213,6 +224,8 @@ func (members *Members) asTable() ([]string, [][]string) {
 
 	if members != nil {
 		sort.SliceStable(members.Groups, func(i, j int) bool { return normalise(members.Groups[i].Name) < normalise(members.Groups[j].Name) })
+		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].index < members.Groups[j].index })
+
 		for _, group := range members.Groups {
 			header = append(header, group.Name)
 		}
