@@ -8,8 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	"github.com/uhppoted/uhppoted-api/config"
 )
 
 var GetMembersCmd = GetMembers{
@@ -75,32 +74,14 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 	}
 
 	// ... get contacts list and member groups
-
-	credentials, err := getCredentials(cmd.credentials)
-	if err != nil {
-		return err
+	conf := config.NewConfig()
+	if err := conf.Load(options.Config); err != nil {
+		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	token, err := wildapricot.Authorize(credentials.APIKey)
+	members, err := getMembers(cmd.credentials, conf.WildApricot.CardNumber)
 	if err != nil {
 		return err
-	}
-
-	contacts, err := wildapricot.GetContacts(credentials.Account, token)
-	if err != nil {
-		return err
-	}
-
-	groups, err := wildapricot.GetMemberGroups(credentials.Account, token)
-	if err != nil {
-		return err
-	}
-
-	members, err := types.MakeMemberList(contacts, groups)
-	if err != nil {
-		return err
-	} else if members == nil {
-		return fmt.Errorf("Invalid members list")
 	}
 
 	// ... write to stdout

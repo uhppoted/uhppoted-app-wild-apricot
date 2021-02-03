@@ -8,9 +8,11 @@
        - versioning
 
 - [ ] `get-members`
+       - don't export ID column
        - change TRUE/FALSE to Y/N
        - sort groups by name
-       - configurable card number field
+
+- [ ] `get-groups`
 
 - [ ] Get member list
       - Exclude archived contacts

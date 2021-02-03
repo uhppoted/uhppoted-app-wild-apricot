@@ -1,6 +1,7 @@
 package types
 
 import (
+	"regexp"
 	"strings"
 
 	core "github.com/uhppoted/uhppote-core/types"
@@ -26,5 +27,7 @@ func (d *Date) String() string {
 }
 
 func normalise(v string) string {
-	return strings.ToLower(strings.ReplaceAll(v, " ", ""))
+	re := regexp.MustCompile(`[^a-z1-9]`)
+
+	return re.ReplaceAllString(strings.ToLower(v), "")
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-func getMembers(file string) (*types.Members, error) {
+func getMembers(file string, cardnumber string) (*types.Members, error) {
 	credentials, err := getCredentials(file)
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func getMembers(file string) (*types.Members, error) {
 		return nil, err
 	}
 
-	members, err := types.MakeMemberList(contacts, groups)
+	members, err := types.MakeMemberList(contacts, groups, cardnumber)
 	if err != nil {
 		return nil, err
 	} else if members == nil {

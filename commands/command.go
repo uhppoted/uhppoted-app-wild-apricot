@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -115,7 +116,9 @@ func write(file string, bytes []byte) error {
 }
 
 func normalise(v string) string {
-	return strings.ToLower(strings.ReplaceAll(v, " ", ""))
+	re := regexp.MustCompile(` `)
+
+	return re.ReplaceAllString(strings.ToLower(v), "")
 }
 
 func clean(v string) string {

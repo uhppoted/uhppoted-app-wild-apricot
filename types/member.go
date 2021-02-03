@@ -39,6 +39,19 @@ func (c *CardNumber) String() string {
 	return ""
 }
 
+type Field int
+
+const (
+	fCardNumber Field = iota
+	fRegistered
+	fExpires
+	fSuspended
+)
+
+func (f Field) String() string {
+	return [...]string{"Card Number", "Registered", "Expires", "Suspended"}[f]
+}
+
 func (m *Member) HasCardNumber(card interface{}) bool {
 	if m != nil && m.CardNumber != nil {
 		switch v := card.(type) {
@@ -91,7 +104,14 @@ func (m *Member) HasGroup(group interface{}) bool {
 	return false
 }
 
-func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup) (*Members, error) {
+func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string) (*Members, error) {
+	fields := map[Field]string{
+		fCardNumber: normalise(cardnumber),
+		fRegistered: normalise("MemberSince"),
+		fSuspended:  normalise("IsSuspendedMember"),
+		fExpires:    normalise("RenewalDue"),
+	}
+
 	groups := []Group{}
 	for _, g := range memberGroups {
 		groups = append(groups, Group{
@@ -102,7 +122,7 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 
 	members := []Member{}
 	for _, c := range contacts {
-		if m, err := transcode(c); err != nil {
+		if m, err := transcode(c, fields); err != nil {
 			return nil, err
 		} else if m != nil {
 			members = append(members, *m)
@@ -217,7 +237,7 @@ func (members *Members) asTable() ([]string, [][]string) {
 	return header, data
 }
 
-func transcode(contact wildapricot.Contact) (*Member, error) {
+func transcode(contact wildapricot.Contact, fields map[Field]string) (*Member, error) {
 	member := Member{
 		ID:     contact.ID,
 		Name:   fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
@@ -227,12 +247,12 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 
 	for _, f := range contact.Fields {
 		switch {
-		case normalise(f.SystemCode) == "issuspendedmember":
+		case normalise(f.SystemCode) == fields[fSuspended]:
 			if v, ok := f.Value.(bool); ok {
 				member.Suspended = v
 			}
 
-		case normalise(f.SystemCode) == "membersince":
+		case normalise(f.SystemCode) == fields[fRegistered]:
 			if v, ok := f.Value.(string); ok {
 				if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
 					return nil, fmt.Errorf("Unable to parse 'Member since' date '%v' (%v)", v, err)
@@ -241,7 +261,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 				}
 			}
 
-		case normalise(f.SystemCode) == "renewaldue":
+		case normalise(f.SystemCode) == fields[fExpires]:
 			if v, ok := f.Value.(string); ok {
 				if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
 					return nil, fmt.Errorf("Unable to parse 'Renewal' date '%v' (%v)", v, err)
@@ -251,7 +271,7 @@ func transcode(contact wildapricot.Contact) (*Member, error) {
 				}
 			}
 
-		case normalise(f.Name) == "cardnumber":
+		case normalise(f.Name) == fields[fCardNumber]:
 			if v, ok := f.Value.(string); ok {
 				if v != "" {
 					if n, err := strconv.ParseUint(v, 10, 32); err != nil {
