@@ -15,10 +15,8 @@
 - [ ] `get-groups`
 
 - [ ] Get member list
-      - Exclude archived contacts
-      - Filter for members only
-      - Implement async fetch
       - Add `role` to `Member`
+      - Implement async fetch
       - Extend timeout (or retry?)
 
 - [ ] ACL

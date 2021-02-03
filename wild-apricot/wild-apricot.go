@@ -72,11 +72,17 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 		Timeout: 10 * time.Second,
 	}
 
-	url := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?$async=false", accountId)
-	rq, err := http.NewRequest("GET", url, nil)
+	parameters := url.Values{}
+	parameters.Set("$async", "false")
+	parameters.Add("$filter", "Archived eq false")
+	parameters.Add("$filter", "MembershipEnabled eq true")
 
+	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
+
+	rq, err := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Authorization", "Bearer "+token)
+
 	response, err := client.Do(rq)
 	if err != nil {
 		return nil, err
