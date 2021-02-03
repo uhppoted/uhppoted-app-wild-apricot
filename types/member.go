@@ -120,6 +120,8 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 		})
 	}
 
+	sort.SliceStable(groups, func(i, j int) bool { return groups[i].ID < groups[j].ID })
+
 	members := []Member{}
 	for _, c := range contacts {
 		if m, err := transcode(c, fields); err != nil {
@@ -210,7 +212,7 @@ func (members *Members) asTable() ([]string, [][]string) {
 	}
 
 	if members != nil {
-		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].ID < members.Groups[j].ID })
+		sort.SliceStable(members.Groups, func(i, j int) bool { return normalise(members.Groups[i].Name) < normalise(members.Groups[j].Name) })
 		for _, group := range members.Groups {
 			header = append(header, group.Name)
 		}

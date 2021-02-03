@@ -9,8 +9,7 @@
        - door display order
 
 - [ ] `get-members`
-       - sort groups by name
-       - group display order
+       - set group display order
 
 - [ ] `get-groups`
 
