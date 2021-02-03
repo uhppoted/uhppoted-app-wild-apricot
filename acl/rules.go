@@ -46,7 +46,6 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 	for _, m := range members.Members {
 		if m.CardNumber != nil {
 			r := record{
-				ID:         m.ID,
 				Name:       m.Name,
 				CardNumber: uint32(*m.CardNumber),
 				StartDate:  startDate,
@@ -63,7 +62,7 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 		}
 	}
 
-	sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].ID < acl.records[j].ID })
+	sort.SliceStable(acl.records, func(i, j int) bool { return normalise(acl.records[i].Name) < normalise(acl.records[j].Name) })
 
 	return &acl, nil
 }

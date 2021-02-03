@@ -6,16 +6,16 @@
        - log
        - report
        - versioning
+       - door display order
 
 - [ ] `get-members`
-       - don't export ID column
        - change TRUE/FALSE to Y/N
        - sort groups by name
+       - group display order
 
 - [ ] `get-groups`
 
 - [ ] Get member list
-      - Add `role` to `Member`
       - Implement async fetch
       - Extend timeout (or retry?)
 

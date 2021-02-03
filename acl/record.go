@@ -7,7 +7,6 @@ import (
 )
 
 type record struct {
-	ID         uint32
 	Name       string
 	CardNumber uint32
 	StartDate  time.Time

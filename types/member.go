@@ -19,7 +19,7 @@ type Members struct {
 }
 
 type Member struct {
-	ID         uint32
+	id         uint32
 	Name       string
 	CardNumber *CardNumber
 	Active     bool
@@ -191,7 +191,6 @@ func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
 
 func (members *Members) asTable() ([]string, [][]string) {
 	header := []string{
-		"ID",
 		"Name",
 		"Card Number",
 		"Active",
@@ -214,7 +213,6 @@ func (members *Members) asTable() ([]string, [][]string) {
 
 		for _, m := range members.Members {
 			row := []string{}
-			row = append(row, fmt.Sprintf("%v", m.ID))
 			row = append(row, fmt.Sprintf("%v", m.Name))
 			row = append(row, fmt.Sprintf("%v", m.CardNumber))
 			row = append(row, fmt.Sprintf("%v", m.Active))
@@ -239,7 +237,7 @@ func (members *Members) asTable() ([]string, [][]string) {
 
 func transcode(contact wildapricot.Contact, fields map[Field]string) (*Member, error) {
 	member := Member{
-		ID:     contact.ID,
+		id:     contact.ID,
 		Name:   fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
 		Active: contact.Enabled && strings.ToLower(contact.Status) == "active",
 		Groups: map[uint32]Group{},
