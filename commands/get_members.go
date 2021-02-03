@@ -1,13 +1,12 @@
 package commands
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
@@ -16,7 +15,6 @@ import (
 var GetMembersCmd = GetMembers{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
-	file:        time.Now().Format("members 2006-01-02T150405.tsv"),
 	debug:       false,
 }
 
@@ -61,7 +59,7 @@ func (cmd *GetMembers) FlagSet() *flag.FlagSet {
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
-	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to 'ACL - <yyyy-mm-dd HHmmss>.tsv'")
+	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to stdout if not supplied")
 
 	return flagset
 }
@@ -74,10 +72,6 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 	// ... check parameters
 	if strings.TrimSpace(cmd.credentials) == "" {
 		return fmt.Errorf("Invalid credentials file")
-	}
-
-	if strings.TrimSpace(cmd.file) == "" {
-		return fmt.Errorf("Invalid output file")
 	}
 
 	// ... get contacts list and member groups
@@ -109,29 +103,25 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 		return fmt.Errorf("Invalid members list")
 	}
 
-	// ... save to TSV file
-	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")
-	if err != nil {
-		return err
+	// ... write to stdout
+	if cmd.file == "" {
+		text, err := members.MarshalText()
+		if err != nil {
+			return fmt.Errorf("Error formatting members list (%v)", err)
+		}
+
+		fmt.Fprintln(os.Stdout, string(text))
+
+		return nil
 	}
 
-	defer func() {
-		tmp.Close()
-		os.Remove(tmp.Name())
-	}()
-
-	if err := members.ToTSV(tmp); err != nil {
+	// ... write to TSV file
+	var b bytes.Buffer
+	if err := members.ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 
-	tmp.Close()
-
-	dir := filepath.Dir(cmd.file)
-	if err := os.MkdirAll(dir, 0770); err != nil {
-		return err
-	}
-
-	if err := os.Rename(tmp.Name(), cmd.file); err != nil {
+	if err := write(cmd.file, b.Bytes()); err != nil {
 		return err
 	}
 

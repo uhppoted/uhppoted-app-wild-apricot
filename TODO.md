@@ -3,10 +3,14 @@
 ### IN PROGRESS
 
 - [ ] `load-acl`
-       - warnings
        - log
        - report
        - versioning
+
+- [ ] `get-members`
+       - change TRUE/FALSE to Y/N
+       - sort groups by name
+       - configurable card number field
 
 - [ ] Get member list
       - Exclude archived contacts
@@ -25,7 +29,6 @@
 
 - [x] `compare-acl`
 - [x] `get-acl`
-- [x] `get-members`
 - [x] Get member groups
 - [x] App skeleton
 - [x] `version` command
@@ -36,5 +39,6 @@
 # TODO
 
 - [ ] Use templates for report output
+- [ ] Implement generalized struct transcoding
 
 # NOTES

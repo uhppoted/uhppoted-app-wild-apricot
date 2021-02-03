@@ -129,7 +129,6 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	// ... write to stdout
-
 	if cmd.file == "" {
 		text, err := acl.MarshalText()
 		if err != nil {
@@ -142,7 +141,6 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	// ... write to TSV file
-
 	var b bytes.Buffer
 	if err := acl.ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
