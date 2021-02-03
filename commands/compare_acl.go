@@ -105,21 +105,20 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Invalid rules file")
 	}
 
-	// ... load config
+	// ... get config, members and rules
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	// ... load rules
 	rules, err := getRules(cmd.rules, cmd.debug)
 	if err != nil {
 		return err
 	}
 
-	// ... get contacts list and member groups
-	cardNumberField := conf.WildApricot.CardNumber
-	groupDisplayOrder := strings.Split(conf.WildApricot.GroupDisplayOrder, ",")
+	cardNumberField := conf.WildApricot.Fields.CardNumber
+	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
+
 	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
 	if err != nil {
 		return err

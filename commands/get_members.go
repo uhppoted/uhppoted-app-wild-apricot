@@ -79,8 +79,9 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	cardNumberField := conf.WildApricot.CardNumber
-	groupDisplayOrder := strings.Split(conf.WildApricot.GroupDisplayOrder, ",")
+	cardNumberField := conf.WildApricot.Fields.CardNumber
+	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
+
 	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
 	if err != nil {
 		return err
