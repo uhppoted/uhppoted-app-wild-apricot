@@ -5,11 +5,10 @@
 - [ ] `load-acl`
        - log
        - report
-       - versioning
+       - check for updates/versioning
        - door display order
 
 - [ ] `get-members`
-       - change TRUE/FALSE to Y/N
        - sort groups by name
        - group display order
 

@@ -76,7 +76,8 @@ version: build
 # ACL COMMANDS
 
 get-members: build
-	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "../runtime/wild-apricot/members.tsv"
+	$(CLI) --debug get-members --credentials $(CREDENTIALS)
+#	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "../runtime/wild-apricot/members.tsv"
 
 get-acl: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "../runtime/wild-apricot/ACL.tsv"

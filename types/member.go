@@ -74,7 +74,7 @@ func (m *Member) HasExpires() bool {
 }
 
 func (m *Member) IsActive() bool {
-	return m != nil && m.Active
+	return m != nil && m.Active == true
 }
 
 func (m *Member) IsSuspended() bool {
@@ -201,6 +201,14 @@ func (members *Members) asTable() ([]string, [][]string) {
 
 	data := [][]string{}
 
+	f := func(b bool) string {
+		if b {
+			return "Y"
+		}
+
+		return "N"
+	}
+
 	if members != nil {
 		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].ID < members.Groups[j].ID })
 		for _, group := range members.Groups {
@@ -215,8 +223,8 @@ func (members *Members) asTable() ([]string, [][]string) {
 			row := []string{}
 			row = append(row, fmt.Sprintf("%v", m.Name))
 			row = append(row, fmt.Sprintf("%v", m.CardNumber))
-			row = append(row, fmt.Sprintf("%v", m.Active))
-			row = append(row, fmt.Sprintf("%v", m.Suspended))
+			row = append(row, f(m.Active))
+			row = append(row, f(m.Suspended))
 			row = append(row, fmt.Sprintf("%v", m.Registered))
 			row = append(row, fmt.Sprintf("%v", m.Expires))
 
