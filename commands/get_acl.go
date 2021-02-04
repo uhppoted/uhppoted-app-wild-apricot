@@ -52,7 +52,7 @@ func (cmd *GetACL) Help() {
 	fmt.Println("  Examples:")
 	fmt.Println(`    uhppote-app-wild-apricot --debug get-acl --credentials ".credentials/wild-apricot.json" \"`)
 	fmt.Println(`                                             --rules "wild-apricot.grl" \`)
-	fmt.Println(`                                             --file "example.tsv"`)
+	fmt.Println(`                                             --file "ACL.tsv"`)
 	fmt.Println()
 }
 

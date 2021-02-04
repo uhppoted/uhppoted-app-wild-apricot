@@ -2,6 +2,8 @@
 
 ### IN PROGRESS
 
+- [ ] Rotate wild-apricot.log
+
 - [ ] `load-acl`
        - log
        - report

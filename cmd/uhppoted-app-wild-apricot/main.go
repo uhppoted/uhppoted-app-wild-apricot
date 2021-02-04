@@ -14,6 +14,7 @@ import (
 
 var cli = []uhppoted.Command{
 	&commands.GetMembersCmd,
+	&commands.GetGroupsCmd,
 	&commands.GetACLCmd,
 	&commands.CompareACLCmd,
 	&commands.LoadACLCmd,

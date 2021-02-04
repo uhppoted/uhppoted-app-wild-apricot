@@ -11,49 +11,49 @@ import (
 	"github.com/uhppoted/uhppoted-api/config"
 )
 
-var GetMembersCmd = GetMembers{
+var GetGroupsCmd = GetGroups{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	debug:       false,
 }
 
-type GetMembers struct {
+type GetGroups struct {
 	workdir     string
 	credentials string
 	file        string
 	debug       bool
 }
 
-func (cmd *GetMembers) Name() string {
-	return "get-members"
+func (cmd *GetGroups) Name() string {
+	return "get-groups"
 }
 
-func (cmd *GetMembers) Description() string {
-	return "Retrieves a tabular member list from a Wild Apricot member database and stores it to a file"
+func (cmd *GetGroups) Description() string {
+	return "Retrieves a list of groups from a Wild Apricot database and stores it to a file"
 }
 
-func (cmd *GetMembers) Usage() string {
+func (cmd *GetGroups) Usage() string {
 	return "--credentials <file> --file <file>"
 }
 
-func (cmd *GetMembers) Help() {
+func (cmd *GetGroups) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-members [--credentials <file>] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-groups [--credentials <file>] [--file <file>]\n", APP)
 	fmt.Println()
-	fmt.Println("  Downloads the members list from a Wild Apricot member database and (optionally) stores it to a TSV file")
+	fmt.Println("  Downloads a list of member groups from a Wild Apricot member database and (optionally) stores it to a TSV file")
 	fmt.Println()
 
 	helpOptions(cmd.FlagSet())
 
 	fmt.Println()
 	fmt.Println("  Examples:")
-	fmt.Println(`    uhppote-app-wild-apricot --debug get-members --credentials ".credentials/wild-apricot.json" \"`)
-	fmt.Println(`                                                 --file "members.tsv"`)
+	fmt.Println(`    uhppote-app-wild-apricot --debug get-groups --credentials ".credentials/wild-apricot.json" \"`)
+	fmt.Println(`                                                --file "groups.tsv"`)
 	fmt.Println()
 }
 
-func (cmd *GetMembers) FlagSet() *flag.FlagSet {
-	flagset := flag.NewFlagSet("get-members", flag.ExitOnError)
+func (cmd *GetGroups) FlagSet() *flag.FlagSet {
+	flagset := flag.NewFlagSet("get-groups", flag.ExitOnError)
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
@@ -62,7 +62,7 @@ func (cmd *GetMembers) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *GetMembers) Execute(args ...interface{}) error {
+func (cmd *GetGroups) Execute(args ...interface{}) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug
@@ -72,25 +72,24 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 		return fmt.Errorf("Invalid credentials file")
 	}
 
-	// ... get contacts list and member groups
+	// ... get member groups
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	cardNumberField := conf.WildApricot.Fields.CardNumber
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
-	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
+	groups, err := getGroups(cmd.credentials, groupDisplayOrder)
 	if err != nil {
 		return err
 	}
 
 	// ... write to stdout
 	if cmd.file == "" {
-		text, err := members.MarshalText()
+		text, err := groups.MarshalText()
 		if err != nil {
-			return fmt.Errorf("Error formatting members list (%v)", err)
+			return fmt.Errorf("Error formatting groups list (%v)", err)
 		}
 
 		fmt.Fprintln(os.Stdout, string(text))
@@ -100,7 +99,7 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 
 	// ... write to TSV file
 	var b bytes.Buffer
-	if err := members.ToTSV(&b); err != nil {
+	if err := groups.ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 
@@ -108,7 +107,7 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 		return err
 	}
 
-	info(fmt.Sprintf("Retrieved member list to file %s\n", cmd.file))
+	info(fmt.Sprintf("Retrieved groups list to file %s\n", cmd.file))
 
 	return nil
 }

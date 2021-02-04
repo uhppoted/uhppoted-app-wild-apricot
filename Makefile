@@ -2,8 +2,9 @@ VERSION     = v0.6.x
 LDFLAGS     = -ldflags "-X uhppote.VERSION=$(VERSION)" 
 DIST       ?= development
 CLI         = ./bin/uhppoted-app-wild-apricot
-CREDENTIALS = ../runtime/wild-apricot/.credentials.json
-RULES       = ../runtime/wild-apricot/wild-apricot.grl
+WORKDIR     = ../runtime/wild-apricot
+CREDENTIALS = $(WORKDIR)/.credentials.json
+RULES       = $(WORKDIR)/wild-apricot.grl
 
 DATETIME  = $(shell date "+%Y-%m-%d %H:%M:%S")
 DEBUG    ?= --debug
@@ -77,24 +78,30 @@ version: build
 
 get-members: build
 	$(CLI) --debug get-members --credentials $(CREDENTIALS)
-#	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "../runtime/wild-apricot/members.tsv"
+#	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "$(WORKDIR)/members.tsv"
+#	cat "$(WORKDIR)/members.tsv"
+
+get-groups: build
+	$(CLI) --debug get-groups --credentials $(CREDENTIALS)
+	$(CLI) --debug get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
+	cat "$(WORKDIR)/groups.tsv"
 
 get-acl: build
-	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "../runtime/wild-apricot/ACL.tsv"
+	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-file: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "../runtime/wild-apricot/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-drive: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "../runtime/wild-apricot/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "$(WORKDIR)/ACL.tsv"
 
 compare-acl: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "../runtime/wild-apricot/ACL.rpt"
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
 
 compare-acl-summary: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "../runtime/wild-apricot/ACL.rpt"
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
 	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run

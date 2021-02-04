@@ -8,8 +8,8 @@ import (
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-func getMembers(file string, cardnumber string, displayOrder []string) (*types.Members, error) {
-	credentials, err := getCredentials(file)
+func getMembers(credentialsFile string, cardnumber string, displayOrder []string) (*types.Members, error) {
+	credentials, err := getCredentials(credentialsFile)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +37,32 @@ func getMembers(file string, cardnumber string, displayOrder []string) (*types.M
 	}
 
 	return members, nil
+}
+
+func getGroups(credentialsFile string, displayOrder []string) (*types.Groups, error) {
+	credentials, err := getCredentials(credentialsFile)
+	if err != nil {
+		return nil, err
+	}
+
+	token, err := wildapricot.Authorize(credentials.APIKey)
+	if err != nil {
+		return nil, err
+	}
+
+	memberGroups, err := wildapricot.GetMemberGroups(credentials.Account, token)
+	if err != nil {
+		return nil, err
+	}
+
+	groups, err := types.MakeGroupList(memberGroups, displayOrder)
+	if err != nil {
+		return nil, err
+	} else if groups == nil {
+		return nil, fmt.Errorf("Invalid groups list")
+	}
+
+	return groups, nil
 }
 
 func getRules(uri string, debug bool) (*acl.Rules, error) {
