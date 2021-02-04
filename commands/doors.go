@@ -1,0 +1,58 @@
+package commands
+
+import (
+	"fmt"
+	"math"
+	"sort"
+	"strings"
+
+	"github.com/uhppoted/uhppoted-api/config"
+)
+
+func getDoors(conf *config.Config) ([]string, error) {
+	type door struct {
+		door  string
+		index uint32
+	}
+
+	displayOrder := strings.Split(conf.WildApricot.DisplayOrder.Doors, ",")
+
+	set := map[string]door{}
+	for _, device := range conf.Devices {
+		for _, d := range device.Doors {
+			normalised := normalise(d)
+			if _, ok := set[normalised]; ok {
+				return nil, fmt.Errorf("WARN  Duplicate door in configuration (%v)", d)
+			}
+
+			index := uint32(math.MaxUint32)
+			for i := range displayOrder {
+				name := normalise(displayOrder[i])
+				if normalised == name {
+					index = uint32(i + 1)
+					break
+				}
+			}
+
+			set[normalised] = door{
+				door:  clean(d),
+				index: index,
+			}
+		}
+	}
+
+	doors := []door{}
+	for _, d := range set {
+		doors = append(doors, d)
+	}
+
+	sort.SliceStable(doors, func(i, j int) bool { return doors[i].door < doors[j].door })
+	sort.SliceStable(doors, func(i, j int) bool { return doors[i].index < doors[j].index })
+
+	list := []string{}
+	for _, d := range doors {
+		list = append(list, d.door)
+	}
+
+	return list, nil
+}

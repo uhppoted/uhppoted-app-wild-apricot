@@ -92,7 +92,6 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 			"To",
 		}...)
 
-		sort.SliceStable(acl.doors, func(i, j int) bool { return acl.doors[i] < acl.doors[j] })
 		for _, door := range acl.doors {
 			header = append(header, door)
 		}

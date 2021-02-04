@@ -67,28 +67,6 @@ func getDevices(conf *config.Config, debug bool) (uhppote.UHPPOTE, []*uhppote.De
 	return u, devices
 }
 
-func getDoors(conf *config.Config) ([]string, error) {
-	doors := map[string]string{}
-	for _, device := range conf.Devices {
-		for _, d := range device.Doors {
-			if _, ok := doors[normalise(d)]; ok {
-				return nil, fmt.Errorf("WARN  Duplicate door in configuration (%v)", d)
-			}
-
-			doors[normalise(d)] = clean(d)
-		}
-	}
-
-	list := []string{}
-	for _, d := range doors {
-		list = append(list, d)
-	}
-
-	sort.SliceStable(list, func(i, j int) bool { return list[i] < list[j] })
-
-	return list, nil
-}
-
 func write(file string, bytes []byte) error {
 	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")
 	if err != nil {
@@ -116,7 +94,7 @@ func write(file string, bytes []byte) error {
 }
 
 func normalise(v string) string {
-	re := regexp.MustCompile(` `)
+	re := regexp.MustCompile(`[^a-z1-9]`)
 
 	return re.ReplaceAllString(strings.ToLower(v), "")
 }

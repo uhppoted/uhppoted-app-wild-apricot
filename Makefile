@@ -83,8 +83,8 @@ get-members: build
 
 get-groups: build
 	$(CLI) --debug get-groups --credentials $(CREDENTIALS)
-	$(CLI) --debug get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
-	cat "$(WORKDIR)/groups.tsv"
+#	$(CLI) --debug get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
+#	cat "$(WORKDIR)/groups.tsv"
 
 get-acl: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "$(WORKDIR)/ACL.tsv"
@@ -98,10 +98,12 @@ get-acl-drive: build
 compare-acl: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-summary: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
 	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run

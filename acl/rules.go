@@ -62,7 +62,7 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 		}
 	}
 
-	sort.SliceStable(acl.records, func(i, j int) bool { return normalise(acl.records[i].Name) < normalise(acl.records[j].Name) })
+	sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
 
 	return &acl, nil
 }
