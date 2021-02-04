@@ -47,8 +47,7 @@ func (cmd *GetGroups) Help() {
 
 	fmt.Println()
 	fmt.Println("  Examples:")
-	fmt.Println(`    uhppote-app-wild-apricot --debug get-groups --credentials ".credentials/wild-apricot.json" \"`)
-	fmt.Println(`                                                --file "groups.tsv"`)
+	fmt.Println(`    uhppote-app-wild-apricot --debug get-groups --credentials ".credentials/wild-apricot.json" --file "groups.tsv"`)
 	fmt.Println()
 }
 

@@ -3,6 +3,8 @@
 ### IN PROGRESS
 
 - [ ] Rotate wild-apricot.log
+- [ ] Commonalise TSV implementation
+- [ ] Commonalise MarshalText implementation
 
 - [ ] `load-acl`
        - log
@@ -24,6 +26,7 @@
 
 - [x] `get-members`
 - [x] `get-groups`
+- [x] `get-doors`
 - [x] `get-acl`
 - [x] `compare-acl`
 - [x] `get-acl`

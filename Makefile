@@ -86,6 +86,11 @@ get-groups: build
 #	$(CLI) --debug get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
 #	cat "$(WORKDIR)/groups.tsv"
 
+get-doors: build
+	$(CLI) --debug get-doors
+	$(CLI) --debug get-doors --file "$(WORKDIR)/doors.tsv"
+	cat "$(WORKDIR)/doors.tsv"
+
 get-acl: build
 	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "$(WORKDIR)/ACL.tsv"
 
