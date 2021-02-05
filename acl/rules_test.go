@@ -58,7 +58,7 @@ rule StartDate "Sets the start date to the 'registered' field" {
      when
 		member.HasRegistered()
 	 then
-         record.SetStartDate(member.Registered);
+         permissions.SetStartDate(member.Registered);
          Retract("StartDate");
 }
 
@@ -66,7 +66,7 @@ rule EndDate "Sets the end date to the 'expires' field" {
      when
 		member.HasExpires()
 	 then
-         record.SetEndDate(member.Expires);
+         permissions.SetEndDate(member.Expires);
          Retract("EndDate");
 }
 

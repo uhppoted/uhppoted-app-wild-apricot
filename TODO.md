@@ -25,7 +25,7 @@
       - [x] Door display order
       - [ ] Unit tests for grant/revoke
       - [x] Verify `strict` behaviour
-      - [ ] Rename `record` to `permissions`
+      - [x] Rename `record` to `permissions`
 
 - [ ] Commonalise TSV implementation
 - [ ] Commonalise MarshalText implementation

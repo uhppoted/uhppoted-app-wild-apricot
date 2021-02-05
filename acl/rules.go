@@ -74,7 +74,7 @@ func (rules *Rules) eval(m types.Member, r *record) error {
 		return err
 	}
 
-	if err := context.Add("record", r); err != nil {
+	if err := context.Add("permissions", r); err != nil {
 		return err
 	}
 
