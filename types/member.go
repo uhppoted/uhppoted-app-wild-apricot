@@ -15,8 +15,9 @@ import (
 )
 
 type Members struct {
-	Groups  []Group
-	Members []Member
+	Groups    []Group
+	Members   []Member
+	Timestamp time.Time
 }
 
 type Member struct {
@@ -133,17 +134,24 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 
 	sort.SliceStable(groups, func(i, j int) bool { return groups[i].ID < groups[j].ID })
 
+	var timestamp time.Time
 	members := []Member{}
 	for _, c := range contacts {
 		if m, err := transcode(c, fields); err != nil {
 			return nil, err
 		} else if m != nil {
+			if c.Updated.After(timestamp) {
+				timestamp = c.Updated
+			}
+
 			members = append(members, *m)
 		}
 	}
+
 	return &Members{
-		Members: members,
-		Groups:  groups,
+		Members:   members,
+		Groups:    groups,
+		Timestamp: timestamp,
 	}, nil
 }
 

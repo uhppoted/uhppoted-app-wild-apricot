@@ -142,7 +142,7 @@ func GetUpdated(accountId uint32, token string, timestamp time.Time) (int, error
 
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
-	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true AND 'Profile last updated' gt "+timestamp.Format("2006-01-02T15:04:05.000-07:00"))
+	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true AND 'Profile last updated' ge "+timestamp.Format("2006-01-02T15:04:05.000-07:00"))
 	parameters.Add("$count", "true")
 
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())

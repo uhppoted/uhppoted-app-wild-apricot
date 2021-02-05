@@ -111,5 +111,5 @@ compare-acl-summary: build
 	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
-	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run
+	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force
 

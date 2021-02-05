@@ -10,7 +10,6 @@
       - [ ] jumpbox
 
 - [ ] `load-acl`
-       - check for updates/versioning
        - log
        - report
 
@@ -25,7 +24,7 @@
       - [x] Export as TSV
       - [x] Door display order
       - [ ] Unit tests for grant/revoke
-      - [ ] Verify `strict` behaviour
+      - [x] Verify `strict` behaviour
       - [ ] Rename `record` to `permissions`
 
 - [ ] Commonalise TSV implementation

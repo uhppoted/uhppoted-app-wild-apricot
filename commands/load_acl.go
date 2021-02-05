@@ -111,8 +111,8 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load credentials (%v)", err)
 	}
 
-	// ... get version
-	updated, err := revised(credentials, getVersion(cmd.workdir, credentials.AccountID))
+	// ... updated?
+	updated, err := revised(credentials, getTimestamp(cmd.workdir, credentials.AccountID))
 	if err != nil {
 		return fmt.Errorf("Failed to get DB version (%v)", err)
 	}
@@ -194,13 +194,14 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 			//		if !cmd.noreport {
 			//		}
 		}
+
+		if err := storeTimestamp(cmd.workdir, credentials.AccountID, members.Timestamp); err != nil {
+			return fmt.Errorf("Failed to store DB timestamp (%v)", err)
+		}
+
 	} else {
 		info("No changes - Nothing to do")
 	}
-
-	//	if version != nil {
-	//		version.store(cmd.revisions)
-	//	}
 
 	return nil
 }

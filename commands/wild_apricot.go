@@ -11,22 +11,19 @@ import (
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-func revised(credentials *credentials, version string) (bool, error) {
+func revised(credentials *credentials, timestamp *time.Time) (bool, error) {
 	token, err := wildapricot.Authorize(credentials.APIKey)
 	if err != nil {
 		return false, err
 	}
 
-	if version == "" {
+	if timestamp == nil {
 		return true, nil
 	}
 
-	timestamp, err := time.Parse("2006-01-02T15:04:05-07:00", version)
-	if err != nil {
-		return true, nil
-	}
+	t := timestamp.Truncate(1 * time.Second).Add(1 * time.Second)
 
-	N, err := wildapricot.GetUpdated(credentials.AccountID, token, timestamp)
+	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t)
 	if err != nil {
 		return false, err
 	}
