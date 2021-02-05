@@ -100,27 +100,30 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		os.Remove(lockfile)
 	}()
 
-	// ... get config
+	// ... get config and credentials
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
+	credentials, err := getCredentials(cmd.credentials)
+	if err != nil {
+		return fmt.Errorf("Could not load credentials (%v)", err)
+	}
+
 	// ... get version
-	//spreadsheetId := match[1]
-	//	cmd.revisions = filepath.Join(cmd.workdir, ".google", fmt.Sprintf("%s.revision", spreadsheetId))
-	//
-	//	if cmd.debug {
-	//		debug(fmt.Sprintf("Spreadsheet - ID:%s  range:%s  log:%s", spreadsheetId, cmd.area, cmd.logRange))
-	//	}
-	//
-	//	version, err := cmd.getRevision(spreadsheetId)
-	//	if err != nil {
-	//		fatal(err.Error())
-	//	}
+	updated, err := revised(credentials, getVersion(cmd.workdir, credentials.AccountID))
+	if err != nil {
+		return fmt.Errorf("Failed to get DB version (%v)", err)
+	}
+
+	if !cmd.force && !updated {
+		info("Nothing to do")
+		return nil
+	}
 
 	// ... get members and rules
-	members, err := getMembers(conf, cmd.credentials)
+	members, err := getMembers(conf, credentials)
 	if err != nil {
 		return err
 	}
@@ -167,7 +170,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	u, devices := getDevices(conf, cmd.debug)
 	cards := acl.AsTable()
 
-	updated, err := cmd.compare(&u, devices, &cards)
+	updated, err = cmd.compare(&u, devices, &cards)
 	if err != nil {
 		return err
 	}

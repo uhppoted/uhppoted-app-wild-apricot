@@ -74,8 +74,7 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
-	parameters.Add("$filter", "Archived eq false")
-	parameters.Add("$filter", "MembershipEnabled eq true")
+	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true")
 
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
 
@@ -102,48 +101,6 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 	if err := json.Unmarshal(body, &contacts); err != nil {
 		return nil, err
 	}
-
-	//	contacts := []Contact{}
-	//	for _, c := range data.Contacts {
-	//		contact := Contact{
-	//			ID:    c.ID,
-	//			Name:  fmt.Sprintf("%[1]s %[2]s", c.FirstName, c.LastName),
-	//			Email: c.Email,
-	//		}
-	//
-	//		if c.Enabled && strings.ToLower(c.Status) == "active" {
-	//			contact.Active = true
-	//		}
-	//
-	//		for _, f := range c.Fields {
-	//			switch {
-	//			case strings.ToLower(f.SystemCode) == "issuspendedmember":
-	//				if v, ok := f.Value.(bool); ok {
-	//					contact.Suspended = v
-	//				}
-	//
-	//			case strings.ToLower(f.SystemCode) == "membersince":
-	//				if v, ok := f.Value.(string); ok {
-	//					if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
-	//						return nil, err
-	//					} else {
-	//						contact.MemberSince = &d
-	//					}
-	//				}
-	//
-	//			case strings.ToLower(f.SystemCode) == "renewaldue":
-	//				if v, ok := f.Value.(string); ok {
-	//					if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
-	//						return nil, err
-	//					} else {
-	//						contact.Renew = &d
-	//					}
-	//				}
-	//			}
-	//		}
-	//
-	//		contacts = append(contacts, contact)
-	//	}
 
 	return contacts.Contacts, nil
 }
@@ -176,4 +133,43 @@ func GetMemberGroups(accountId uint32, token string) ([]MemberGroup, error) {
 	}
 
 	return groups, nil
+}
+
+func GetUpdated(accountId uint32, token string, timestamp time.Time) (int, error) {
+	client := http.Client{
+		Timeout: 10 * time.Second,
+	}
+
+	parameters := url.Values{}
+	parameters.Set("$async", "false")
+	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true AND 'Profile last updated' gt "+timestamp.Format("2006-01-02T15:04:05.000-07:00"))
+	parameters.Add("$count", "true")
+
+	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
+
+	rq, err := http.NewRequest("GET", uri, nil)
+	rq.Header.Set("Accept", "application/json")
+	rq.Header.Set("Authorization", "Bearer "+token)
+
+	response, err := client.Do(rq)
+	if err != nil {
+		return 0, err
+	}
+
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return 0, err
+	}
+
+	count := struct {
+		Count int `json:"Count"`
+	}{}
+
+	if err := json.Unmarshal(body, &count); err != nil {
+		return 0, err
+	}
+
+	return count.Count, nil
 }

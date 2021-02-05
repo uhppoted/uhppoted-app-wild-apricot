@@ -78,7 +78,12 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	members, err := getMembers(conf, cmd.credentials)
+	credentials, err := getCredentials(cmd.credentials)
+	if err != nil {
+		return fmt.Errorf("Could not load credentials (%v)", err)
+	}
+
+	members, err := getMembers(conf, credentials)
 	if err != nil {
 		return err
 	}

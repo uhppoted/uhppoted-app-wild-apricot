@@ -77,9 +77,12 @@ func (cmd *GetGroups) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
+	credentials, err := getCredentials(cmd.credentials)
+	if err != nil {
+		return fmt.Errorf("Could not load credentials (%v)", err)
+	}
 
-	groups, err := getGroups(cmd.credentials, groupDisplayOrder)
+	groups, err := getGroups(conf, credentials)
 	if err != nil {
 		return err
 	}

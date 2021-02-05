@@ -7,8 +7,8 @@ import (
 )
 
 type credentials struct {
-	Account uint32 `json:"account"`
-	APIKey  string `json:"api-key"`
+	AccountID uint32 `json:"account-id"`
+	APIKey    string `json:"api-key"`
 }
 
 func getCredentials(file string) (*credentials, error) {

@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
@@ -10,26 +11,44 @@ import (
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-func getMembers(conf *config.Config, credentialsFile string) (*types.Members, error) {
+func revised(credentials *credentials, version string) (bool, error) {
+	token, err := wildapricot.Authorize(credentials.APIKey)
+	if err != nil {
+		return false, err
+	}
+
+	if version == "" {
+		return true, nil
+	}
+
+	timestamp, err := time.Parse("2006-01-02T15:04:05-07:00", version)
+	if err != nil {
+		return true, nil
+	}
+
+	N, err := wildapricot.GetUpdated(credentials.AccountID, token, timestamp)
+	if err != nil {
+		return false, err
+	}
+
+	return N > 0, nil
+}
+
+func getMembers(conf *config.Config, credentials *credentials) (*types.Members, error) {
 	cardNumberField := conf.WildApricot.Fields.CardNumber
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
-
-	credentials, err := getCredentials(credentialsFile)
-	if err != nil {
-		return nil, err
-	}
 
 	token, err := wildapricot.Authorize(credentials.APIKey)
 	if err != nil {
 		return nil, err
 	}
 
-	contacts, err := wildapricot.GetContacts(credentials.Account, token)
+	contacts, err := wildapricot.GetContacts(credentials.AccountID, token)
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := wildapricot.GetMemberGroups(credentials.Account, token)
+	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token)
 	if err != nil {
 		return nil, err
 	}
@@ -44,23 +63,20 @@ func getMembers(conf *config.Config, credentialsFile string) (*types.Members, er
 	return members, nil
 }
 
-func getGroups(credentialsFile string, displayOrder []string) (*types.Groups, error) {
-	credentials, err := getCredentials(credentialsFile)
-	if err != nil {
-		return nil, err
-	}
+func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, error) {
+	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
 	token, err := wildapricot.Authorize(credentials.APIKey)
 	if err != nil {
 		return nil, err
 	}
 
-	memberGroups, err := wildapricot.GetMemberGroups(credentials.Account, token)
+	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token)
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := types.MakeGroupList(memberGroups, displayOrder)
+	groups, err := types.MakeGroupList(memberGroups, groupDisplayOrder)
 	if err != nil {
 		return nil, err
 	} else if groups == nil {

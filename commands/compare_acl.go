@@ -111,12 +111,17 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
+	credentials, err := getCredentials(cmd.credentials)
+	if err != nil {
+		return fmt.Errorf("Could not load credentials (%v)", err)
+	}
+
 	rules, err := getRules(cmd.rules, cmd.debug)
 	if err != nil {
 		return err
 	}
 
-	members, err := getMembers(conf, cmd.credentials)
+	members, err := getMembers(conf, credentials)
 	if err != nil {
 		return err
 	}
