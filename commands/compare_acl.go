@@ -116,10 +116,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		return err
 	}
 
-	cardNumberField := conf.WildApricot.Fields.CardNumber
-	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
-
-	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
+	members, err := getMembers(conf, cmd.credentials)
 	if err != nil {
 		return err
 	}

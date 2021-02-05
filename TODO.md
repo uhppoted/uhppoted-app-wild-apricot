@@ -2,14 +2,17 @@
 
 ### IN PROGRESS
 
-- [ ] Rotate wild-apricot.log
-- [ ] Commonalise TSV implementation
-- [ ] Commonalise MarshalText implementation
+- [ ] Extended dry-run testing
+      - [ ] wild-apricot.log rotation
+      - [ ] `load-acl`
+      - [x] `get-members`
+      - [x] `get-acl`
+      - [ ] jumpbox
 
 - [ ] `load-acl`
+       - check for updates/versioning
        - log
        - report
-       - check for updates/versioning
 
 - [ ] Get member list
       - Implement async fetch
@@ -22,7 +25,11 @@
       - [x] Export as TSV
       - [x] Door display order
       - [ ] Unit tests for grant/revoke
-      - [ ] `strict` 
+      - [ ] Verify `strict` behaviour
+      - [ ] Rename `record` to `permissions`
+
+- [ ] Commonalise TSV implementation
+- [ ] Commonalise MarshalText implementation
 
 - [x] `get-members`
 - [x] `get-groups`

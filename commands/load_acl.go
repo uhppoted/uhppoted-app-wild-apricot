@@ -100,16 +100,27 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		os.Remove(lockfile)
 	}()
 
-	// ... get config, members and rules
+	// ... get config
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
 		return fmt.Errorf("Could not load configuration (%v)", err)
 	}
 
-	cardNumberField := conf.WildApricot.Fields.CardNumber
-	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
+	// ... get version
+	//spreadsheetId := match[1]
+	//	cmd.revisions = filepath.Join(cmd.workdir, ".google", fmt.Sprintf("%s.revision", spreadsheetId))
+	//
+	//	if cmd.debug {
+	//		debug(fmt.Sprintf("Spreadsheet - ID:%s  range:%s  log:%s", spreadsheetId, cmd.area, cmd.logRange))
+	//	}
+	//
+	//	version, err := cmd.getRevision(spreadsheetId)
+	//	if err != nil {
+	//		fatal(err.Error())
+	//	}
 
-	members, err := getMembers(cmd.credentials, cardNumberField, groupDisplayOrder)
+	// ... get members and rules
+	members, err := getMembers(conf, cmd.credentials)
 	if err != nil {
 		return err
 	}

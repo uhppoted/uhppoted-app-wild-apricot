@@ -2,13 +2,18 @@ package commands
 
 import (
 	"fmt"
+	"strings"
 
+	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-func getMembers(credentialsFile string, cardnumber string, displayOrder []string) (*types.Members, error) {
+func getMembers(conf *config.Config, credentialsFile string) (*types.Members, error) {
+	cardNumberField := conf.WildApricot.Fields.CardNumber
+	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
+
 	credentials, err := getCredentials(credentialsFile)
 	if err != nil {
 		return nil, err
@@ -29,7 +34,7 @@ func getMembers(credentialsFile string, cardnumber string, displayOrder []string
 		return nil, err
 	}
 
-	members, err := types.MakeMemberList(contacts, groups, cardnumber, displayOrder)
+	members, err := types.MakeMemberList(contacts, groups, cardNumberField, groupDisplayOrder)
 	if err != nil {
 		return nil, err
 	} else if members == nil {
