@@ -3,19 +3,29 @@
 ### IN PROGRESS
 
 - [ ] Extended dry-run testing
-      - [ ] wild-apricot.log rotation
       - [ ] `load-acl`
+      - [ ] jumpbox
+      - [x] wild-apricot.log rotation
       - [x] `get-members`
       - [x] `get-acl`
-      - [ ] jumpbox
 
 - [ ] `load-acl`
-       - log
        - report
+
+- [ ] `get-members`
+      - --force
+
+- [ ] `get-acl`
+      - --force
+      - warnings
+
+- [ ] `compare-acl`
+      - --force
+      - warnings
 
 - [ ] Get member list
       - Implement async fetch
-      - Extend timeout (or retry?)
+      - Add client timeout to configuration
 
 - [ ] ACL
       - [x] Default start date
@@ -30,18 +40,15 @@
 - [ ] Commonalise TSV implementation
 - [ ] Commonalise MarshalText implementation
 
-- [x] `get-members`
 - [x] `get-groups`
 - [x] `get-doors`
 - [x] `get-acl`
-- [x] `compare-acl`
-- [x] `get-acl`
-- [x] Get member groups
-- [x] App skeleton
 - [x] `version` command
 - [x] `help` command
-- [x] Get auth token
 - [x] Move `help` to bottom of listed commands in help text
+- [x] Get member groups
+- [x] Get auth token
+- [x] App skeleton
 
 # TODO
 

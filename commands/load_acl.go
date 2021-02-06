@@ -1,12 +1,14 @@
 package commands
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/uhppoted/uhppote-core/device"
 	"github.com/uhppoted/uhppote-core/uhppote"
@@ -31,6 +33,7 @@ type LoadACL struct {
 	force       bool
 	strict      bool
 	dryrun      bool
+	logfile     string
 	debug       bool
 }
 
@@ -48,7 +51,7 @@ func (cmd *LoadACL) Usage() string {
 
 func (cmd *LoadACL) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <url>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <url>] [--log <file>]\n", APP)
 	fmt.Println()
 	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and updates the card lists")
 	fmt.Println("  on the configured controllers")
@@ -71,6 +74,7 @@ func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 	flagset.BoolVar(&cmd.force, "force", cmd.force, "Forces an update, overriding the  version and compare logic")
 	flagset.BoolVar(&cmd.strict, "strict", cmd.strict, "Fails with an error if the members list contains duplicate card numbers")
 	flagset.BoolVar(&cmd.dryrun, "dry-run", cmd.dryrun, "Simulates a load-acl without making any changes to the access controllers")
+	flagset.StringVar(&cmd.logfile, "log", cmd.logfile, "File to which summary report is appended. Defaults to stdout if not provided")
 
 	return flagset
 }
@@ -130,7 +134,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	rules, err := getRules(cmd.rules, cmd.debug)
 	if err != nil {
-		return err
+		return fmt.Errorf("Unable to create ruleset (%v)", err)
 	}
 
 	if cmd.debug {
@@ -176,21 +180,29 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.force || updated {
-		rpt, err := cmd.load(&u, devices, &cards)
+		rpt, warnings, err := cmd.load(&u, devices, &cards)
 		if err != nil {
 			return err
 		}
 
 		if rpt != nil {
-			for k, v := range rpt {
-				for _, err := range v.Errors {
-					fatal(fmt.Sprintf("%v  %v", k, err))
+			if cmd.logfile != "" {
+				var b bytes.Buffer
+				summary := api.Summarize(rpt)
+				timestamp := time.Now().Format("2006-01-02 15:03:04")
+
+				format := "%v  %v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v\n"
+				if strings.HasSuffix(cmd.logfile, ".tsv") {
+					format = "%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n"
 				}
+
+				for _, v := range summary {
+					fmt.Fprintf(&b, format, timestamp, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings))
+				}
+
+				fappend(cmd.logfile, b.Bytes())
 			}
 
-			//		if !cmd.nolog {
-			//		}
-			//
 			//		if !cmd.noreport {
 			//		}
 		}
@@ -212,7 +224,7 @@ func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *
 		return false, err
 	}
 
-	acl, _, err := api.ParseTable(cards, devices, cmd.strict)
+	acl, _, err := api.ParseTable(cards, devices, false)
 	if err != nil {
 		return false, err
 	}
@@ -235,10 +247,10 @@ func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *
 	return false, nil
 }
 
-func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (map[uint32]api.Report, error) {
+func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (map[uint32]api.Report, []error, error) {
 	acl, warnings, err := api.ParseTable(cards, devices, cmd.strict)
 	if err != nil {
-		return nil, err
+		return nil, warnings, err
 	}
 
 	for _, w := range warnings {
@@ -247,7 +259,13 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api
 
 	rpt, err := api.PutACL(u, *acl, cmd.dryrun)
 	if err != nil {
-		return nil, err
+		return nil, warnings, err
+	}
+
+	for k, v := range rpt {
+		for _, err := range v.Errors {
+			fatal(fmt.Sprintf("%v  %v", k, err))
+		}
 	}
 
 	summary := api.Summarize(rpt)
@@ -256,7 +274,7 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api
 		info(fmt.Sprintf(format, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings)))
 	}
 
-	return rpt, nil
+	return rpt, warnings, nil
 }
 
 func (cmd *LoadACL) lock() (string, error) {

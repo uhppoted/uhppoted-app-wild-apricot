@@ -93,6 +93,16 @@ func write(file string, bytes []byte) error {
 	return nil
 }
 
+func fappend(file string, bytes []byte) error {
+	f, err := os.OpenFile(file, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(f, "%s", string(bytes))
+
+	return f.Close()
+}
 func normalise(v string) string {
 	re := regexp.MustCompile(`[^a-z1-9]`)
 

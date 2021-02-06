@@ -98,7 +98,7 @@ get-acl-file: build
 	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-drive: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=19e0ZCyr0xjtKw3RSlYx857PSf_F2WbSg" --file "$(WORKDIR)/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1dwc9HFCbjCf4YB2siexk--coI_xOAtul"
 
 compare-acl: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
@@ -111,5 +111,5 @@ compare-acl-summary: build
 	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
-	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force
+	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log
 
