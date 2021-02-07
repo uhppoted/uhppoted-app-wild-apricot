@@ -2,8 +2,10 @@ package commands
 
 import (
 	"bytes"
+	"encoding/csv"
 	"flag"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -14,6 +16,7 @@ import (
 	"github.com/uhppoted/uhppote-core/uhppote"
 	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
+	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var LoadACLCmd = LoadACL{
@@ -34,6 +37,7 @@ type LoadACL struct {
 	strict      bool
 	dryrun      bool
 	logfile     string
+	rptfile     string
 	debug       bool
 }
 
@@ -74,7 +78,8 @@ func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 	flagset.BoolVar(&cmd.force, "force", cmd.force, "Forces an update, overriding the  version and compare logic")
 	flagset.BoolVar(&cmd.strict, "strict", cmd.strict, "Fails with an error if the members list contains duplicate card numbers")
 	flagset.BoolVar(&cmd.dryrun, "dry-run", cmd.dryrun, "Simulates a load-acl without making any changes to the access controllers")
-	flagset.StringVar(&cmd.logfile, "log", cmd.logfile, "File to which summary report is appended. Defaults to stdout if not provided")
+	flagset.StringVar(&cmd.logfile, "log", cmd.logfile, "File to which the (optional) summary report is appended")
+	flagset.StringVar(&cmd.rptfile, "report", cmd.rptfile, "File to which the detail report is written. Defaults to stdout if not provided")
 
 	return flagset
 }
@@ -186,25 +191,13 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		}
 
 		if rpt != nil {
-			if cmd.logfile != "" {
-				var b bytes.Buffer
-				summary := api.Summarize(rpt)
-				timestamp := time.Now().Format("2006-01-02 15:03:04")
-
-				format := "%v  %v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v\n"
-				if strings.HasSuffix(cmd.logfile, ".tsv") {
-					format = "%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n"
-				}
-
-				for _, v := range summary {
-					fmt.Fprintf(&b, format, timestamp, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings))
-				}
-
-				fappend(cmd.logfile, b.Bytes())
+			if err := cmd.log(rpt, warnings); err != nil {
+				warn(fmt.Sprintf("Error appending summary report to log file (%v)", err))
 			}
 
-			//		if !cmd.noreport {
-			//		}
+			if err := cmd.report(rpt, *members); err != nil {
+				warn(fmt.Sprintf("Error writing report file (%v)", err))
+			}
 		}
 
 		if err := storeTimestamp(cmd.workdir, credentials.AccountID, members.Timestamp); err != nil {
@@ -218,33 +211,25 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	return nil
 }
 
-func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (bool, error) {
-	current, err := api.GetACL(u, devices)
-	if err != nil {
-		return false, err
+func (cmd *LoadACL) lock() (string, error) {
+	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
+	pid := fmt.Sprintf("%d\n", os.Getpid())
+
+	if err := os.MkdirAll(filepath.Dir(lockfile), 0770); err != nil {
+		return "", fmt.Errorf("Unable to create directory '%v' for lockfile (%v)", lockfile, err)
 	}
 
-	acl, _, err := api.ParseTable(cards, devices, false)
-	if err != nil {
-		return false, err
+	if _, err := os.Stat(lockfile); err == nil {
+		return "", fmt.Errorf("Locked by '%v'", lockfile)
+	} else if !os.IsNotExist(err) {
+		return "", fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
 	}
 
-	if acl == nil {
-		return false, fmt.Errorf("Error creating ACL from cards (%v)", cards)
+	if err := ioutil.WriteFile(lockfile, []byte(pid), 0660); err != nil {
+		return "", fmt.Errorf("Unable to create lockfile '%v' (%v)", lockfile, err)
 	}
 
-	diff, err := api.Compare(current, *acl)
-	if err != nil {
-		return false, err
-	}
-
-	for _, v := range diff {
-		if v.HasChanges() {
-			return true, nil
-		}
-	}
-
-	return false, nil
+	return lockfile, nil
 }
 
 func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (map[uint32]api.Report, []error, error) {
@@ -277,23 +262,189 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api
 	return rpt, warnings, nil
 }
 
-func (cmd *LoadACL) lock() (string, error) {
-	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
-	pid := fmt.Sprintf("%d\n", os.Getpid())
-
-	if err := os.MkdirAll(filepath.Dir(lockfile), 0770); err != nil {
-		return "", fmt.Errorf("Unable to create directory '%v' for lockfile (%v)", lockfile, err)
+func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (bool, error) {
+	current, err := api.GetACL(u, devices)
+	if err != nil {
+		return false, err
 	}
 
-	if _, err := os.Stat(lockfile); err == nil {
-		return "", fmt.Errorf("Locked by '%v'", lockfile)
-	} else if !os.IsNotExist(err) {
-		return "", fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
+	acl, _, err := api.ParseTable(cards, devices, false)
+	if err != nil {
+		return false, err
 	}
 
-	if err := ioutil.WriteFile(lockfile, []byte(pid), 0660); err != nil {
-		return "", fmt.Errorf("Unable to create lockfile '%v' (%v)", lockfile, err)
+	if acl == nil {
+		return false, fmt.Errorf("Error creating ACL from cards (%v)", cards)
 	}
 
-	return lockfile, nil
+	diff, err := api.Compare(current, *acl)
+	if err != nil {
+		return false, err
+	}
+
+	for _, v := range diff {
+		if v.HasChanges() {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func (cmd *LoadACL) log(rpt map[uint32]api.Report, warnings []error) error {
+	if cmd.logfile != "" {
+		var b bytes.Buffer
+		summary := api.Summarize(rpt)
+		timestamp := time.Now().Format("2006-01-02 15:03:04")
+
+		format := "%v  %v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v\n"
+		if strings.HasSuffix(cmd.logfile, ".tsv") {
+			format = "%v\t%v\t%v\t%v\t%v\t%v\t%v\t%v\n"
+		}
+
+		for _, v := range summary {
+			fmt.Fprintf(&b, format, timestamp, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings))
+		}
+
+		f, err := os.OpenFile(cmd.logfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(f, "%s", string(b.Bytes()))
+
+		return f.Close()
+	}
+
+	return nil
+}
+
+func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) error {
+	// ... build card/name map
+	names := map[uint32]string{}
+	for _, m := range members.Members {
+		if m.CardNumber != nil {
+			names[uint32(*m.CardNumber)] = m.Name
+		}
+	}
+
+	// ... build report
+	header := []string{"Timestamp", "Action", "Card Number", "Name"}
+	index := map[string]int{
+		"timestamp":  0,
+		"action":     1,
+		"cardnumber": 2,
+		"name":       3,
+	}
+
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
+
+	consolidated := api.Consolidate(rpt)
+
+	format := []struct {
+		Cards  []uint32
+		Action string
+	}{
+		{consolidated.Updated, "Updated"},
+		{consolidated.Added, "Added"},
+		{consolidated.Deleted, "Deleted"},
+		{consolidated.Failed, "Failed"},
+		{consolidated.Errored, "Error"},
+	}
+
+	rows := [][]string{}
+	for _, f := range format {
+		for _, card := range f.Cards {
+			row := make([]string, len(header))
+
+			for i := 0; i < len(row); i++ {
+				row[i] = ""
+			}
+
+			if ix, ok := index["timestamp"]; ok {
+				row[ix] = timestamp
+			}
+
+			if ix, ok := index["action"]; ok {
+				row[ix] = f.Action
+			}
+
+			if ix, ok := index["cardnumber"]; ok {
+				row[ix] = fmt.Sprintf("%v", card)
+			}
+
+			if ix, ok := index["name"]; ok {
+				row[ix] = fmt.Sprintf("%v", names[card])
+			}
+
+			rows = append(rows, row)
+		}
+	}
+
+	// ... write report
+	var b bytes.Buffer
+	if strings.HasSuffix(cmd.rptfile, ".tsv") {
+		w := csv.NewWriter(&b)
+		w.Comma = '\t'
+
+		w.Write(header)
+		for _, row := range rows {
+			w.Write(row)
+		}
+
+		w.Flush()
+	} else {
+		marshalTextIndent(&b, header, rows, "  ")
+	}
+
+	if cmd.rptfile != "" {
+		f, err := os.OpenFile(cmd.rptfile, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(f, "%s", string(b.Bytes()))
+
+		return f.Close()
+	}
+
+	fmt.Printf("\n%s\n", string(b.Bytes()))
+	return nil
+}
+
+func marshalTextIndent(w io.Writer, header []string, data [][]string, indent string) error {
+	var b bytes.Buffer
+
+	table := [][]string{}
+	table = append(table, header)
+	table = append(table, data...)
+
+	if len(table) > 0 {
+		widths := make([]int, len(table[0]))
+		for _, row := range table {
+			for i, field := range row {
+				if len(field) > widths[i] {
+					widths[i] = len(field)
+				}
+			}
+		}
+
+		for i := 1; i < len(widths); i++ {
+			widths[i-1] += 1
+		}
+
+		for _, row := range table {
+			fmt.Fprintf(&b, "%s", indent)
+			for i, field := range row {
+				fmt.Fprintf(&b, "%-*v", widths[i], field)
+			}
+			fmt.Fprintln(&b)
+		}
+	}
+
+	if _, err := w.Write(b.Bytes()); err != nil {
+		return err
+	}
+
+	return nil
 }
