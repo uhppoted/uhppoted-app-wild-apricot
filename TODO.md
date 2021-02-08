@@ -11,7 +11,7 @@
       - [x] `get-acl`
 
 - [ ] Get member list
-      - gzip
+      - retry logic
 
 - [ ] `get-acl`
       - warnings
@@ -26,7 +26,7 @@
       - [x] Default end date
       - [x] Grant/revoke access
       - [x] Export as TSV
-      - [x] Door display order
+      - [x] Door display orde r
       - [ ] Unit tests for grant/revoke
       - [x] Verify `strict` behaviour
       - [x] Rename `record` to `permissions`

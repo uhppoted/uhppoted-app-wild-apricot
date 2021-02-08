@@ -1,6 +1,7 @@
 package wildapricot
 
 import (
+	"compress/gzip"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -81,6 +82,7 @@ func GetContacts(accountId uint32, token string, timeout time.Duration) ([]Conta
 	rq, err := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
+	rq.Header.Set("Accept-Encoding", "gzip")
 
 	response, err := client.Do(rq)
 	if err != nil {
@@ -89,7 +91,15 @@ func GetContacts(accountId uint32, token string, timeout time.Duration) ([]Conta
 
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	reader := response.Body
+	if strings.ToLower(response.Header.Get("Content-Encoding")) == "gzip" {
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -115,6 +125,7 @@ func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]M
 	rq, err := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
+	rq.Header.Set("Accept-Encoding", "gzip")
 
 	response, err := client.Do(rq)
 	if err != nil {
@@ -123,7 +134,15 @@ func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]M
 
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	reader := response.Body
+	if strings.ToLower(response.Header.Get("Content-Encoding")) == "gzip" {
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	body, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
