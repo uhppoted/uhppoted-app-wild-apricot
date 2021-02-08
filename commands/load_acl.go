@@ -121,7 +121,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	// ... updated?
-	updated, err := revised(credentials, getTimestamp(cmd.workdir, credentials.AccountID))
+	updated, err := revised(conf, credentials, getTimestamp(cmd.workdir, credentials.AccountID))
 	if err != nil {
 		return fmt.Errorf("Failed to get DB version (%v)", err)
 	}

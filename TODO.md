@@ -3,29 +3,23 @@
 ### IN PROGRESS
 
 - [ ] Extended dry-run testing
-      - [ ] `load-acl`
       - [ ] jumpbox
+      - [ ] Log retention
+      - [x] `load-acl`
       - [x] wild-apricot.log rotation
       - [x] `get-members`
       - [x] `get-acl`
 
-- [ ] `load-acl`
-       - report
-
-- [ ] `get-members`
-      - --force
+- [ ] Get member list
+      - gzip
 
 - [ ] `get-acl`
-      - --force
       - warnings
 
 - [ ] `compare-acl`
-      - --force
       - warnings
 
-- [ ] Get member list
-      - Implement async fetch
-      - Add client timeout to configuration
+- [ ] README
 
 - [ ] ACL
       - [x] Default start date
@@ -40,6 +34,8 @@
 - [ ] Commonalise TSV implementation
 - [ ] Commonalise MarshalText implementation
 
+- [x] `get-members`
+- [x] `load-acl`
 - [x] `get-groups`
 - [x] `get-doors`
 - [x] `get-acl`

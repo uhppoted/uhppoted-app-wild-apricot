@@ -25,9 +25,9 @@ type authorisation struct {
 	Permissions  []permission `json:"Permissions"`
 }
 
-func Authorize(apiKey string) (string, error) {
+func Authorize(apiKey string, timeout time.Duration) (string, error) {
 	client := http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: timeout,
 	}
 
 	auth := base64.StdEncoding.EncodeToString([]byte("APIKEY:" + apiKey))
@@ -67,9 +67,9 @@ func Authorize(apiKey string) (string, error) {
 	return authx.AccessToken, nil
 }
 
-func GetContacts(accountId uint32, token string) ([]Contact, error) {
+func GetContacts(accountId uint32, token string, timeout time.Duration) ([]Contact, error) {
 	client := http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: timeout,
 	}
 
 	parameters := url.Values{}
@@ -79,8 +79,8 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
 
 	rq, err := http.NewRequest("GET", uri, nil)
-	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Authorization", "Bearer "+token)
+	rq.Header.Set("Accept", "application/json")
 
 	response, err := client.Do(rq)
 	if err != nil {
@@ -105,16 +105,17 @@ func GetContacts(accountId uint32, token string) ([]Contact, error) {
 	return contacts.Contacts, nil
 }
 
-func GetMemberGroups(accountId uint32, token string) ([]MemberGroup, error) {
+func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]MemberGroup, error) {
 	client := http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: timeout,
 	}
 
-	url := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups", accountId)
-	rq, err := http.NewRequest("GET", url, nil)
+	uri := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups", accountId)
 
-	rq.Header.Set("Accept", "application/json")
+	rq, err := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
+	rq.Header.Set("Accept", "application/json")
+
 	response, err := client.Do(rq)
 	if err != nil {
 		return nil, err

@@ -11,8 +11,8 @@ import (
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
-func revised(credentials *credentials, timestamp *time.Time) (bool, error) {
-	token, err := wildapricot.Authorize(credentials.APIKey)
+func revised(conf *config.Config, credentials *credentials, timestamp *time.Time) (bool, error) {
+	token, err := wildapricot.Authorize(credentials.APIKey, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return false, err
 	}
@@ -35,17 +35,17 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 	cardNumberField := conf.WildApricot.Fields.CardNumber
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
-	token, err := wildapricot.Authorize(credentials.APIKey)
+	token, err := wildapricot.Authorize(credentials.APIKey, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return nil, err
 	}
 
-	contacts, err := wildapricot.GetContacts(credentials.AccountID, token)
+	contacts, err := wildapricot.GetContacts(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token)
+	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return nil, err
 	}
@@ -63,12 +63,12 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, error) {
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
-	token, err := wildapricot.Authorize(credentials.APIKey)
+	token, err := wildapricot.Authorize(credentials.APIKey, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return nil, err
 	}
 
-	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token)
+	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return nil, err
 	}
