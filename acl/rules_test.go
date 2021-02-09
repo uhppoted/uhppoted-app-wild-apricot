@@ -20,6 +20,10 @@ var dumbledore = types.Member{
 	Active:     true,
 	Suspended:  false,
 	Registered: dateFromString("1880-02-29"),
+	Membership: types.Membership{
+		ID:   25342355,
+		Name: "Staff",
+	},
 }
 
 var admin = types.Member{
@@ -34,6 +38,10 @@ var harry = types.Member{
 	Active:     true,
 	Suspended:  false,
 	Expires:    dateFromString("2021-06-30"),
+	Membership: types.Membership{
+		ID:   545454,
+		Name: "Stduent",
+	},
 }
 
 var hermione = types.Member{
@@ -43,6 +51,10 @@ var hermione = types.Member{
 	Suspended:  false,
 	Registered: dateFromString("2020-06-25"),
 	Expires:    dateFromString("2021-06-30"),
+	Membership: types.Membership{
+		ID:   545454,
+		Name: "Stduent",
+	},
 }
 
 var voldemort = types.Member{
@@ -51,6 +63,10 @@ var voldemort = types.Member{
 	Active:     false,
 	Suspended:  true,
 	Registered: dateFromString("1981-07-01"),
+	Membership: types.Membership{
+		ID:   7777777,
+		Name: "Alumni",
+	},
 }
 
 var grules = `

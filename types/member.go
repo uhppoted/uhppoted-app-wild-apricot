@@ -60,6 +60,24 @@ func (f Field) String() string {
 	return [...]string{"Card Number", "Registered", "Expires", "Suspended"}[f]
 }
 
+func (m *Member) Is(membership interface{}) bool {
+	if m != nil {
+		switch v := membership.(type) {
+		case int64:
+			if v == int64(m.Membership.ID) {
+				return true
+			}
+
+		case string:
+			if normalise(v) == normalise(m.Membership.Name) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 func (m *Member) HasCardNumber(card interface{}) bool {
 	if m != nil && m.CardNumber != nil {
 		switch v := card.(type) {
