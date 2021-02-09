@@ -295,7 +295,7 @@ func (cmd *LoadACL) log(rpt map[uint32]api.Report, warnings []error) error {
 	if cmd.logfile != "" {
 		var b bytes.Buffer
 		summary := api.Summarize(rpt)
-		timestamp := time.Now().Format("2006-01-02 15:03:04")
+		timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 		format := "%v  %v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v\n"
 		if strings.HasSuffix(cmd.logfile, ".tsv") {

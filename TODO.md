@@ -4,6 +4,7 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
+      - [ ] --no-header option
       - [x] Append reports
       - [x] Log retention
       - [x] `load-acl`
