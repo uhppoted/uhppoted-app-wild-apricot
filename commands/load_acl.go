@@ -398,12 +398,13 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 	}
 
 	if cmd.rptfile != "" {
-		f, err := os.OpenFile(cmd.rptfile, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+		f, err := os.OpenFile(cmd.rptfile, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 		if err != nil {
 			return err
 		}
 
 		fmt.Fprintf(f, "%s", string(b.Bytes()))
+		fmt.Fprintln(f)
 
 		return f.Close()
 	}

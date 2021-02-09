@@ -4,12 +4,13 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
-      - [ ] Append reports, (temporarily) deleting before load-acl
+      - [x] Append reports
       - [x] Log retention
       - [x] `load-acl`
       - [x] wild-apricot.log rotation
       - [x] `get-members`
       - [x] `get-acl`
+
 
 - [ ] Get member list
       - retry logic
