@@ -4,7 +4,8 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
-      - [ ] Log retention
+      - [ ] Append reports, (temporarily) deleting before load-acl
+      - [x] Log retention
       - [x] `load-acl`
       - [x] wild-apricot.log rotation
       - [x] `get-members`
@@ -12,6 +13,7 @@
 
 - [ ] Get member list
       - retry logic
+      - `Profile Last Updated` field doesn't seem to be reliable
 
 - [ ] `get-acl`
       - warnings
@@ -22,12 +24,13 @@
 - [ ] README
 
 - [ ] ACL
+      - [ ] Unit tests for grant/revoke
+      - [ ] Variadic grant/revoke e.g. grant("here", "there", 12345)
       - [x] Default start date
       - [x] Default end date
       - [x] Grant/revoke access
       - [x] Export as TSV
-      - [x] Door display orde r
-      - [ ] Unit tests for grant/revoke
+      - [x] Door display order
       - [x] Verify `strict` behaviour
       - [x] Rename `record` to `permissions`
 

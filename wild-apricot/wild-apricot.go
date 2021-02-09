@@ -115,6 +115,48 @@ func GetContacts(accountId uint32, token string, timeout time.Duration) ([]Conta
 	return contacts.Contacts, nil
 }
 
+func GetMembershipLevels(accountId uint32, token string, timeout time.Duration) ([]MembershipLevel, error) {
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	uri := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membershiplevels", accountId)
+
+	rq, err := http.NewRequest("GET", uri, nil)
+	rq.Header.Set("Authorization", "Bearer "+token)
+	rq.Header.Set("Accept", "application/json")
+	rq.Header.Set("Accept-Encoding", "gzip")
+
+	response, err := client.Do(rq)
+	if err != nil {
+		return nil, err
+	}
+
+	defer response.Body.Close()
+
+	reader := response.Body
+	if strings.ToLower(response.Header.Get("Content-Encoding")) == "gzip" {
+		reader, err = gzip.NewReader(response.Body)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	body, err := ioutil.ReadAll(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Printf(">>>>>>>>>>>> %s\n", string(body))
+
+	levels := []MembershipLevel{}
+	if err := json.Unmarshal(body, &levels); err != nil {
+		return nil, err
+	}
+
+	return levels, nil
+}
+
 func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]MemberGroup, error) {
 	client := http.Client{
 		Timeout: timeout,

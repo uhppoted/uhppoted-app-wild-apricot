@@ -29,6 +29,7 @@ type Member struct {
 	Registered *Date
 	Expires    *Date
 	Groups     map[uint32]Group
+	Membership Membership
 }
 
 type CardNumber uint32
@@ -39,6 +40,11 @@ func (c *CardNumber) String() string {
 	}
 
 	return ""
+}
+
+type Membership struct {
+	ID   uint32
+	Name string
 }
 
 type Field int
@@ -214,6 +220,7 @@ func (members *Members) asTable() ([]string, [][]string) {
 	header := []string{
 		"Name",
 		"Card Number",
+		"Membership",
 		"Active",
 		"Suspended",
 		"Registered",
@@ -246,6 +253,7 @@ func (members *Members) asTable() ([]string, [][]string) {
 			row := []string{}
 			row = append(row, fmt.Sprintf("%v", m.Name))
 			row = append(row, fmt.Sprintf("%v", m.CardNumber))
+			row = append(row, fmt.Sprintf("%v", m.Membership.Name))
 			row = append(row, f(m.Active))
 			row = append(row, f(m.Suspended))
 			row = append(row, fmt.Sprintf("%v", m.Registered))
@@ -268,8 +276,12 @@ func (members *Members) asTable() ([]string, [][]string) {
 
 func transcode(contact wildapricot.Contact, fields map[Field]string) (*Member, error) {
 	member := Member{
-		id:     contact.ID,
-		Name:   fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
+		id:   contact.ID,
+		Name: fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
+		Membership: Membership{
+			ID:   contact.MembershipLevel.ID,
+			Name: contact.MembershipLevel.Name,
+		},
 		Active: contact.Enabled && strings.ToLower(contact.Status) == "active",
 		Groups: map[uint32]Group{},
 	}

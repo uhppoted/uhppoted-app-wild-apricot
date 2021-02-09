@@ -45,6 +45,11 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 		return nil, err
 	}
 
+	//	levels, err := wildapricot.GetMembershipLevels(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+
 	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return nil, err
