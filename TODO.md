@@ -4,7 +4,7 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
-      - [ ] Move rules file
+      - [x] Move rules file
       - [x] Append reports
       - [x] Log retention
       - [x] `load-acl`

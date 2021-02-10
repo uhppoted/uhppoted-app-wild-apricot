@@ -28,7 +28,7 @@ func getTimestamp(workdir string, accountID uint32) *time.Time {
 		return nil
 	}
 
-	timestamp, err := time.Parse("2006-01-02T15:04:05.999-07:00", v.Timestamp)
+	timestamp, err := time.Parse("2006-01-02 15:04:05", v.Timestamp)
 	if err != nil {
 		return nil
 	}
@@ -42,7 +42,7 @@ func storeTimestamp(workdir string, accountID uint32, timestamp time.Time) error
 		Timestamp string `json:"timestamp"`
 	}{
 		AccountID: accountID,
-		Timestamp: timestamp.Format("2006-01-02T15:04:05.999-07:00"),
+		Timestamp: timestamp.Format("2006-01-02 15:04:05"),
 	}
 
 	bytes, err := json.MarshalIndent(v, "", "  ")
