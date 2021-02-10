@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
 )
 
@@ -127,10 +128,21 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		return err
 	}
 
+	_, devices := getDevices(conf, cmd.debug)
+	cards := acl.AsTable()
+	_, warnings, err := api.ParseTable(&cards, devices, false)
+	if err != nil {
+		return err
+	}
+
 	if cmd.debug {
 		if text, err := acl.MarshalTextIndent("  "); err == nil {
 			fmt.Printf("ACL:\n%s\n", string(text))
 		}
+	}
+
+	for _, w := range warnings {
+		warn(w.Error())
 	}
 
 	// ... write to stdout

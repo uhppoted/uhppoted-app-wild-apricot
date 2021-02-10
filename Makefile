@@ -61,9 +61,8 @@ bump:
 	go get -u github.com/uhppoted/uhppoted-api
 
 debug: build
-#	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
-	$(CLI) --config /usr/local/etc/com.github.uhppoted/ubcs.conf get-members --credentials ../runtime/wild-apricot/.ubcs.json
 #	$(CLI) get-members --credentials $(CREDENTIALS)
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 # GENERAL COMMANDS
 

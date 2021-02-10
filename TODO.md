@@ -12,18 +12,12 @@
       - [x] `get-members`
       - [x] `get-acl`
 
-https://drive.google.com/file/d/1LY_ARo-UoDAxcbhSzW6PIfhlqwDZqM8l/view?usp=sharing
-
 - [ ] Get member list
       - retry logic
 
-- [ ] `get-acl`
-      - warnings
-
-- [ ] `compare-acl`
-      - warnings
-
 - [ ] README
+- [ ] Commonalise TSV implementation
+- [ ] Commonalise MarshalText implementation
 
 - [ ] ACL
       - [ ] Unit tests for grant/revoke
@@ -36,10 +30,9 @@ https://drive.google.com/file/d/1LY_ARo-UoDAxcbhSzW6PIfhlqwDZqM8l/view?usp=shari
       - [x] Verify `strict` behaviour
       - [x] Rename `record` to `permissions`
 
-- [ ] Commonalise TSV implementation
-- [ ] Commonalise MarshalText implementation
-
 - [x] `get-members`
+- [x] `get-acl`
+- [x] `compare-acl`
 - [x] `load-acl`
 - [x] `get-groups`
 - [x] `get-doors`
