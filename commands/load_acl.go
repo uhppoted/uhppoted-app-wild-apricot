@@ -387,7 +387,6 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 		w := csv.NewWriter(&b)
 		w.Comma = '\t'
 
-		w.Write(header)
 		for _, row := range rows {
 			w.Write(row)
 		}
@@ -395,6 +394,7 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 		w.Flush()
 	} else {
 		marshalTextIndent(&b, header, rows, "  ")
+		fmt.Fprintln(&b)
 	}
 
 	if cmd.rptfile != "" {
@@ -404,12 +404,11 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 		}
 
 		fmt.Fprintf(f, "%s", string(b.Bytes()))
-		fmt.Fprintln(f)
 
 		return f.Close()
 	}
 
-	fmt.Printf("\n%s\n", string(b.Bytes()))
+	fmt.Printf("%s\n", string(b.Bytes()))
 	return nil
 }
 
