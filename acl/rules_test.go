@@ -85,12 +85,32 @@ rule EndDate "Sets the end date to the 'expires' field" {
          permissions.SetEndDate(member.Expires);
          Retract("EndDate");
 }
+`
 
+var grant = `
+rule Grant "Grants permission to the Whomping Willow" {
+     when
+		member.HasCardNumber(6000001)
+	 then
+         permissions.Grant("Whomping Willow");
+         Retract("Grant");
+}
+`
+
+var revoke = `
+rule Revoke "Revokes permission to the Whomping Willow" {
+     when
+		member.HasCardNumber(6000001)
+	 then
+         permissions.Revoke("Whomping Willow");
+         Retract("Revoke");
+}
 `
 
 func TestMakeACL(t *testing.T) {
 	members := types.Members{
-		Members: []types.Member{dumbledore, admin, harry, hermione, voldemort}}
+		Members: []types.Member{dumbledore, admin, harry, hermione, voldemort},
+	}
 
 	doors := []string{}
 
@@ -155,6 +175,133 @@ func TestMakeACL(t *testing.T) {
 	}
 }
 
+// TODO test with duplicate cards
+
+func TestGrant(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted: map[string]struct{}{
+					"whompingwillow": struct{}{},
+				},
+				Revoked: map[string]struct{}{},
+			},
+		},
+	}
+
+	r, err := NewRules([]byte(grules+grant), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
+
+func TestRevoke(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted:    map[string]struct{}{},
+				Revoked: map[string]struct{}{
+					"whompingwillow": struct{}{},
+				},
+			},
+		},
+	}
+
+	r, err := NewRules([]byte(grules+revoke), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
+
+func TestGrantAndRevoke(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted: map[string]struct{}{
+					"whompingwillow": struct{}{},
+				},
+				Revoked: map[string]struct{}{
+					"whompingwillow": struct{}{},
+				},
+			},
+		},
+	}
+
+	r, err := NewRules([]byte(grules+grant+revoke), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
+
 func compare(r, expected record, t *testing.T) {
 	if reflect.DeepEqual(r, expected) {
 		return
@@ -184,10 +331,8 @@ func compare(r, expected record, t *testing.T) {
 		t.Errorf("Invalid ACL record 'revoked' - expected:%#v, got:%#v", r.Revoked, expected.Revoked)
 	}
 
-	t.Errorf("Invalid ACL record - expected:%v, got:%v", r, expected)
+	t.Errorf("Invalid ACL record - expected:%v, got:%v", expected, r)
 }
-
-// TODO test with duplicate cards
 
 func dateFromString(s string) *types.Date {
 	date, err := types.DateFromString(s)

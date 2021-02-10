@@ -108,21 +108,26 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 			for _, door := range acl.doors {
 				granted := false
 				revoked := false
+				d := normalise(door)
 
 				if _, ok := r.Granted["*"]; ok {
 					granted = true
 				}
 
-				if _, ok := r.Granted[normalise(door)]; ok {
-					granted = true
+				for k, _ := range r.Granted {
+					if d == normalise(k) {
+						granted = true
+					}
 				}
 
 				if _, ok := r.Revoked["*"]; ok {
 					revoked = true
 				}
 
-				if _, ok := r.Revoked[normalise(door)]; ok {
-					revoked = true
+				for k, _ := range r.Revoked {
+					if d == normalise(k) {
+						revoked = true
+					}
 				}
 
 				if granted && !revoked {

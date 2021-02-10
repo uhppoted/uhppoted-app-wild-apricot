@@ -20,8 +20,8 @@
 - [ ] Commonalise MarshalText implementation
 
 - [ ] ACL
-      - [ ] Unit tests for grant/revoke
       - [ ] Variadic grant/revoke e.g. grant("here", "there", 12345)
+      - [x] Unit tests for grant/revoke
       - [x] Default start date
       - [x] Default end date
       - [x] Grant/revoke access
