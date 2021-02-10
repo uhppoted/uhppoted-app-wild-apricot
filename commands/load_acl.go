@@ -85,6 +85,7 @@ func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 }
 
 func (cmd *LoadACL) Execute(args ...interface{}) error {
+	timestamp := time.Now()
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug
@@ -200,7 +201,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 			}
 		}
 
-		if err := storeTimestamp(cmd.workdir, credentials.AccountID, members.Timestamp); err != nil {
+		if err := storeTimestamp(cmd.workdir, credentials.AccountID, timestamp); err != nil {
 			return fmt.Errorf("Failed to store DB timestamp (%v)", err)
 		}
 

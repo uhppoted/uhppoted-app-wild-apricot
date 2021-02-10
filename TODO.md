@@ -4,7 +4,7 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
-      - [ ] --no-header option
+      - [ ] Move rules file
       - [x] Append reports
       - [x] Log retention
       - [x] `load-acl`
@@ -12,10 +12,10 @@
       - [x] `get-members`
       - [x] `get-acl`
 
+https://drive.google.com/file/d/1LY_ARo-UoDAxcbhSzW6PIfhlqwDZqM8l/view?usp=sharing
 
 - [ ] Get member list
       - retry logic
-      - `Profile Last Updated` field doesn't seem to be reliable
 
 - [ ] `get-acl`
       - warnings

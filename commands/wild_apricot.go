@@ -21,12 +21,14 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 		return true, nil
 	}
 
-	t := timestamp.Truncate(1 * time.Second).Add(1 * time.Second)
+	t := timestamp.Truncate(1 * time.Second)
 
-	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t)
+	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {
 		return false, err
 	}
+
+	info(fmt.Sprintf("Updated records: %v", N))
 
 	return N > 0, nil
 }
@@ -44,11 +46,6 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 	if err != nil {
 		return nil, err
 	}
-
-	//	levels, err := wildapricot.GetMembershipLevels(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
-	//	if err != nil {
-	//		return nil, err
-	//	}
 
 	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
 	if err != nil {

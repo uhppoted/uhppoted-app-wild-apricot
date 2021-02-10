@@ -61,7 +61,9 @@ bump:
 	go get -u github.com/uhppoted/uhppoted-api
 
 debug: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
+#	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
+	$(CLI) --config /usr/local/etc/com.github.uhppoted/ubcs.conf get-members --credentials ../runtime/wild-apricot/.ubcs.json
+#	$(CLI) get-members --credentials $(CREDENTIALS)
 
 # GENERAL COMMANDS
 
@@ -111,6 +113,7 @@ compare-acl-summary: build
 	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
-	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report
-	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report.tsv
+#	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report
+#	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report.tsv
+	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run
 
