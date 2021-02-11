@@ -175,7 +175,98 @@ func TestMakeACL(t *testing.T) {
 	}
 }
 
-// TODO test with duplicate cards
+func TestMakeACLWithDuplicateCards(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{
+			dumbledore,
+			admin,
+			harry,
+			hermione,
+			voldemort,
+			types.Member{
+				Name:       "Aberforth Dumbledore",
+				CardNumber: &C1000001,
+				Active:     true,
+				Suspended:  false,
+				Registered: dateFromString("2001-02-28"),
+				Membership: types.Membership{
+					ID:   25342355,
+					Name: "Other",
+				},
+			},
+		},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Albus Dumbledore",
+				CardNumber: 1000001,
+				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
+				EndDate:    endOfYear().AddDate(0, 1, 0),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				Name:       "Tom Riddle",
+				CardNumber: 2000001,
+				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
+				EndDate:    endOfYear().AddDate(0, 1, 0),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				Name:       "Hermione Granger",
+				CardNumber: 6000002,
+				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+			record{
+				Name:       "Aberforth Dumbledore",
+				CardNumber: 1000001,
+				StartDate:  time.Date(2001, time.February, 28, 0, 0, 0, 0, time.Local),
+				EndDate:    endOfYear().AddDate(0, 1, 0),
+				Granted:    map[string]struct{}{},
+				Revoked:    map[string]struct{}{},
+			},
+		},
+	}
+
+	r, err := NewRules([]byte(grules), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	sort.SliceStable(expected.records, func(i, j int) bool { return expected.records[i].CardNumber < expected.records[j].CardNumber })
+	sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
+
+	if !reflect.DeepEqual(acl, expected) {
+		if len(acl.records) != len(expected.records) {
+			t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+		} else {
+			for i, _ := range expected.records {
+				compare(acl.records[i], expected.records[i], t)
+			}
+		}
+	}
+}
 
 func TestGrant(t *testing.T) {
 	members := types.Members{
@@ -218,6 +309,59 @@ func TestGrant(t *testing.T) {
 	}
 }
 
+func TestVariadicGrant(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted: map[string]struct{}{
+					"whompingwillow": struct{}{},
+					"gryffindor":     struct{}{},
+					"greathall":      struct{}{},
+				},
+				Revoked: map[string]struct{}{},
+			},
+		},
+	}
+
+	grant := `
+rule Grant "Grants permission to the Whomping Willow" {
+     when
+		member.HasCardNumber(6000001)
+	 then
+         permissions.Grant("Whomping Willow", "Gryffindor", "Great Hall");
+         Retract("Grant");
+}
+`
+
+	r, err := NewRules([]byte(grules+grant), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
+
 func TestRevoke(t *testing.T) {
 	members := types.Members{
 		Members: []types.Member{harry},
@@ -239,6 +383,59 @@ func TestRevoke(t *testing.T) {
 			},
 		},
 	}
+
+	r, err := NewRules([]byte(grules+revoke), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
+
+func TestVariadicRevoke(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted:    map[string]struct{}{},
+				Revoked: map[string]struct{}{
+					"whompingwillow": struct{}{},
+					"dungeon":        struct{}{},
+					"hogsmeade":      struct{}{},
+				},
+			},
+		},
+	}
+
+	revoke := `
+rule Revoke "Revokes permission to the Whomping Willow" {
+     when
+		member.HasCardNumber(6000001)
+	 then
+         permissions.Revoke("Whomping Willow", "Dungeon", "Hogsmeade");
+         Retract("Revoke");
+}
+`
 
 	r, err := NewRules([]byte(grules+revoke), true)
 	if err != nil {

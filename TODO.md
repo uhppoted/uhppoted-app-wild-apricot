@@ -4,6 +4,7 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
+      - [ ] Post report to Report!A2 and reinsert headings
       - [x] Move rules file
       - [x] Append reports
       - [x] Log retention
@@ -20,7 +21,7 @@
 - [ ] Commonalise MarshalText implementation
 
 - [ ] ACL
-      - [ ] Variadic grant/revoke e.g. grant("here", "there", 12345)
+      - [x] Variadic grant/revoke e.g. grant("here", "there", 12345)
       - [x] Unit tests for grant/revoke
       - [x] Default start date
       - [x] Default end date

@@ -57,14 +57,18 @@ func (r *record) SetEndDate(t interface{}) {
 	}
 }
 
-func (r *record) Grant(door string) {
+func (r *record) Grant(door ...string) {
 	if r != nil {
-		r.Granted[normalise(door)] = struct{}{}
+		for _, d := range door {
+			r.Granted[normalise(d)] = struct{}{}
+		}
 	}
 }
 
-func (r *record) Revoke(door string) {
+func (r *record) Revoke(door ...string) {
 	if r != nil {
-		r.Revoked[normalise(door)] = struct{}{}
+		for _, d := range door {
+			r.Revoked[normalise(d)] = struct{}{}
+		}
 	}
 }
