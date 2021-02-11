@@ -4,7 +4,8 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
-      - [ ] Post report to Report!A2 and reinsert headings
+      - [ ] Copy of logrotate 
+      - [x] Post report to Report!A2 and reinsert headings
       - [x] Move rules file
       - [x] Append reports
       - [x] Log retention
@@ -13,24 +14,12 @@
       - [x] `get-members`
       - [x] `get-acl`
 
-- [ ] Get member list
-      - retry logic
-
 - [ ] README
 - [ ] Commonalise TSV implementation
 - [ ] Commonalise MarshalText implementation
 
-- [ ] ACL
-      - [x] Variadic grant/revoke e.g. grant("here", "there", 12345)
-      - [x] Unit tests for grant/revoke
-      - [x] Default start date
-      - [x] Default end date
-      - [x] Grant/revoke access
-      - [x] Export as TSV
-      - [x] Door display order
-      - [x] Verify `strict` behaviour
-      - [x] Rename `record` to `permissions`
-
+- [x] Get member list
+- [x] ACL
 - [x] `get-members`
 - [x] `get-acl`
 - [x] `compare-acl`

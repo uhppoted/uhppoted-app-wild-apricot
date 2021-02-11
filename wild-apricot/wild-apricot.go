@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -68,23 +69,18 @@ func Authorize(apiKey string, timeout time.Duration) (string, error) {
 	return authx.AccessToken, nil
 }
 
-func GetContacts(accountId uint32, token string, timeout time.Duration) ([]Contact, error) {
-	client := http.Client{
-		Timeout: timeout,
-	}
-
+func GetContacts(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration) ([]Contact, error) {
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
 	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true")
 
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
-
 	rq, err := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Accept-Encoding", "gzip")
 
-	response, err := client.Do(rq)
+	response, err := get(rq, timeout, retries, delay)
 	if err != nil {
 		return nil, err
 	}
@@ -115,11 +111,7 @@ func GetContacts(accountId uint32, token string, timeout time.Duration) ([]Conta
 	return contacts.Contacts, nil
 }
 
-func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]MemberGroup, error) {
-	client := http.Client{
-		Timeout: timeout,
-	}
-
+func GetMemberGroups(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration) ([]MemberGroup, error) {
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups", accountId)
 
 	rq, err := http.NewRequest("GET", uri, nil)
@@ -127,7 +119,7 @@ func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]M
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Accept-Encoding", "gzip")
 
-	response, err := client.Do(rq)
+	response, err := get(rq, timeout, retries, delay)
 	if err != nil {
 		return nil, err
 	}
@@ -155,11 +147,7 @@ func GetMemberGroups(accountId uint32, token string, timeout time.Duration) ([]M
 	return groups, nil
 }
 
-func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout time.Duration) (int, error) {
-	client := http.Client{
-		Timeout: timeout,
-	}
-
+func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout time.Duration, retries int, delay time.Duration) (int, error) {
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
 	parameters.Add("$filter", "'Archived' eq false AND 'Profile last updated' ge "+timestamp.Format("2006-01-02T15:04:05.000-07:00"))
@@ -171,7 +159,7 @@ func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout tim
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Authorization", "Bearer "+token)
 
-	response, err := client.Do(rq)
+	response, err := get(rq, timeout, retries, delay)
 	if err != nil {
 		return 0, err
 	}
@@ -192,4 +180,41 @@ func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout tim
 	}
 
 	return count.Count, nil
+}
+
+func get(rq *http.Request, timeout time.Duration, retries int, retryDelay time.Duration) (*http.Response, error) {
+	client := http.Client{
+		Timeout: timeout,
+	}
+
+	attempts := 0
+
+	var response *http.Response
+	var err error
+
+	for {
+		attempts += 1
+		response, err = client.Do(rq)
+
+		if err == nil {
+			if response.StatusCode == http.StatusOK {
+				break
+			} else {
+				err = fmt.Errorf("Error getting contact list (%v)", response.Status)
+			}
+		}
+
+		if attempts >= retries {
+			return nil, err
+		}
+
+		warn(err)
+		time.Sleep(retryDelay)
+	}
+
+	return response, nil
+}
+
+func warn(err error) {
+	log.Printf("%-5s %v", "WARN", err)
 }

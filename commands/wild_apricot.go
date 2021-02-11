@@ -22,8 +22,11 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 	}
 
 	t := timestamp.Truncate(1 * time.Second)
+	timeout := conf.WildApricot.HTTP.ClientTimeout
+	retries := conf.WildApricot.HTTP.Retries
+	delay := conf.WildApricot.HTTP.RetryDelay
 
-	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t, conf.WildApricot.HTTP.ClientTimeout)
+	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t, timeout, retries, delay)
 	if err != nil {
 		return false, err
 	}
@@ -34,20 +37,24 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 }
 
 func getMembers(conf *config.Config, credentials *credentials) (*types.Members, error) {
+	timeout := conf.WildApricot.HTTP.ClientTimeout
+	retries := conf.WildApricot.HTTP.Retries
+	delay := conf.WildApricot.HTTP.RetryDelay
+
 	cardNumberField := conf.WildApricot.Fields.CardNumber
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
-	token, err := wildapricot.Authorize(credentials.APIKey, conf.WildApricot.HTTP.ClientTimeout)
+	token, err := wildapricot.Authorize(credentials.APIKey, timeout)
 	if err != nil {
 		return nil, err
 	}
 
-	contacts, err := wildapricot.GetContacts(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
+	contacts, err := wildapricot.GetContacts(credentials.AccountID, token, timeout, retries, delay)
 	if err != nil {
 		return nil, err
 	}
 
-	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
+	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, timeout, retries, delay)
 	if err != nil {
 		return nil, err
 	}
@@ -63,14 +70,18 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 }
 
 func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, error) {
+	timeout := conf.WildApricot.HTTP.ClientTimeout
+	retries := conf.WildApricot.HTTP.Retries
+	delay := conf.WildApricot.HTTP.RetryDelay
+
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
-	token, err := wildapricot.Authorize(credentials.APIKey, conf.WildApricot.HTTP.ClientTimeout)
+	token, err := wildapricot.Authorize(credentials.APIKey, timeout)
 	if err != nil {
 		return nil, err
 	}
 
-	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, conf.WildApricot.HTTP.ClientTimeout)
+	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, timeout, retries, delay)
 	if err != nil {
 		return nil, err
 	}
