@@ -5,7 +5,6 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -144,9 +143,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := members.AsTable().MarshalTextIndent("  ", " "); err == nil {
-			fmt.Printf("MEMBERS:\n%s\n", string(text))
-		}
+		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	// ... make ACL
@@ -170,9 +167,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := acl.AsTable().MarshalTextIndent("  ", " "); err == nil {
-			fmt.Printf("ACL:\n%s\n", string(text))
-		}
+		fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	// ... load
@@ -398,9 +393,7 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 			Records: rows,
 		}
 
-		bytes, _ := table.MarshalTextIndent("  ", " ")
-
-		fmt.Fprintf(&b, "%s\n", string(bytes))
+		fmt.Fprintf(&b, "%s\n", string(table.MarshalTextIndent("  ", " ")))
 	}
 
 	if cmd.rptfile != "" {
@@ -417,4 +410,3 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 	fmt.Printf("%s\n", string(b.Bytes()))
 	return nil
 }
-

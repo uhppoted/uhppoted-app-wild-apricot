@@ -127,9 +127,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := members.AsTable().MarshalTextIndent("  ", " "); err == nil {
-			fmt.Printf("MEMBERS:\n%s\n", string(text))
-		}
+		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	// ... make ACL
@@ -153,9 +151,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := acl.AsTable().MarshalTextIndent("  ", " "); err == nil {
-			fmt.Printf("ACL:\n%s\n", string(text))
-		}
+		fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	// ... compare

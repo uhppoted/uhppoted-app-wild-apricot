@@ -104,9 +104,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := members.AsTable().MarshalTextIndent("  ", " "); err == nil {
-			fmt.Printf("MEMBERS:\n%s\n", string(text))
-		}
+		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	// ... create ACL
@@ -135,9 +133,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := acl.AsTable().MarshalTextIndent("  ", " "); err == nil {
-			fmt.Printf("ACL:\n%s\n", string(text))
-		}
+		fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	for _, w := range warnings {
@@ -146,13 +142,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 
 	// ... write to stdout
 	if cmd.file == "" {
-		text, err := acl.AsTable().MarshalText()
-		if err != nil {
-			return fmt.Errorf("Error formatting ACL (%v)", err)
-		}
-
-		fmt.Fprintln(os.Stdout, string(text))
-
+		fmt.Fprintln(os.Stdout, string(acl.AsTable().MarshalTextIndent("  ", " ")))
 		return nil
 	}
 
