@@ -153,7 +153,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := acl.MarshalTextIndent("  "); err == nil {
+		if text, err := acl.AsTable().MarshalTextIndent("  ", " "); err == nil {
 			fmt.Printf("ACL:\n%s\n", string(text))
 		}
 	}
@@ -182,9 +182,7 @@ func (cmd *CompareACL) compare(u device.IDevice, devices []*uhppote.Device, card
 		return nil, err
 	}
 
-	table := cards.AsTable()
-
-	acl, warnings, err := api.ParseTable(&table, devices, cmd.strict)
+	acl, warnings, err := api.ParseTable(cards.AsTable(), devices, cmd.strict)
 	if err != nil {
 		return nil, err
 	}

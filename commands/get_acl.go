@@ -129,14 +129,13 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	_, devices := getDevices(conf, cmd.debug)
-	cards := acl.AsTable()
-	_, warnings, err := api.ParseTable(&cards, devices, false)
+	_, warnings, err := api.ParseTable(acl.AsTable(), devices, false)
 	if err != nil {
 		return err
 	}
 
 	if cmd.debug {
-		if text, err := acl.MarshalTextIndent("  "); err == nil {
+		if text, err := acl.AsTable().MarshalTextIndent("  ", " "); err == nil {
 			fmt.Printf("ACL:\n%s\n", string(text))
 		}
 	}
@@ -147,7 +146,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 
 	// ... write to stdout
 	if cmd.file == "" {
-		text, err := acl.MarshalText()
+		text, err := acl.AsTable().MarshalText()
 		if err != nil {
 			return fmt.Errorf("Error formatting ACL (%v)", err)
 		}

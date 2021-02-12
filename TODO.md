@@ -4,7 +4,6 @@
 
 - [ ] Extended dry-run testing
       - [ ] jumpbox
-      - [ ] Copy of logrotate 
       - [x] Post report to Report!A2 and reinsert headings
       - [x] Move rules file
       - [x] Append reports

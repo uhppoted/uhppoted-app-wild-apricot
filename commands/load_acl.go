@@ -170,7 +170,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := acl.MarshalTextIndent("  "); err == nil {
+		if text, err := acl.AsTable().MarshalTextIndent("  ", " "); err == nil {
 			fmt.Printf("ACL:\n%s\n", string(text))
 		}
 	}
@@ -179,14 +179,13 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	u, devices := getDevices(conf, cmd.debug)
 	cards := acl.AsTable()
-
-	updated, err = cmd.compare(&u, devices, &cards)
+	updated, err = cmd.compare(&u, devices, cards)
 	if err != nil {
 		return err
 	}
 
 	if cmd.force || updated {
-		rpt, warnings, err := cmd.load(&u, devices, &cards)
+		rpt, warnings, err := cmd.load(&u, devices, cards)
 		if err != nil {
 			return err
 		}
