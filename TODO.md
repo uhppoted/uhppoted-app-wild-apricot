@@ -14,9 +14,9 @@
       - [x] `get-acl`
 
 - [ ] README
-- [ ] Commonalise TSV implementation
-- [ ] Commonalise MarshalText implementation
 
+- [x] Commonalise TSV implementation
+- [x] Commonalise MarshalText implementation
 - [x] Get member list
 - [x] ACL
 - [x] `get-members`

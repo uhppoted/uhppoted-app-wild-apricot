@@ -89,19 +89,13 @@ func (cmd *GetGroups) Execute(args ...interface{}) error {
 
 	// ... write to stdout
 	if cmd.file == "" {
-		text, err := groups.MarshalText()
-		if err != nil {
-			return fmt.Errorf("Error formatting groups list (%v)", err)
-		}
-
-		fmt.Fprintln(os.Stdout, string(text))
-
+		fmt.Fprintln(os.Stdout, string(groups.AsTable().MarshalTextIndent("  ", " ")))
 		return nil
 	}
 
 	// ... write to TSV file
 	var b bytes.Buffer
-	if err := groups.ToTSV(&b); err != nil {
+	if err := groups.AsTable().ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 

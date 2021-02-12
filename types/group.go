@@ -1,13 +1,11 @@
 package types
 
 import (
-	"bytes"
-	"encoding/csv"
 	"fmt"
-	"io"
 	"math"
 	"sort"
 
+	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
@@ -51,62 +49,7 @@ func MakeGroupList(memberGroups []wildapricot.MemberGroup, displayOrder []string
 	return &groups, nil
 }
 
-func (groups *Groups) MarshalText() ([]byte, error) {
-	return groups.MarshalTextIndent("")
-}
-
-func (groups *Groups) MarshalTextIndent(indent string) ([]byte, error) {
-	header, data := groups.asTable()
-	table := [][]string{}
-
-	table = append(table, header)
-	table = append(table, data...)
-
-	var b bytes.Buffer
-
-	if len(table) > 0 {
-		widths := make([]int, len(table[0]))
-		for _, row := range table {
-			for i, field := range row {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 1
-		}
-
-		for _, row := range table {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-	}
-
-	return b.Bytes(), nil
-}
-
-func (groups *Groups) ToTSV(f io.Writer) error {
-	header, data := groups.asTable()
-
-	w := csv.NewWriter(f)
-	w.Comma = '\t'
-
-	w.Write(header)
-	for _, row := range data {
-		w.Write(row)
-	}
-
-	w.Flush()
-
-	return nil
-}
-
-func (groups *Groups) asTable() ([]string, [][]string) {
+func (groups *Groups) AsTable() *api.Table {
 	header := []string{
 		"ID",
 		"Groups",
@@ -130,5 +73,10 @@ func (groups *Groups) asTable() ([]string, [][]string) {
 		}
 	}
 
-	return header, data
+	table := api.Table{
+		Header:  header,
+		Records: data,
+	}
+
+	return &table
 }
