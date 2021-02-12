@@ -2,10 +2,8 @@ package commands
 
 import (
 	"bytes"
-	"encoding/csv"
 	"flag"
 	"fmt"
-	"io"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -36,16 +34,6 @@ type CompareACL struct {
 	summary     bool
 	strict      bool
 	debug       bool
-}
-
-type summary struct {
-	header []string
-	data   [][]string
-}
-
-type report struct {
-	header []string
-	data   [][]string
 }
 
 func (cmd *CompareACL) Name() string {
@@ -202,27 +190,20 @@ func (cmd *CompareACL) compare(u device.IDevice, devices []*uhppote.Device, card
 }
 
 func (cmd *CompareACL) summarize(diff api.SystemDiff) error {
-	rpt, err := summarize(diff)
-	if err != nil {
-		return err
-	}
+	rpt := summarize(diff)
 
 	if cmd.file == "" {
-		text, err := rpt.MarshalTextIndent("  ")
-		if err != nil {
-			return err
-		}
-
 		fmt.Println()
 		fmt.Printf("  ACL Compare Report %s\n", time.Now().Format("2006-01-02 15:03:04"))
 		fmt.Println()
-		fmt.Printf("%v\n", string(text))
+		fmt.Printf("%v\n", string(rpt.MarshalTextIndent("  ", " ")))
 		fmt.Println()
+
 		return nil
 	}
 
 	var b bytes.Buffer
-	if err := rpt.toTSV(&b); err != nil {
+	if err := rpt.ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file from 'compare' report (%v)", err)
 	}
 
@@ -236,27 +217,20 @@ func (cmd *CompareACL) summarize(diff api.SystemDiff) error {
 }
 
 func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error {
-	rpt, err := detail(members, diff)
-	if err != nil {
-		return err
-	}
+	rpt := detail(members, diff)
 
 	if cmd.file == "" {
-		text, err := rpt.MarshalTextIndent("  ")
-		if err != nil {
-			return err
-		}
-
 		fmt.Println()
 		fmt.Printf("  ACL Compare Report %s\n", time.Now().Format("2006-01-02 15:03:04"))
 		fmt.Println()
-		fmt.Printf("%v\n", string(text))
+		fmt.Printf("%v\n", string(rpt.MarshalTextIndent("  ", " ")))
 		fmt.Println()
+
 		return nil
 	}
 
 	var b bytes.Buffer
-	if err := rpt.toTSV(&b); err != nil {
+	if err := rpt.ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file from 'compare' report (%v)", err)
 	}
 
@@ -269,7 +243,7 @@ func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error 
 	return nil
 }
 
-func summarize(diff api.SystemDiff) (*summary, error) {
+func summarize(diff api.SystemDiff) *api.Table {
 	keys := []uint32{}
 	for k, _ := range diff {
 		keys = append(keys, k)
@@ -334,10 +308,15 @@ func summarize(diff api.SystemDiff) (*summary, error) {
 		}
 	}
 
-	return &summary{header, data}, nil
+	table := api.Table{
+		Header:  header,
+		Records: data,
+	}
+
+	return &table
 }
 
-func detail(members types.Members, diff api.SystemDiff) (*report, error) {
+func detail(members types.Members, diff api.SystemDiff) *api.Table {
 	type card struct {
 		cardnumber uint32
 		action     string
@@ -402,142 +381,10 @@ func detail(members types.Members, diff api.SystemDiff) (*report, error) {
 		}
 	}
 
-	return &report{header, data}, nil
-}
-
-func (rpt *summary) MarshalText() ([]byte, error) {
-	return rpt.MarshalTextIndent("")
-}
-
-func (rpt *summary) MarshalTextIndent(indent string) ([]byte, error) {
-	table := [][]string{}
-
-	table = append(table, rpt.header)
-	table = append(table, rpt.data...)
-
-	var b bytes.Buffer
-
-	if len(table) > 0 {
-		widths := make([]int, len(table[0]))
-		for _, row := range table {
-			for i, field := range row {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 2
-		}
-
-		// Print header
-		for _, row := range table[0:1] {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-
-		for _, row := range table[0:1] {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], strings.Repeat("-", len(field)))
-			}
-			fmt.Fprintln(&b)
-		}
-
-		// Print data
-		previous := ""
-		for _, row := range table[1:] {
-			if row[0] != previous {
-				if previous != "" {
-					fmt.Fprintln(&b)
-				}
-				previous = row[0]
-
-				fmt.Fprintf(&b, "%s", indent)
-				for i, field := range row {
-					fmt.Fprintf(&b, "%-*v", widths[i], field)
-				}
-			} else {
-				fmt.Fprintf(&b, "%s", indent)
-				fmt.Fprintf(&b, "%-*v", widths[0], "")
-				for i, field := range row[1:] {
-					fmt.Fprintf(&b, "%-*v", widths[i+1], field)
-				}
-			}
-
-			fmt.Fprintln(&b)
-		}
+	table := api.Table{
+		Header:  header,
+		Records: data,
 	}
 
-	return b.Bytes(), nil
-}
-
-func (rpt *summary) toTSV(f io.Writer) error {
-	w := csv.NewWriter(f)
-	w.Comma = '\t'
-
-	w.Write(rpt.header)
-	for _, row := range rpt.data {
-		w.Write(row)
-	}
-
-	w.Flush()
-
-	return nil
-}
-
-func (rpt *report) MarshalText() ([]byte, error) {
-	return rpt.MarshalTextIndent("")
-}
-
-func (rpt *report) MarshalTextIndent(indent string) ([]byte, error) {
-	table := [][]string{}
-
-	table = append(table, rpt.header)
-	table = append(table, rpt.data...)
-
-	var b bytes.Buffer
-
-	if len(table) > 0 && len(table[0]) > 1 {
-		widths := make([]int, len(table[0][1:]))
-		for _, row := range table {
-			for i, field := range row[1:] {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 2
-		}
-
-		for _, row := range table {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row[1:] {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-	}
-
-	return b.Bytes(), nil
-}
-
-func (rpt *report) toTSV(f io.Writer) error {
-	w := csv.NewWriter(f)
-	w.Comma = '\t'
-
-	w.Write(rpt.header)
-	for _, row := range rpt.data {
-		w.Write(row)
-	}
-
-	w.Flush()
-
-	return nil
+	return &table
 }
