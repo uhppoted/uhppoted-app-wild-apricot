@@ -1,7 +1,6 @@
 package types
 
 import (
-	"bytes"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -11,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
@@ -172,6 +172,14 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	}, nil
 }
 
+func (members *Members) AsTable() *api.Table {
+	header, data := members.asTable()
+
+	return &api.Table{
+		Header:  header,
+		Records: data,
+	}
+}
 func (members *Members) ToTSV(f io.Writer) error {
 	header, data := members.asTable()
 
@@ -186,45 +194,6 @@ func (members *Members) ToTSV(f io.Writer) error {
 	w.Flush()
 
 	return nil
-}
-
-func (members *Members) MarshalText() ([]byte, error) {
-	return members.MarshalTextIndent("")
-}
-
-func (members *Members) MarshalTextIndent(indent string) ([]byte, error) {
-	header, data := members.asTable()
-	table := [][]string{}
-
-	table = append(table, header)
-	table = append(table, data...)
-
-	var b bytes.Buffer
-
-	if len(table) > 0 {
-		widths := make([]int, len(table[0]))
-		for _, row := range table {
-			for i, field := range row {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 1
-		}
-
-		for _, row := range table {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-	}
-
-	return b.Bytes(), nil
 }
 
 func (members *Members) asTable() ([]string, [][]string) {

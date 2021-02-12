@@ -144,7 +144,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		if text, err := members.MarshalTextIndent("  "); err == nil {
+		if text, err := members.AsTable().MarshalTextIndent("  ", " "); err == nil {
 			fmt.Printf("MEMBERS:\n%s\n", string(text))
 		}
 	}

@@ -90,7 +90,7 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 
 	// ... write to stdout
 	if cmd.file == "" {
-		text, err := members.MarshalText()
+		text, err := members.AsTable().MarshalTextIndent("  ", " ")
 		if err != nil {
 			return fmt.Errorf("Error formatting members list (%v)", err)
 		}
