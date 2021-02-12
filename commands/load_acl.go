@@ -393,8 +393,14 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 
 		w.Flush()
 	} else {
-		marshalTextIndent(&b, header, rows, "  ")
-		fmt.Fprintln(&b)
+		table := api.Table{
+			Header:  header,
+			Records: rows,
+		}
+
+		bytes, _ := table.MarshalTextIndent("  ", " ")
+
+		fmt.Fprintf(&b, "%s\n", string(bytes))
 	}
 
 	if cmd.rptfile != "" {
@@ -412,39 +418,3 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 	return nil
 }
 
-func marshalTextIndent(w io.Writer, header []string, data [][]string, indent string) error {
-	var b bytes.Buffer
-
-	table := [][]string{}
-	table = append(table, header)
-	table = append(table, data...)
-
-	if len(table) > 0 {
-		widths := make([]int, len(table[0]))
-		for _, row := range table {
-			for i, field := range row {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 1
-		}
-
-		for _, row := range table {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-	}
-
-	if _, err := w.Write(b.Bytes()); err != nil {
-		return err
-	}
-
-	return nil
-}
