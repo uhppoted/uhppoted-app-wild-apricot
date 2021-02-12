@@ -74,19 +74,13 @@ func (cmd *GetDoors) Execute(args ...interface{}) error {
 
 	// ... write to stdout
 	if cmd.file == "" {
-		text, err := doors.MarshalText()
-		if err != nil {
-			return fmt.Errorf("Error formatting doors list (%v)", err)
-		}
-
-		fmt.Fprintln(os.Stdout, string(text))
-
+		fmt.Fprintln(os.Stdout, string(doors.AsTable().MarshalTextIndent("  ", " ")))
 		return nil
 	}
 
 	// ... write to TSV file
 	var b bytes.Buffer
-	if err := doors.ToTSV(&b); err != nil {
+	if err := doors.AsTable().ToTSV(&b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 

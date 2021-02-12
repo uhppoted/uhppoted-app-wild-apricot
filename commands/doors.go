@@ -1,14 +1,12 @@
 package commands
 
 import (
-	"bytes"
-	"encoding/csv"
 	"fmt"
-	"io"
 	"math"
 	"sort"
 	"strings"
 
+	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
 )
 
@@ -62,62 +60,7 @@ func getDoors(conf *config.Config) (Doors, error) {
 	return list, nil
 }
 
-func (doors *Doors) MarshalText() ([]byte, error) {
-	return doors.MarshalTextIndent("")
-}
-
-func (doors *Doors) MarshalTextIndent(indent string) ([]byte, error) {
-	header, data := doors.asTable()
-	table := [][]string{}
-
-	table = append(table, header)
-	table = append(table, data...)
-
-	var b bytes.Buffer
-
-	if len(table) > 0 {
-		widths := make([]int, len(table[0]))
-		for _, row := range table {
-			for i, field := range row {
-				if len(field) > widths[i] {
-					widths[i] = len(field)
-				}
-			}
-		}
-
-		for i := 1; i < len(widths); i++ {
-			widths[i-1] += 1
-		}
-
-		for _, row := range table {
-			fmt.Fprintf(&b, "%s", indent)
-			for i, field := range row {
-				fmt.Fprintf(&b, "%-*v", widths[i], field)
-			}
-			fmt.Fprintln(&b)
-		}
-	}
-
-	return b.Bytes(), nil
-}
-
-func (doors *Doors) ToTSV(f io.Writer) error {
-	header, data := doors.asTable()
-
-	w := csv.NewWriter(f)
-	w.Comma = '\t'
-
-	w.Write(header)
-	for _, row := range data {
-		w.Write(row)
-	}
-
-	w.Flush()
-
-	return nil
-}
-
-func (doors *Doors) asTable() ([]string, [][]string) {
+func (doors *Doors) AsTable() *api.Table {
 	header := []string{
 		"Door",
 	}
@@ -134,5 +77,10 @@ func (doors *Doors) asTable() ([]string, [][]string) {
 		}
 	}
 
-	return header, data
+	table := api.Table{
+		Header:  header,
+		Records: data,
+	}
+
+	return &table
 }
