@@ -1,6 +1,8 @@
 package acl
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
 	"sort"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
@@ -14,6 +16,7 @@ import (
 )
 
 type Rules struct {
+	hash    []byte
 	library *ast.KnowledgeLibrary
 }
 
@@ -24,14 +27,24 @@ func NewRules(ruleset []byte, debug bool) (*Rules, error) {
 		logger.SetLogLevel(logrus.ErrorLevel)
 	}
 
+	hash := sha256.Sum256(ruleset)
 	kb := ast.NewKnowledgeLibrary()
 	if err := builder.NewRuleBuilder(kb).BuildRuleFromResource("acl", "0.0.0", pkg.NewBytesResource(ruleset)); err != nil {
 		return nil, err
 	}
 
 	return &Rules{
+		hash:    hash[:],
 		library: kb,
 	}, nil
+}
+
+func (rules *Rules) Updated(hash string) bool {
+	if hash != "" && hash == hex.EncodeToString(rules.hash) {
+		return false
+	}
+
+	return true
 }
 
 func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error) {
@@ -65,6 +78,14 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 	sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
 
 	return &acl, nil
+}
+
+func (rules *Rules) Hash() string {
+	if rules != nil {
+		return hex.EncodeToString(rules.hash)
+	}
+
+	return ""
 }
 
 func (rules *Rules) eval(m types.Member, r *record) error {

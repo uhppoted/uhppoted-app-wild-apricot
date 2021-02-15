@@ -109,7 +109,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		os.Remove(lockfile)
 	}()
 
-	// ... get config and credentials
+	// ... get config, credentials and version information
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
 		return fmt.Errorf("Could not load configuration (%v)", err)
@@ -120,26 +120,30 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		return fmt.Errorf("Could not load credentials (%v)", err)
 	}
 
-	// ... updated?
-	updated, err := revised(conf, credentials, getTimestamp(cmd.workdir, credentials.AccountID))
-	if err != nil {
-		return fmt.Errorf("Failed to get DB version (%v)", err)
-	}
+	version := getVersionInfo(cmd.workdir, credentials.AccountID)
 
-	if !cmd.force && !updated {
-		info("Nothing to do")
-		return nil
-	}
-
-	// ... get members and rules
-	members, err := getMembers(conf, credentials)
-	if err != nil {
-		return err
-	}
+	// ... get rules
 
 	rules, err := getRules(cmd.rules, cmd.debug)
 	if err != nil {
 		return fmt.Errorf("Unable to create ruleset (%v)", err)
+	}
+
+	// ... updated?
+	updated, err := revised(conf, credentials, version.Timestamp)
+	if err != nil {
+		return fmt.Errorf("Failed to get DB version information (%v)", err)
+	}
+
+	if !cmd.force && !updated && !rules.Updated(version.Hashes.Rules) {
+		info("Nothing to do")
+		return nil
+	}
+
+	// ... get members
+	members, err := getMembers(conf, credentials)
+	if err != nil {
+		return err
 	}
 
 	if cmd.debug {
@@ -179,28 +183,23 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		return err
 	}
 
-	if cmd.force || updated {
-		rpt, warnings, err := cmd.load(&u, devices, cards)
-		if err != nil {
-			return err
+	rpt, warnings, err := cmd.load(&u, devices, cards)
+	if err != nil {
+		return err
+	}
+
+	if rpt != nil {
+		if err := cmd.log(rpt, warnings); err != nil {
+			warn(fmt.Sprintf("Error appending summary report to log file (%v)", err))
 		}
 
-		if rpt != nil {
-			if err := cmd.log(rpt, warnings); err != nil {
-				warn(fmt.Sprintf("Error appending summary report to log file (%v)", err))
-			}
-
-			if err := cmd.report(rpt, *members); err != nil {
-				warn(fmt.Sprintf("Error writing report file (%v)", err))
-			}
+		if err := cmd.report(rpt, *members); err != nil {
+			warn(fmt.Sprintf("Error writing report file (%v)", err))
 		}
+	}
 
-		if err := storeTimestamp(cmd.workdir, credentials.AccountID, timestamp); err != nil {
-			return fmt.Errorf("Failed to store DB timestamp (%v)", err)
-		}
-
-	} else {
-		info("No changes - Nothing to do")
+	if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, members, rules); err != nil {
+		return fmt.Errorf("Failed to store updated version information (%v)", err)
 	}
 
 	return nil

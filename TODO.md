@@ -3,6 +3,7 @@
 ### IN PROGRESS
 
 - [ ] Extended dry-run testing
+      - [ ] get-members and get-acl on --force or updated
       - [ ] jumpbox
       - [x] Post report to Report!A2 and reinsert headings
       - [x] Move rules file

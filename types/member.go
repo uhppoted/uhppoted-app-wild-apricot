@@ -172,6 +172,10 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	}, nil
 }
 
+func (members *Members) Hash() string {
+	return ""
+}
+
 func (members *Members) AsTable() *api.Table {
 	header, data := members.asTable()
 
