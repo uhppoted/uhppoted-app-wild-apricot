@@ -1,6 +1,7 @@
 package acl
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
@@ -13,6 +14,20 @@ type record struct {
 	EndDate    time.Time
 	Granted    map[string]struct{}
 	Revoked    map[string]struct{}
+}
+
+func (r *record) SetCardNumber(card interface{}) {
+	if r != nil {
+		switch v := card.(type) {
+		case string:
+			if v, err := strconv.ParseUint(v, 10, 32); err == nil {
+				r.CardNumber = uint32(v)
+			}
+
+		case int64:
+			r.CardNumber = uint32(v)
+		}
+	}
 }
 
 func (r *record) SetStartDate(t interface{}) {

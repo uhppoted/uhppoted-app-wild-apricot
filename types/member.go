@@ -29,6 +29,7 @@ type Member struct {
 	Expires    *Date
 	Groups     map[uint32]Group
 	Membership Membership
+	Fields     []Field
 }
 
 type CardNumber uint32
@@ -46,16 +47,22 @@ type Membership struct {
 	Name string
 }
 
-type Field int
+type Field struct {
+	ID    string
+	Name  string
+	Value interface{}
+}
+
+type field int
 
 const (
-	fCardNumber Field = iota
+	fCardNumber field = iota
 	fRegistered
 	fExpires
 	fSuspended
 )
 
-func (f Field) String() string {
+func (f field) String() string {
 	return [...]string{"Card Number", "Registered", "Expires", "Suspended"}[f]
 }
 
@@ -129,8 +136,24 @@ func (m *Member) HasGroup(group interface{}) bool {
 	return false
 }
 
+func (m *Member) Get(field interface{}) interface{} {
+	if m != nil {
+		switch v := field.(type) {
+		case string:
+			vv := normalise(v)
+			for _, f := range m.Fields {
+				if vv == normalise(f.ID) || vv == normalise(f.Name) {
+					return f.Value
+				}
+			}
+		}
+	}
+
+	return nil
+}
+
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string, displayOrder []string) (*Members, error) {
-	fields := map[Field]string{
+	fields := map[field]string{
 		fCardNumber: normalise(cardnumber),
 		fRegistered: normalise("MemberSince"),
 		fSuspended:  normalise("IsSuspendedMember"),
@@ -258,7 +281,7 @@ func (members *Members) asTable() ([]string, [][]string) {
 	return header, data
 }
 
-func transcode(contact wildapricot.Contact, fields map[Field]string) (*Member, error) {
+func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, error) {
 	member := Member{
 		id:   contact.ID,
 		Name: fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
@@ -268,6 +291,7 @@ func transcode(contact wildapricot.Contact, fields map[Field]string) (*Member, e
 		},
 		Active: contact.Enabled && strings.ToLower(contact.Status) == "active",
 		Groups: map[uint32]Group{},
+		Fields: []Field{},
 	}
 
 	for _, f := range contact.Fields {
@@ -331,6 +355,15 @@ func transcode(contact wildapricot.Contact, fields map[Field]string) (*Member, e
 				}
 			}
 		}
+	}
+
+	for _, f := range contact.Fields {
+		member.Fields = append(member.Fields, Field{
+			ID:    f.SystemCode,
+			Name:  f.Name,
+			Value: f.Value,
+		})
+
 	}
 
 	return &member, nil

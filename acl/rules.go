@@ -57,20 +57,23 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 	endDate := endOfYear().AddDate(0, 1, 0)
 
 	for _, m := range members.Members {
+		r := record{
+			Name:      m.Name,
+			StartDate: startDate,
+			EndDate:   endDate,
+			Granted:   map[string]struct{}{},
+			Revoked:   map[string]struct{}{},
+		}
+
 		if m.CardNumber != nil {
-			r := record{
-				Name:       m.Name,
-				CardNumber: uint32(*m.CardNumber),
-				StartDate:  startDate,
-				EndDate:    endDate,
-				Granted:    map[string]struct{}{},
-				Revoked:    map[string]struct{}{},
-			}
+			r.CardNumber = uint32(*m.CardNumber)
+		}
 
-			if err := rules.eval(m, &r); err != nil {
-				return nil, err
-			}
+		if err := rules.eval(m, &r); err != nil {
+			return nil, err
+		}
 
+		if r.CardNumber > 0 {
 			acl.records = append(acl.records, r)
 		}
 	}

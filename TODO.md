@@ -4,7 +4,7 @@
 
 - [ ] Extended dry-run testing
       - [ ] get-members and get-acl on --force or updated
-      - [ ] jumpbox
+      - [x] jumpbox
       - [x] Post report to Report!A2 and reinsert headings
       - [x] Move rules file
       - [x] Append reports
@@ -16,6 +16,9 @@
 
 - [ ] README
 
+- [x] Allow card number to be set from rules
+- [x] Include all Wild Apricot fields in member record passed to rules
+- [x] Include rules file hash in update check
 - [x] Commonalise TSV implementation
 - [x] Commonalise MarshalText implementation
 - [x] Get member list
