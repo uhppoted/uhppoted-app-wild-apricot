@@ -2,20 +2,9 @@
 
 ### IN PROGRESS
 
-- [ ] Extended dry-run testing
-      - [ ] get-members and get-acl on --force or updated
-      - [x] jumpbox
-      - [x] Post report to Report!A2 and reinsert headings
-      - [x] Move rules file
-      - [x] Append reports
-      - [x] Log retention
-      - [x] `load-acl`
-      - [x] wild-apricot.log rotation
-      - [x] `get-members`
-      - [x] `get-acl`
+- [ ] Release as v0.6.9
 
-- [ ] README
-
+- [x] README
 - [x] Allow card number to be set from rules
 - [x] Include all Wild Apricot fields in member record passed to rules
 - [x] Include rules file hash in update check

@@ -2,10 +2,7 @@
 
 # uhppoted-app-wild-apricot
 
-**IN DEVELOPMENT**
-
-```cron```'able command line utility to transfer access control lists from a [Wild Apricot](https://www.wildapricot.com) 
-organisational account to a set of UHPPOTE UTO311-L0x access access controllers. 
+```cron```'able command line utility to manage the access control lists of a set of UHPPOTE UTO311-L0x access access controllers from a [Wild Apricot](https://www.wildapricot.com) organisational account  
 
 Supported operating systems:
 - Linux
@@ -17,121 +14,40 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                  |
 | --------- | ------------------------------------------------------------------------------ |
-|           |                                                                                |
+| v0.6.9    | Initial release    |
 
 ## Installation
 
-Executables for all the supported operating systems are packaged in the [releases](https://github.com/uhppoted/uhppoted-app-wild-apricots/releases). The provided archives contain the executables for all the operating systems - OS specific tarballs can be 
-found in the [uhppoted](https://github.com/uhppoted/uhppoted/releases) releases.
+Executables for all the supported operating systems are packaged in the [releases](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases). The provided archives contain the executables for all the operating systems - operating system specific tarballs can be found in the [uhppoted](https://github.com/uhppoted/uhppoted/releases) releases.
 
-Installation is straightforward - download the archive and extract it to a directory of your choice and then place the executable in a directory in your PATH. The `uhppoted-app-wild-apricot` utility requires the following additional 
-information:
+Installation is straightforward - download the archive and extract it to a folder of your choice and then place the executable in a filder in your PATH. The `uhppoted-app-wild-apricot` utility requires the following additional information:
 
 - `uhppoted.conf` configuration file
-- Wild Apricot account ID
-- Wild Apricot API key with read permission for  contact lists and member groups
-- [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules file that defines the member access permissions
+- a Wild Apricot account ID
+- a Wild Apricot API key with read permission for  contact lists and member groups
+- a [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules file that defines the member access permissions
 
 ### `uhppoted.conf`
 
-`uhppoted.conf` is the communal configuration file shared by all the `uhppoted` project modules and is (or will 
-eventually be) documented in [uhppoted](https://github.com/uhppoted/uhppoted). `uhppoted-app-wild-apricot` requires the 
-_devices_ section to resolve non-local controller IP addresses and door to controller door identities.
+`uhppoted.conf` is the communal configuration file shared by all the `uhppoted` project modules and is (or will eventually be) documented in [uhppoted](https://github.com/uhppoted/uhppoted). `uhppoted-app-wild-apricot` requires the 
+_devices_ section to resolve non-local controller IP addresses and door to controller door identities. 
 
-A sample _[uhppoted.conf](https://github.com/uhppoted/uhppoted/blob/master/app-notes/wild-apricot/uhppoted.conf)_ file is included
-in the `uhppoted` distribution.
+It also uses the following additional configuration items:
 
-### Building from source
+| *Key* | *Default value* | *Description*                                             |
+| ----- | --------------- | --------------------------------------------------------- |
+| `wild-apricot.http.client-timeout` | 10s | Wild Apricot API request timeout           |
+| `wild-apricot.http.retries`        | 3   | Number of times retry a failed API request | 
+| `wild-apricot.http.retry-delay`    | 5s  | Interval between retries of a failed API request |
+| `wild-apricot.fields.card-number`  | Card Number | Contact field name to use for card number  |
+| `wild-apricot.display-order.groups` | _(alphabetic)_ | Optional output ordering for the member list groups | 
+| `wild-apricot.display-order.doors`  | _(alphabetic)_ | Optional output ordering for the ACL doors |
 
-Assuming you have `Go` and `make` installed:
+A sample _[uhppoted.conf](https://github.com/uhppoted/uhppoted/blob/master/app-notes/wild-apricot/uhppoted.conf)_ file is included in the `uhppoted` distribution.
 
-```
-git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
-cd uhppoted-app-wild-apricot
-make build
-```
+### `credentials.json`
 
-If you prefer not to use `make`:
-```
-git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
-cd uhppoted-app-wild-apricot
-mkdir bin
-go build -o bin ./...
-```
-
-The above commands build the `uhppoted-app-wild-apricot` executable to the `bin` directory.
-
-#### Dependencies
-
-| *Dependency*                                                                 | *Description*                              |
-| ---------------------------------------------------------------------------- | ------------------------------------------ |
-| [com.github/uhppoted/uhppote-core](https://github.com/uhppoted/uhppote-core) | Device level API implementation            |
-| [com.github/uhppoted/uhppoted-api](https://github.com/uhppoted/uhppoted-api) | Common API for external applications       |
-| golang.org/x/lint/golint                                                     | Additional *lint* check for release builds |
-
-## uhppoted-app-wild-apricot
-
-Usage: ```uhppoted-app-wild-apricot [--debug] [--config <configuration file>] <command> [options]```
-
-Supported commands:
-
-- `help`
-- `version`
-- `get-acl`
-- `load-acl`
-- `compare-acl`
-
-### `help`
-
-Displays a summary of the command usage and options.
-
-Command line:
-
-- ```uhppoted-app-wild-apricot help``` displays a short summary of the command and a list of the available commands
-
-- ```uhppoted-app-wild-apricot help <command>``` displays the command specific information.
-
-### `version`
-
-Displays the current version of the command.
-
-Command line:
-
-```uhppoted-app-wild-apricot version```
-
-### `get-members`
-
-Fetches contact lists and membership groups from a Wild Apricot membership database, reformats as table and 
-stores the resulting member summary list as a TSV file. Intended for use in a `cron` task that routinely 
-transfers information from the worksheet for scripts on the local host managing the access control system. 
-
-Command line:
-
-```uhppoted-app-wild-apricot get-members --credentials <file>``` 
-
-```uhppoted-app-wild-apricot [--debug] [--config <file>] get-members [--credentials <file>] [--workdir <dir>] [--file <TSV>]```
-
-```
-  --credentials <file> File path for the credentials file with the Wid Apricot account ID and API key.
-
-  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
-                 - /var/uhppoted on Linux
-                 - /usr/local/var/com.github.uhppoted on MacOS
-                 - ./uhppoted on Microsoft Windows
-
-  --file <file> File path for the destination TSV file. Defaults to 'members <yyyy-mm-dd HHmmss>.tsv'
-    
-  --config      File path to the uhppoted.conf file containing the access
-                controller configuration information. Defaults to:
-                - /etc/uhppoted/uhppoted.conf (Linux)
-                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
-                - ./uhppoted.conf (Windows)
-
-  --debug       Displays verbose debugging information, in particular the communications
-                with the UHPPOTE controllers
-```
-
-A _credentials_ file should be a valid JSON file that contains the Wild Apricot account ID and API KEY e.g.:
+A _credentials_ file should be a valid JSON file that contains the Wild Apricot account ID and API key e.g.:
 ```
   { 
     "account": 615252,
@@ -139,54 +55,9 @@ A _credentials_ file should be a valid JSON file that contains the Wild Apricot 
   }
 ```
 
-### `get-acl`
+### Access rules file
 
-Fetches contact lists and membership groups from a Wild Apricot membership database, applies the access rules and 
-stores the resulting access control list as a TSV file. Intended for use in a `cron` task that routinely transfers
-information from the worksheet for scripts on the local host managing the access control system. 
-
-Command line:
-
-```uhppoted-app-wild-apricot get-acl --credentials <file> --rules <uri>``` 
-
-```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--workdir <dir>] [--file <TSV>]```
-
-```
-  --credentials <file> File path for the credentials file with the Wid Apricot account ID and API key.
-
-  --rules <uri>  URI for the Grule file that defines the rules used to grant revoke access. Assumes
-                 a local file if the URI does not start with http://, https:// or file://. 
-                 
-                 For rules files stored on Google Drive the URI should be of the form:
-                   https://drive.google.com/uc?export=download&id=<file ID>
-
-  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
-                 - /var/uhppoted on Linux
-                 - /usr/local/var/com.github.uhppoted on MacOS
-                 - ./uhppoted on Microsoft Windows
-
-  --file <file> File path for the destination TSV file. Defaults to 'ACL <yyyy-mm-dd HHmmss>.tsv'
-    
-  --config      File path to the uhppoted.conf file containing the access
-                controller configuration information. Defaults to:
-                - /etc/uhppoted/uhppoted.conf (Linux)
-                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
-                - ./uhppoted.conf (Windows)
-
-  --debug       Displays verbose debugging information, in particular the communications
-                with the UHPPOTE controllers
-```
-
-A _credentials_ file should be a valid JSON file that contains the Wild Apricot account ID and API KEY e.g.:
-```
-  { 
-    "account": 615252,
-    "api-key": "8dhuwyeb7262jdufhde87bhbdehdes"
-  }
-```
-
-The _rules_ file is a text file containing the [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules 
-that define the member access e.g.:
+The _rules_ file is a text file containing the [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules that define the member access e.g.:
 ```
 rule Teacher "Grants a teacher access to common areas and Hogsmeade" {
      when
@@ -225,10 +96,246 @@ rule Gryffindor "Grants a Gryffindor student access to common areas and Gryffind
 }
 ```
 
+
+### Building from source
+
+Assuming you have `Go` and `make` installed:
+
+```
+git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
+cd uhppoted-app-wild-apricot
+make build
+```
+
+If you prefer not to use `make`:
+```
+git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
+cd uhppoted-app-wild-apricot
+mkdir bin
+go build -o bin ./...
+```
+
+The above commands build the `uhppoted-app-wild-apricot` executable to the `bin` directory.
+
+#### Dependencies
+
+| *Dependency*                                                                 | *Description*                              |
+| ---------------------------------------------------------------------------- | ------------------------------------------ |
+| [com.github/uhppoted/uhppote-core](https://github.com/uhppoted/uhppote-core) | Device level API implementation            |
+| [com.github/uhppoted/uhppoted-api](https://github.com/uhppoted/uhppoted-api) | Common API for external applications       |
+| [github.com/hyperjumptech/grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) | Grule rule engine for processing ACL rules |
+| github.com/sirupsen/logrus                                                     | Indirect dependency from [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) |
+| golang.org/x/sys                                                     | Library for Windows system calls |
+
+## uhppoted-app-wild-apricot
+
+Usage: ```uhppoted-app-wild-apricot [--debug] [--config <configuration file>] <command> [options]```
+
+Supported commands:
+
+- `help`
+- `version`
+- `get-members`
+- `get-groups`
+- `get-doors`
+- `get-acl`
+- `compare-acl`
+- `load-acl`
+
+### `help`
+
+Displays a summary of the command usage and options.
+
+Command line:
+
+`uhppoted-app-wild-apricot help`
+
+`uhppoted-app-wild-apricot help <command>`
+
+### `version`
+
+Displays the current version of the command.
+
+Command line:
+
+`uhppoted-app-wild-apricot version`
+
+### `get-members`
+
+Combines the contacts list and membership groups from a Wild Apricot membership database to create the table of members that is used to generate an access control list. The resulting member summary list can be optionally stored to a file. Intended for use in a `cron` task that routinely retrieves information from the Wild Apricot database for use by scripts on the local host. 
+
+Command line:
+
+```uhppoted-app-wild-apricot get-members --credentials <file>``` 
+
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-members [--credentials <file>] [--workdir <dir>] [--file <file>]```
+
+```
+  --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key. 
+                       Defaults to <config dir>/.wild-apricot/credentials.json
+
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --file <file> Optional file path for the destination TSV file. Displays a formatted member list on console if not provided. If the file has a .tsv extension, the output is formatted as a TSV file.
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
+  --debug       Displays verbose debugging information, in particular the communications
+                with the UHPPOTE controllers
+```
+
+### `get-groups`
+
+Retrieves the membership groups from a Wild Apricot membership database to displays as a table (or optionally stores it to a file). Intended as a convenience to assist when creating the rules that convert a member list into an access control list. 
+
+Command line:
+
+```uhppoted-app-wild-apricot get-groups --credentials <file>``` 
+
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-groups [--credentials <file>] [--workdir <dir>] [--file <file>]```
+
+```
+  --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key. 
+                       Defaults to <config dir>/.wild-apricot/credentials.json
+
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --file <file> Optional file path to which to write the output. Displays a formatted groups list on console if not provided. If the file has a .tsv extension, the output is formatted as a TSV file.
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
+  --debug       Displays verbose debugging information, in particular the communications
+                with the UHPPOTE controllers
+```
+
+### `get-doors`
+
+Extracts the list of doors from the `uhppoted.conf` configuration file. Intended as a convenience to assist when creating the rules that convert a member list into an access control list. 
+
+Command line:
+
+```uhppoted-app-wild-apricot get-doors``` 
+
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-doors [--workdir <dir>] [--file <file>]```
+
+```
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --file <file> Optional file path to which to write the output. Displays a formatted door list on console if not provided. If the file has a .tsv extension, the output is formatted as a TSV file.
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
+  --debug       Displays verbose debugging information, in particular the communications
+                with the UHPPOTE controllers
+```
+
+### `get-acl`
+
+Retrieves the contacts list and membership groups from a Wild Apricot membership database and applies the access rules to create an access control list for the configured set of access controllers. The ACL can optionally be stored to a file for use by other scripts. 
+
+Command line:
+
+```uhppoted-app-wild-apricot get-acl --credentials <file> --rules <uri>``` 
+
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--workdir <dir>] [--file <TSV>]```
+
+```
+  --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
+
+  --rules <uri>  URI for the Grule file that defines the rules used to grant or
+                 revoke access (assumes a local file if the URI does not start with
+                 http://, https:// or file://).  
+                 Note that for rules files stored on Google Drive, the URI should be
+                 of the form:
+                 https://drive.google.com/uc?export=download&id=<file ID>
+
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --file <file> File path for the optional output file. Displays the ACL on the console
+                if not provided. Formats the output as TSV if the provided file has a
+                .tsv extension.
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
+  --debug       Displays verbose debugging information, in particular the communications
+                with the UHPPOTE controllers
+```
+
+### `compare-acl`
+
+Retrieves the contacts list and membership groups from a Wild Apricot membership database and applies the access rules to create an access control list for the configured set of access controllers and compares the resulting ACL with the access control lists stored on the configured controllers. Intended for use in a `cron` task that routinely audits the controllers against an authoritative source.
+
+Command line:
+
+```uhppoted-app-wild-apricot compare-acl --credentials <file> --rules <uri>``` 
+
+```uhppoted-app-wild-apricot [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <uri>] [--strict] [--summary] [--workdir <dir>] [--report <file>]```
+
+```
+  --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
+
+  --rules <uri>  URI for the Grule file that defines the rules used to grant or
+                 revoke access (assumes a local file if the URI does not start with
+                 http://, https:// or file://).  
+                 Note that for rules files stored on Google Drive, the URI should be
+                 of the form:
+                 https://drive.google.com/uc?export=download&id=<file ID>
+
+  --strict       Fails with an error if the contacts and/or membership groups contains  
+                 errors e.g. duplicate card numbers
+
+  --summary      Reports only a summary of the comparison. Defaults to false.
+
+  --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
+                 - /var/uhppoted on Linux
+                 - /usr/local/var/com.github.uhppoted on MacOS
+                 - ./uhppoted on Microsoft Windows
+
+  --report <file> File path for the optional output file. Displays the compare report on
+                  the console if not provided. Formats the output as TSV if the provided
+                  file has a .tsv extension.
+    
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
+
+  --debug       Displays verbose debugging information, in particular the communications
+                with the UHPPOTE controllers
+```
+
 ### `load-acl`
 
-Fetches an ACL file from a Wild Apricot membership database and downloads it to the configured UHPPOTE controllers.
-Intended for use in a `cron` task.
+Retrieves the contacts list and membership groups from a Wild Apricot membership database and applies the access rules to create an access control list that is downloaded to the configured set of access controllers.. Intended for use in a `cron` task that routinely updates the controllers from an authoritative source.
 
 The command writes an operation summary to a _log_ file and a summary of changes to a _report_ .
 
@@ -238,61 +345,45 @@ Command line:
 
 ```uhppoted-app-wild-apricot load-acl```
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] load-acl [--force] [--strict] [--dry-run] [--workdir <dir>] [--no-log] [--no-report]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <uri>] [--force] [--strict] [--dry-run] [--workdir <dir>] [--log <file>]```
 
 ```
-  --force            Retrieves and updates the access control lists unconditionally.
-  --strict           Fails with an error if the contacts and/or membership groups contains 
-                     errors e.g. duplicate card numbers
-  --dry-run          Executes the load-acl command but does not update the access
-                     control lists on the controllers. Used primarily for testing 
-                     scripts, crontab entries and debugging. 
+  --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
 
-  --workdir          Directory for working files, in particular the tokens, revisions,
-                     etc, that provide access to Google Sheets. Defaults to:
+  --rules <uri>  URI for the Grule file that defines the rules used to grant or
+                 revoke access (assumes a local file if the URI does not start with
+                 http://, https:// or file://).  
+                 Note that for rules files stored on Google Drive, the URI should be
+                 of the form:
+                 https://drive.google.com/uc?export=download&id=<file ID>
+
+  --force        Retrieves and updates the access control lists unconditionally.
+  --strict       Fails with an error if the contacts and/or membership groups contains  
+                 errors e.g. duplicate card numbers
+
+  --dry-run      Executes the load-acl command but does not update the access
+                 control lists on the controllers. Used primarily for testing 
+                 scripts, crontab entries and debugging. 
+
+  --workdir      Directory for working files (in particular the version information  
+                 for the last update). Defaults to:
                      - /var/uhppoted on Linux
                      - /usr/local/var/com.github.uhppoted on MacOS
                      - ./uhppoted on Microsoft Windows
-  --no-log           Disables the creation of log entries on the 'log' worksheet
+
+  --log <file>  Optional output file for a summary of the load operation. Formatted as
+                headerless TSV if the file has a .tsv extension. worksheet
   
-  --no-report        Disables the creation of report entries on the 'report' worksheet
-    
-  --config           File path to the uhppoted.conf file containing the access
-                     controller configuration information. Defaults to:
-                     - /etc/uhppoted/uhppoted.conf (Linux)
-                     - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
-                     - ./uhppoted.conf (Windows)
+  --report <file> Optional output file for a detailed report of the load operation. 
+                  Formatted as headerless TSV if the file has a .tsv extension. 
+  
+  --config      File path to the uhppoted.conf file containing the access
+                controller configuration information. Defaults to:
+                - /etc/uhppoted/uhppoted.conf (Linux)
+                - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
+                - ./uhppoted.conf (Windows)
 
-  --debug            Displays verbose debugging information, in particular the 
-                     communications with the UHPPOTE controllers
+  --debug       Displays verbose debugging information, in particular the 
+                communications with the UHPPOTE controllers
 ```
 
-### `compare-acl`
-
-Fetches an ACL from a Wild Apricot membership database and compares it to the cards stored in the configured
-access controllers. Intended for use in a `cron` task that routinely audits the controllers against an
-authoritative source.
-
-Command line:
-
-```uhppoted-app-wild-apricot compare-acl ```
-
-```uhppoted-app-wild-apricot [--debug] [--config <file>] compare-acl [--workdir <dir>]```
-```
-  --workdir       Directory for working files, in particular the tokens, revisions, etc, 
-                  that provide access to Google Sheets. Defaults to:
-                  - /var/uhppoted on Linux
-                  - /usr/local/var/com.github.uhppoted on MacOS
-                  - ./uhppoted on Microsoft Windows
-
-  --config        File path to the uhppoted.conf file containing the access controller 
-                  configuration information. Defaults to:
-                  - /etc/uhppoted/uhppoted.conf (Linux)
-                  - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
-                  - ./uhppoted.conf (Windows)
-
-  --debug         Displays verbose debugging information, in particular the 
-                  communications with the UHPPOTE controllers
-
-```
-```
