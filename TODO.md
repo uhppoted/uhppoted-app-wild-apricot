@@ -1,9 +1,8 @@
-# TODO - v0.6.x
+# TODO - v0.6.10
 
 ### IN PROGRESS
 
-- [ ] Release as v0.6.9
-
+- [x] Release as v0.6.10
 - [x] README
 - [x] Allow card number to be set from rules
 - [x] Include all Wild Apricot fields in member record passed to rules

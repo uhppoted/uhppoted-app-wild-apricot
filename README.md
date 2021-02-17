@@ -14,7 +14,7 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                  |
 | --------- | ------------------------------------------------------------------------------ |
-| v0.6.9    | Initial release    |
+| v0.6.10   | Initial release    |
 
 ## Installation
 
