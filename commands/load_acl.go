@@ -122,24 +122,6 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	version := getVersionInfo(cmd.workdir, credentials.AccountID)
 
-	// ... get rules
-
-	rules, err := getRules(cmd.rules, cmd.debug)
-	if err != nil {
-		return fmt.Errorf("Unable to create ruleset (%v)", err)
-	}
-
-	// ... updated?
-	updated, err := revised(conf, credentials, version.Timestamp)
-	if err != nil {
-		return fmt.Errorf("Failed to get DB version information (%v)", err)
-	}
-
-	if !cmd.force && !updated && !rules.Updated(version.Hashes.Rules) {
-		info("Nothing to do")
-		return nil
-	}
-
 	// ... get members
 	members, err := getMembers(conf, credentials)
 	if err != nil {
@@ -148,6 +130,22 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	if cmd.debug {
 		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+	}
+
+	// ... get rules
+
+	rules, err := getRules(cmd.rules, cmd.debug)
+	if err != nil {
+		return fmt.Errorf("Unable to create ruleset (%v)", err)
+	}
+
+	// ... updated?
+
+	// NOTE: Wild Apricot's 'get updated profiles since' query is iffy at best.
+	//       So just ignore errors and rely on the hashes for the members and rules
+	updated, err := revised(conf, credentials, version.Timestamp)
+	if err != nil {
+		warn(fmt.Sprintf("Unable to get DB version information (%v)", err))
 	}
 
 	// ... make ACL
@@ -175,12 +173,17 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	// ... load
-
 	u, devices := getDevices(conf, cmd.debug)
 	cards := acl.AsTable()
-	updated, err = cmd.compare(&u, devices, cards)
-	if err != nil {
-		return err
+
+	// different, err := cmd.compare(&u, devices, cards)
+	// if err != nil {
+	// 	return err
+	// }
+
+	if !cmd.force && !updated && !members.Updated(version.Hashes.Members) && !rules.Updated(version.Hashes.Rules) {
+		info("Nothing to do")
+		return nil
 	}
 
 	rpt, warnings, err := cmd.load(&u, devices, cards)
@@ -198,7 +201,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		}
 	}
 
-	if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, members, rules); err != nil {
+	if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, members, rules, acl); err != nil {
 		return fmt.Errorf("Failed to store updated version information (%v)", err)
 	}
 

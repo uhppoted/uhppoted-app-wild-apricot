@@ -1,7 +1,9 @@
 package types
 
 import (
+	"crypto/sha256"
 	"encoding/csv"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"math"
@@ -195,7 +197,33 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	}, nil
 }
 
+func (members *Members) Updated(hash string) bool {
+	if hash != "" && hash == members.Hash() {
+		return false
+	}
+
+	return true
+}
+
 func (members *Members) Hash() string {
+	if members != nil {
+		header, data := members.asTable()
+
+		hash := sha256.New()
+
+		for _, h := range header {
+			hash.Write([]byte(h))
+		}
+
+		for _, r := range data {
+			for _, f := range r {
+				hash.Write([]byte(f))
+			}
+		}
+
+		return hex.EncodeToString(hash.Sum(nil))
+	}
+
 	return ""
 }
 

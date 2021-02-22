@@ -1,7 +1,9 @@
 package acl
 
 import (
+	"crypto/sha256"
 	"encoding/csv"
+	"encoding/hex"
 	"fmt"
 	"io"
 	"sort"
@@ -14,6 +16,36 @@ import (
 type ACL struct {
 	doors   []string
 	records []record
+}
+
+func (acl *ACL) Updated(hash string) bool {
+	if hash != "" && hash == acl.Hash() {
+		return false
+	}
+
+	return true
+}
+
+func (acl *ACL) Hash() string {
+	if acl != nil {
+		header, data := acl.asTable()
+
+		hash := sha256.New()
+
+		for _, h := range header {
+			hash.Write([]byte(h))
+		}
+
+		for _, r := range data {
+			for _, f := range r {
+				hash.Write([]byte(f))
+			}
+		}
+
+		return hex.EncodeToString(hash.Sum(nil))
+	}
+
+	return ""
 }
 
 func (acl *ACL) AsTable() *api.Table {
