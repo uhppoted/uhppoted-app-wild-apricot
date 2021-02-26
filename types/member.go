@@ -138,20 +138,20 @@ func (m *Member) HasGroup(group interface{}) bool {
 	return false
 }
 
-func (m *Member) Get(field interface{}) interface{} {
+func (m *Member) Get(field interface{}) string {
 	if m != nil {
 		switch v := field.(type) {
 		case string:
 			vv := normalise(v)
 			for _, f := range m.Fields {
 				if vv == normalise(f.ID) || vv == normalise(f.Name) {
-					return f.Value
+					return fmt.Sprintf("%v", f.Value)
 				}
 			}
 		}
 	}
 
-	return nil
+	return ""
 }
 
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string, displayOrder []string) (*Members, error) {
