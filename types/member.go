@@ -154,7 +154,9 @@ func (m *Member) Get(field interface{}) string {
 	return ""
 }
 
-func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string, displayOrder []string) (*Members, error) {
+func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string, displayOrder []string) (*Members, []error) {
+	errors := []error{}
+
 	fields := map[field]string{
 		fCardNumber: normalise(cardnumber),
 		fRegistered: normalise("MemberSince"),
@@ -185,7 +187,7 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	members := []Member{}
 	for _, c := range contacts {
 		if m, err := transcode(c, fields); err != nil {
-			return nil, err
+			errors = append(errors, fmt.Errorf("Member ID: %d, %v", c.ID, err))
 		} else if m != nil {
 			members = append(members, *m)
 		}
@@ -194,7 +196,7 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	return &Members{
 		Members: members,
 		Groups:  groups,
-	}, nil
+	}, errors
 }
 
 func (members *Members) Updated(hash string) bool {

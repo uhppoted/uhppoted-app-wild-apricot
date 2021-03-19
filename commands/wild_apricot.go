@@ -59,10 +59,12 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 		return nil, err
 	}
 
-	members, err := types.MakeMemberList(contacts, groups, cardNumberField, groupDisplayOrder)
-	if err != nil {
-		return nil, err
-	} else if members == nil {
+	members, errors := types.MakeMemberList(contacts, groups, cardNumberField, groupDisplayOrder)
+	for _, err := range errors {
+		warn(err.Error())
+	}
+
+	if members == nil {
 		return nil, fmt.Errorf("Invalid members list")
 	}
 
