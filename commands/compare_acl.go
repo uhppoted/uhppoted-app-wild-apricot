@@ -161,9 +161,9 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 }
 
 func (cmd *CompareACL) compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
-	current, err := api.GetACL(u, devices)
-	if err != nil {
-		return nil, err
+	current, errors := api.GetACL(u, devices)
+	if len(errors) > 0 {
+		return nil, fmt.Errorf("%v", errors)
 	}
 
 	acl, warnings, err := api.ParseTable(cards.AsTable(), devices, cmd.strict)

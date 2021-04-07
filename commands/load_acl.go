@@ -239,9 +239,9 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api
 		warn(w.Error())
 	}
 
-	rpt, err := api.PutACL(u, *acl, cmd.dryrun)
-	if err != nil {
-		return nil, warnings, err
+	rpt, errors := api.PutACL(u, *acl, cmd.dryrun)
+	if len(errors) > 0 {
+		return nil, warnings, fmt.Errorf("%v", errors)
 	}
 
 	for k, v := range rpt {
@@ -260,9 +260,9 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api
 }
 
 func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (bool, error) {
-	current, err := api.GetACL(u, devices)
-	if err != nil {
-		return false, err
+	current, errors := api.GetACL(u, devices)
+	if len(errors) > 0 {
+		return false, fmt.Errorf("%v", errors)
 	}
 
 	acl, _, err := api.ParseTable(cards, devices, false)

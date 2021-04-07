@@ -1,4 +1,4 @@
-# TODO - v0.6.10
+# TODO - v0.6.x
 
 ### IN PROGRESS
 
