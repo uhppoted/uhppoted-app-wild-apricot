@@ -193,9 +193,9 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 			if m.CardNumber != nil && *m.CardNumber > 0 && *m.CardNumber < 100000 && facilityCode != "" {
 				cardNo := fmt.Sprintf("%v%05v", facilityCode, m.CardNumber)
 				if v, err := strconv.ParseUint(cardNo, 10, 32); err != nil {
-					fmt.Printf("Error prepending facility code to card number '%v' (%v)", m.CardNumber, err)
+					log.Printf("ERROR Prepending facility code '%v' to card number '%v' for member %v (%v)", facilityCode, m.CardNumber, m.id, err)
 				} else {
-					log.Printf("INFO  Prepending facility code %v to card %v for member %v\n", facilityCode, m.CardNumber, m.id)
+					log.Printf("INFO  Prepending facility code '%v' to card %v for member %v\n", facilityCode, m.CardNumber, m.id)
 					nn := uint32(v)
 					m.CardNumber = (*CardNumber)(&nn)
 
