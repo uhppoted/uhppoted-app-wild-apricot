@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"log"
 	"math"
 	"sort"
 	"strconv"
@@ -194,8 +195,10 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 				if v, err := strconv.ParseUint(cardNo, 10, 32); err != nil {
 					fmt.Printf("Error prepending facility code to card number '%v' (%v)", m.CardNumber, err)
 				} else {
+					log.Printf("INFO  Prepending facility code %v to card %v for member %v\n", facilityCode, m.CardNumber, m.id)
 					nn := uint32(v)
 					m.CardNumber = (*CardNumber)(&nn)
+
 				}
 			}
 
