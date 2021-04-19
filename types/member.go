@@ -154,7 +154,7 @@ func (m *Member) Get(field interface{}) string {
 	return ""
 }
 
-func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber string, displayOrder []string) (*Members, []error) {
+func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber, facilityCode string, displayOrder []string) (*Members, []error) {
 	errors := []error{}
 
 	fields := map[field]string{
@@ -189,6 +189,16 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 		if m, err := transcode(c, fields); err != nil {
 			errors = append(errors, fmt.Errorf("Member ID: %d, %v", c.ID, err))
 		} else if m != nil {
+			if m.CardNumber != nil && *m.CardNumber > 0 && *m.CardNumber < 100000 && facilityCode != "" {
+				cardNo := fmt.Sprintf("%v%05v", facilityCode, m.CardNumber)
+				if v, err := strconv.ParseUint(cardNo, 10, 32); err != nil {
+					fmt.Printf("Error prepending facility code to card number '%v' (%v)", m.CardNumber, err)
+				} else {
+					nn := uint32(v)
+					m.CardNumber = (*CardNumber)(&nn)
+				}
+			}
+
 			members = append(members, *m)
 		}
 	}
