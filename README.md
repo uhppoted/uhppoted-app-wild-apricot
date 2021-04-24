@@ -50,7 +50,7 @@ A sample _[uhppoted.conf](https://github.com/uhppoted/uhppoted/blob/master/app-n
 A _credentials_ file should be a valid JSON file that contains the Wild Apricot account ID and API key e.g.:
 ```
   { 
-    "account": 615252,
+    "account-id": 615252,
     "api-key": "8dhuwyeb7262jdufhde87bhbdehdes"
   }
 ```
