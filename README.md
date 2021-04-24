@@ -39,6 +39,7 @@ It also uses the following additional configuration items:
 | `wild-apricot.http.client-timeout` | 10s | Wild Apricot API request timeout           |
 | `wild-apricot.http.retries`        | 3   | Number of times retry a failed API request | 
 | `wild-apricot.http.retry-delay`    | 5s  | Interval between retries of a failed API request |
+| `wild-apricot.facility-code`  | Facility code | Facility code prepended to card numbers that are 5 digits or less |
 | `wild-apricot.fields.card-number`  | Card Number | Contact field name to use for card number  |
 | `wild-apricot.display-order.groups` | _(alphabetic)_ | Optional output ordering for the member list groups | 
 | `wild-apricot.display-order.doors`  | _(alphabetic)_ | Optional output ordering for the ACL doors |
