@@ -117,7 +117,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	credentials, err := getCredentials(cmd.credentials)
 	if err != nil {
-		return fmt.Errorf("Could not load credentials (%v)", err)
+		return err
 	}
 
 	version := getVersionInfo(cmd.workdir, credentials.AccountID)
