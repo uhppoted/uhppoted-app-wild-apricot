@@ -24,6 +24,12 @@ func getDoors(conf *config.Config) (Doors, error) {
 	for _, device := range conf.Devices {
 		for _, d := range device.Doors {
 			normalised := normalise(d)
+
+			// ignore blank doors - no use to man or beast
+			if normalised == "" {
+				continue
+			}
+
 			if _, ok := set[normalised]; ok {
 				return nil, fmt.Errorf("WARN  Duplicate door in configuration (%v)", d)
 			}
