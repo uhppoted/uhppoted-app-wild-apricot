@@ -14,7 +14,8 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                  |
 | --------- | ------------------------------------------------------------------------------ |
-| v0.6.10   | Initial release    |
+| v0.6.12   | Implemented prepended facility code for card numbers retrieved without         |
+| v0.6.10   | Initial release                                                                |
 
 ## Installation
 
