@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppote-core/device"
 	"github.com/uhppoted/uhppote-core/uhppote"
 	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
@@ -146,7 +145,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 
 	u, devices := getDevices(conf, cmd.debug)
 
-	diff, err := cmd.compare(&u, devices, acl)
+	diff, err := cmd.compare(u, devices, acl)
 	if err != nil {
 		return err
 	}
@@ -160,7 +159,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	return cmd.report(*members, *diff)
 }
 
-func (cmd *CompareACL) compare(u device.IDevice, devices []*uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
+func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
 	current, errors := api.GetACL(u, devices)
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("%v", errors)

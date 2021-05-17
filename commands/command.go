@@ -41,7 +41,7 @@ func helpOptions(flagset *flag.FlagSet) {
 	}
 }
 
-func getDevices(conf *config.Config, debug bool) (uhppote.UHPPOTE, []*uhppote.Device) {
+func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.Device) {
 	keys := []uint32{}
 	for id, _ := range conf.Devices {
 		keys = append(keys, id)
@@ -49,20 +49,30 @@ func getDevices(conf *config.Config, debug bool) (uhppote.UHPPOTE, []*uhppote.De
 
 	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
 
-	u := uhppote.UHPPOTE{
-		BindAddress:      conf.BindAddress,
-		BroadcastAddress: conf.BroadcastAddress,
-		ListenAddress:    conf.ListenAddress,
-		Devices:          make(map[uint32]*uhppote.Device),
-		Debug:            debug,
+	bind, broadcast, listen := config.DefaultIpAddresses()
+
+	if conf.BindAddress != nil {
+		bind = *conf.BindAddress
 	}
 
-	devices := []*uhppote.Device{}
+	if conf.BroadcastAddress != nil {
+		broadcast = *conf.BroadcastAddress
+	}
+
+	if conf.ListenAddress != nil {
+		listen = *conf.ListenAddress
+	}
+
+	devices := []uhppote.Device{}
 	for _, id := range keys {
 		d := conf.Devices[id]
-		u.Devices[id] = uhppote.NewDevice(id, d.Address, d.Rollover, d.Doors)
-		devices = append(devices, uhppote.NewDevice(id, d.Address, d.Rollover, d.Doors))
+
+		if device := uhppote.NewDevice(d.Name, id, d.Address, d.Rollover, d.Doors); device != nil {
+			devices = append(devices, *device)
+		}
 	}
+
+	u := uhppote.NewUHPPOTE(bind, broadcast, listen, devices, debug)
 
 	return u, devices
 }

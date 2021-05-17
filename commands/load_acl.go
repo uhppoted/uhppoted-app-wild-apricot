@@ -11,7 +11,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppote-core/device"
 	"github.com/uhppoted/uhppote-core/uhppote"
 	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-api/config"
@@ -186,7 +185,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		return nil
 	}
 
-	rpt, warnings, err := cmd.load(&u, devices, cards)
+	rpt, warnings, err := cmd.load(u, devices, cards)
 	if err != nil {
 		return err
 	}
@@ -229,7 +228,7 @@ func (cmd *LoadACL) lock() (string, error) {
 	return lockfile, nil
 }
 
-func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (map[uint32]api.Report, []error, error) {
+func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *api.Table) (map[uint32]api.Report, []error, error) {
 	acl, warnings, err := api.ParseTable(cards, devices, cmd.strict)
 	if err != nil {
 		return nil, warnings, err
@@ -259,7 +258,7 @@ func (cmd *LoadACL) load(u device.IDevice, devices []*uhppote.Device, cards *api
 	return rpt, warnings, nil
 }
 
-func (cmd *LoadACL) compare(u device.IDevice, devices []*uhppote.Device, cards *api.Table) (bool, error) {
+func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *api.Table) (bool, error) {
 	current, errors := api.GetACL(u, devices)
 	if len(errors) > 0 {
 		return false, fmt.Errorf("%v", errors)

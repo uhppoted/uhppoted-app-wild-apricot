@@ -1,10 +1,10 @@
-# TODO - v0.6.12
+# TODO - v0.7.x
 
 ### IN PROGRESS
 
-- [x] Prepend facility code when card number is 5 digits or less
-- [x] Ignore _blank_ doors in configuration
-- [x] Validate credentials on load
+- [ ] Add time profiles to `get-acl`
+- [ ] Add time profiles to `compare-acl`
+- [ ] Add time profiles to `load-acl`
 
 # TODO
 
