@@ -5,6 +5,7 @@
 - [ ] Add time profiles to `get-acl`
 - [ ] Add time profiles to `compare-acl`
 - [ ] Add time profiles to `load-acl`
+- [ ] Verify that hash works with new record struct
 
 # TODO
 

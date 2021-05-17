@@ -97,6 +97,16 @@ rule Grant "Grants permission to the Whomping Willow" {
 }
 `
 
+var grantWithTimeProfile = `
+rule Grant "Grants permission to the Whomping Willow" {
+     when
+		member.HasCardNumber(6000001)
+	 then
+         permissions.Grant("Whomping Willow:29");
+         Retract("Grant");
+}
+`
+
 var revoke = `
 rule Revoke "Revokes permission to the Whomping Willow" {
      when
@@ -121,7 +131,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
 				EndDate:    endOfYear().AddDate(0, 1, 0),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -129,7 +139,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 2000001,
 				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
 				EndDate:    endOfYear().AddDate(0, 1, 0),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -137,7 +147,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -145,7 +155,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 6000002,
 				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 		},
@@ -206,7 +216,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
 				EndDate:    endOfYear().AddDate(0, 1, 0),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -214,7 +224,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 2000001,
 				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
 				EndDate:    endOfYear().AddDate(0, 1, 0),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -222,7 +232,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -230,7 +240,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 6000002,
 				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -238,7 +248,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  time.Date(2001, time.February, 28, 0, 0, 0, 0, time.Local),
 				EndDate:    endOfYear().AddDate(0, 1, 0),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 		},
@@ -282,8 +292,8 @@ func TestGrant(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted: map[string]struct{}{
-					"whompingwillow": struct{}{},
+				Granted: map[string]interface{}{
+					"whompingwillow": true,
 				},
 				Revoked: map[string]struct{}{},
 			},
@@ -291,6 +301,47 @@ func TestGrant(t *testing.T) {
 	}
 
 	r, err := NewRules([]byte(grules+grant), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
+
+func TestGrantWithTimeProfile(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted: map[string]interface{}{
+					"whompingwillow": 29,
+				},
+				Revoked: map[string]struct{}{},
+			},
+		},
+	}
+
+	r, err := NewRules([]byte(grules+grantWithTimeProfile), true)
 	if err != nil {
 		t.Fatalf("Unexpected error (%v)", err)
 	}
@@ -323,10 +374,10 @@ func TestVariadicGrant(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted: map[string]struct{}{
-					"whompingwillow": struct{}{},
-					"gryffindor":     struct{}{},
-					"greathall":      struct{}{},
+				Granted: map[string]interface{}{
+					"whompingwillow": true,
+					"gryffindor":     true,
+					"greathall":      true,
 				},
 				Revoked: map[string]struct{}{},
 			},
@@ -376,7 +427,7 @@ func TestRevoke(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},
 				},
@@ -417,7 +468,7 @@ func TestVariadicRevoke(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted:    map[string]struct{}{},
+				Granted:    map[string]interface{}{},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},
 					"dungeon":        struct{}{},
@@ -470,8 +521,8 @@ func TestGrantAndRevoke(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
-				Granted: map[string]struct{}{
-					"whompingwillow": struct{}{},
+				Granted: map[string]interface{}{
+					"whompingwillow": true,
 				},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},

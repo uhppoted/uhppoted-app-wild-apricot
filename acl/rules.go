@@ -61,7 +61,7 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 			Name:      m.Name,
 			StartDate: startDate,
 			EndDate:   endDate,
-			Granted:   map[string]struct{}{},
+			Granted:   map[string]interface{}{},
 			Revoked:   map[string]struct{}{},
 		}
 

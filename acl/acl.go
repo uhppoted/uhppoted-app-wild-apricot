@@ -100,15 +100,28 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 			for _, door := range acl.doors {
 				granted := false
 				revoked := false
+				profile := -1
 				d := normalise(door)
 
 				if _, ok := r.Granted["*"]; ok {
 					granted = true
 				}
 
-				for k, _ := range r.Granted {
+				for k, v := range r.Granted {
 					if d == normalise(k) {
-						granted = true
+						switch vv := v.(type) {
+						case bool:
+							if vv == true {
+								granted = true
+							}
+
+						case int:
+							if vv >= 2 && vv <= 254 {
+								granted = true
+								profile = vv
+							}
+
+						}
 					}
 				}
 
@@ -123,7 +136,11 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 				}
 
 				if granted && !revoked {
-					row = append(row, "Y")
+					if profile != -1 {
+						row = append(row, fmt.Sprintf("%v", profile))
+					} else {
+						row = append(row, "Y")
+					}
 				} else {
 					row = append(row, "N")
 				}

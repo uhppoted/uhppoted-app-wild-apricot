@@ -1,6 +1,7 @@
 package acl
 
 import (
+	"regexp"
 	"strconv"
 	"time"
 
@@ -12,7 +13,7 @@ type record struct {
 	CardNumber uint32
 	StartDate  time.Time
 	EndDate    time.Time
-	Granted    map[string]struct{}
+	Granted    map[string]interface{}
 	Revoked    map[string]struct{}
 }
 
@@ -75,7 +76,13 @@ func (r *record) SetEndDate(t interface{}) {
 func (r *record) Grant(door ...string) {
 	if r != nil {
 		for _, d := range door {
-			r.Granted[normalise(d)] = struct{}{}
+			if match := regexp.MustCompile(`(\S.*?):([0-9]+)`).FindStringSubmatch(d); match != nil {
+				permission := normalise(match[1])
+				profile, _ := strconv.Atoi(match[2])
+				r.Granted[normalise(permission)] = profile
+			} else {
+				r.Granted[normalise(d)] = true
+			}
 		}
 	}
 }
