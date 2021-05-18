@@ -219,12 +219,19 @@ func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error 
 	rpt := detail(members, diff)
 
 	if cmd.file == "" {
-		fmt.Println()
-		fmt.Printf("  ACL Compare Report %s\n", time.Now().Format("2006-01-02 15:03:04"))
-		fmt.Println()
-		fmt.Printf("%v\n", string(rpt.MarshalTextIndent("  ", " ")))
-		fmt.Println()
-
+		if !diff.HasChanges() {
+			fmt.Println()
+			fmt.Printf("  ACL Compare Report %s\n", time.Now().Format("2006-01-02 15:03:04"))
+			fmt.Println()
+			fmt.Printf("%v\n", "  NO DIFFERENCES")
+			fmt.Println()
+		} else {
+			fmt.Println()
+			fmt.Printf("  ACL Compare Report %s\n", time.Now().Format("2006-01-02 15:03:04"))
+			fmt.Println()
+			fmt.Printf("%v\n", string(rpt.MarshalTextIndent("  ", " ")))
+			fmt.Println()
+		}
 		return nil
 	}
 

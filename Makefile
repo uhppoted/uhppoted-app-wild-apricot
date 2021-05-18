@@ -61,7 +61,7 @@ bump:
 	go get -u github.com/uhppoted/uhppoted-api
 
 debug: build
-#	$(CLI) get-members --credentials $(CREDENTIALS)
+	$(CLI) get-acl     --credentials $(CREDENTIALS) --rules $(RULES)
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 # GENERAL COMMANDS

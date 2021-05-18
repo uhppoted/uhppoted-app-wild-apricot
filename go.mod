@@ -9,3 +9,5 @@ require (
 	github.com/uhppoted/uhppoted-api v0.6.13-0.20210517193706-c537c73adc3f
 	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887
 )
+
+replace github.com/uhppoted/uhppoted-api => ../uhppoted-api

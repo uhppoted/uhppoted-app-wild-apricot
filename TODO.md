@@ -2,10 +2,11 @@
 
 ### IN PROGRESS
 
-- [ ] Add time profiles to `get-acl`
-- [ ] Add time profiles to `compare-acl`
-- [ ] Add time profiles to `load-acl`
+- [x] Add time profile support to `get-acl`
+- [x] Add time profile support to `compare-acl`
+- [ ] Add time profile support to `load-acl`
 - [ ] Verify that hash works with new record struct
+- [x] Show 'no differences' on console for `compare-acl`
 
 # TODO
 
