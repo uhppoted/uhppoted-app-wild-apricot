@@ -99,3 +99,127 @@ func TestAsTable(t *testing.T) {
 		}
 	}
 }
+
+func TestHash(t *testing.T) {
+	dumbledore := record{
+		Name:       "Albus Dumbledore",
+		CardNumber: 1000001,
+		StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
+		EndDate:    endOfYear().AddDate(0, 1, 0),
+		Granted: map[string]interface{}{
+			"Great Hall":      true,
+			"Whomping Willow": true,
+			"Dungeon":         29,
+			"Hogsmeade":       true,
+		},
+		Revoked: map[string]struct{}{},
+	}
+
+	riddle := record{
+		Name:       "Tom Riddle",
+		CardNumber: 2000001,
+		StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
+		EndDate:    endOfYear().AddDate(0, 1, 0),
+		Granted:    map[string]interface{}{},
+		Revoked:    map[string]struct{}{},
+	}
+
+	potter := []record{
+		record{
+			Name:       "Harry Potter",
+			CardNumber: 6000001,
+			StartDate:  startOfYear(),
+			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			Granted: map[string]interface{}{
+				"Great Hall": true,
+				"Hogsmeade":  true,
+			},
+			Revoked: map[string]struct{}{
+				"Hogsmeade": struct{}{},
+			},
+		},
+		record{
+			Name:       "Harry Potter",
+			CardNumber: 6000001,
+			StartDate:  startOfYear(),
+			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			Granted: map[string]interface{}{
+				"Great Hall": 29,
+				"Hogsmeade":  true,
+			},
+			Revoked: map[string]struct{}{
+				"Hogsmeade": struct{}{},
+			},
+		},
+		record{
+			Name:       "Harry Potter",
+			CardNumber: 6000001,
+			StartDate:  startOfYear(),
+			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			Granted: map[string]interface{}{
+				"Great Hall": true,
+				"Hogsmeade":  true,
+			},
+			Revoked: map[string]struct{}{
+				"Hogsmeade":  struct{}{},
+				"Great Hall": struct{}{},
+			},
+		},
+		record{
+			Name:       "Harry Potter",
+			CardNumber: 6000001,
+			StartDate:  startOfYear(),
+			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			Granted: map[string]interface{}{
+				"Great Hall": true,
+				"Hogsmeade":  true,
+			},
+			Revoked: map[string]struct{}{
+				"Hogsmeade": struct{}{},
+				"Dungeon":   struct{}{},
+			},
+		},
+	}
+
+	acl := ACL{
+		doors:   []string{"Great Hall", "Whomping Willow", "Dungeon", "Hogsmeade"},
+		records: []record{dumbledore, riddle, potter[0]},
+	}
+
+	expected := "2257f356a9efe68827e7324d4cd68f73b0e9127a1dac65af5659cb87578ef5dc"
+	hash := acl.Hash()
+	if hash != expected {
+		t.Errorf("Invalid ACL hash - expected:%v, got:%v", expected, hash)
+	}
+
+	acl = ACL{
+		doors:   []string{"Great Hall", "Whompping Willow", "Dungeon", "Hogsmeade"},
+		records: []record{dumbledore, riddle, potter[1]},
+	}
+
+	hash = acl.Hash()
+	if hash == expected {
+		t.Errorf("Invalid ACL hash - expected:%v, got:%v", "71b3ab210f0e0112691687e92ea12a49241f9dc7c2729f52916fe2060b0ec74e", hash)
+	}
+
+	acl = ACL{
+		doors:   []string{"Great Hall", "Whomping Willow", "Dungeon", "Hogsmeade"},
+		records: []record{dumbledore, riddle, potter[2]},
+	}
+
+	hash = acl.Hash()
+	if hash == expected {
+		t.Errorf("Invalid ACL hash - expected:%v, got:%v", "b829378a79576c1bb41c78d3fe23a32e310d54fa6d8d86945909440319b5480b", hash)
+	}
+
+	acl = ACL{
+		doors:   []string{"Great Hall", "Whomping Willow", "Dungeon", "Hogsmeade"},
+		records: []record{dumbledore, riddle, potter[3]},
+	}
+
+	hash = acl.Hash()
+	if hash != expected {
+		t.Errorf("Invalid ACL hash - expected:%v, got:%v", expected, hash)
+	}
+
+}
