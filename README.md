@@ -96,8 +96,37 @@ rule Gryffindor "Grants a Gryffindor student access to common areas and Gryffind
          record.Grant("Gryffindor");
          Retract("Gryffindor");
 }
-```
 
+rule Pets "Grants a Pet access to the Kitchen at mealtimes" {
+     when
+         member.HasGroup("Pet")
+     then
+         record.Grant("Kitchen:100");
+         Retract("Pets");
+}
+
+rule DeathEaters "Denies Hogwarts access to any known members of the Death Eaters" {
+     when
+         member.HasGroup("Death Eaters)
+     then
+         record.Revoke"Great Hall");
+         record.Revoke("Gryffindor");
+         record.Revoke("Hufflepuff");
+         record.Revoke("Ravenclaw");
+         record.Revoke("Slytherin");
+         record.Revoke("Dungeon);
+         record.Revoke("Kitchen");
+         Retract("DeathEaters");
+}
+
+```
+_Notes:_
+
+1. The card associated with a member has access to a door if access has been `granted` and NOT `revoked`. If a card's door access has been both granted and revoked then it will not have access e.g. a _Slytherin_ student could have access to the _Great Hall_, unless of course he/she is a known associate of _Voldemort_.
+2. To grant time based access to a door:
+   ```
+   record.Grant("Kitchen:100");
+   ```
 
 ### Building from source
 

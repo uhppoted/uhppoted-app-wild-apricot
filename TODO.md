@@ -7,7 +7,7 @@
 - [x] Add time profile support to `load-acl`
 - [x] Show 'no differences' on console for `compare-acl`
 - [x] Verify that hash works with new record struct
-- [ ] Update README
+- [x] Update README
 
 # TODO
 
