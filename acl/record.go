@@ -73,15 +73,33 @@ func (r *record) SetEndDate(t interface{}) {
 	}
 }
 
-func (r *record) Grant(door ...string) {
+func (r *record) Grant(permissions ...interface{}) {
 	if r != nil {
-		for _, d := range door {
-			if match := regexp.MustCompile(`(\S.*?):([0-9]+)`).FindStringSubmatch(d); match != nil {
-				permission := normalise(match[1])
-				profile, _ := strconv.Atoi(match[2])
-				r.Granted[normalise(permission)] = profile
-			} else {
-				r.Granted[normalise(d)] = true
+		// parse Grant(door, profile)
+		if len(permissions) == 2 {
+			if door, ok := permissions[0].(string); ok {
+				switch profile := permissions[1].(type) {
+				case int:
+					r.Granted[normalise(door)] = profile
+					return
+
+				case int64:
+					r.Granted[normalise(door)] = int(profile)
+					return
+				}
+			}
+		}
+
+		// parse Grant(door...)
+		for _, p := range permissions {
+			if d, ok := p.(string); ok {
+				if match := regexp.MustCompile(`(\S.*?):([0-9]+)`).FindStringSubmatch(d); match != nil {
+					door := normalise(match[1])
+					profile, _ := strconv.Atoi(match[2])
+					r.Granted[door] = profile
+				} else {
+					r.Granted[normalise(d)] = true
+				}
 			}
 		}
 	}

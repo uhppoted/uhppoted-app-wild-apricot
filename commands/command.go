@@ -72,7 +72,7 @@ func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.De
 		}
 	}
 
-	u := uhppote.NewUHPPOTE(bind, broadcast, listen, devices, debug)
+	u := uhppote.NewUHPPOTE(bind, broadcast, listen, conf.Timeout, devices, debug)
 
 	return u, devices
 }

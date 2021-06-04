@@ -2,6 +2,7 @@
 
 ### IN PROGRESS
 
+- [x] grant => vararags
 - [x] Add time profile support to `get-acl`
 - [x] Add time profile support to `compare-acl`
 - [x] Add time profile support to `load-acl`

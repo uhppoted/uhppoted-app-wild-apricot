@@ -107,6 +107,16 @@ rule Grant "Grants permission to the Whomping Willow" {
 }
 `
 
+var grantAndTimeProfile = `
+rule Grant "Grants permission to the Whomping Willow" {
+     when
+		member.HasCardNumber(6000001)
+	 then
+         permissions.Grant("Whomping Willow",55);
+         Retract("Grant");
+}
+`
+
 var revoke = `
 rule Revoke "Revokes permission to the Whomping Willow" {
      when
@@ -319,7 +329,7 @@ func TestGrant(t *testing.T) {
 	}
 }
 
-func TestGrantWithTimeProfile(t *testing.T) {
+func TestGrantWithDoorWithTimeProfile(t *testing.T) {
 	members := types.Members{
 		Members: []types.Member{harry},
 	}
@@ -360,6 +370,46 @@ func TestGrantWithTimeProfile(t *testing.T) {
 	}
 }
 
+func TestGrantWithDoorAndTimeProfile(t *testing.T) {
+	members := types.Members{
+		Members: []types.Member{harry},
+	}
+
+	doors := []string{}
+
+	expected := ACL{
+		records: []record{
+			record{
+				Name:       "Harry Potter",
+				CardNumber: 6000001,
+				StartDate:  startOfYear(),
+				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				Granted: map[string]interface{}{
+					"whompingwillow": 55,
+				},
+				Revoked: map[string]struct{}{},
+			},
+		},
+	}
+
+	r, err := NewRules([]byte(grules+grantAndTimeProfile), true)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	acl, err := r.MakeACL(members, doors)
+	if err != nil {
+		t.Fatalf("Unexpected error (%v)", err)
+	}
+
+	if len(acl.records) != len(expected.records) {
+		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
+	} else {
+		for i, _ := range expected.records {
+			compare(acl.records[i], expected.records[i], t)
+		}
+	}
+}
 func TestVariadicGrant(t *testing.T) {
 	members := types.Members{
 		Members: []types.Member{harry},
