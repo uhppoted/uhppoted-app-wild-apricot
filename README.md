@@ -14,6 +14,7 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                  |
 | --------- | ------------------------------------------------------------------------------ |
+| v0.7.0    | Added support for time profiles from the extended API                          |
 | v0.6.12   | Implemented prepended facility code for card numbers retrieved without         |
 | v0.6.10   | Initial release                                                                |
 

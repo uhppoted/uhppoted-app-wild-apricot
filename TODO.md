@@ -1,6 +1,4 @@
-# TODO - v0.7.x
-
-### IN PROGRESS
+# TODO - v0.7.0
 
 - [x] grant => vararags
 - [x] Add time profile support to `get-acl`
