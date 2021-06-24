@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/uhppoted/uhppote-core/uhppote"
-	api "github.com/uhppoted/uhppoted-api/acl"
-	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	api "github.com/uhppoted/uhppoted-lib/acl"
+	"github.com/uhppoted/uhppoted-lib/config"
 )
 
 var LoadACLCmd = LoadACL{

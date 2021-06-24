@@ -5,10 +5,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppoted-api/config"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	"github.com/uhppoted/uhppoted-lib/config"
 )
 
 func revised(conf *config.Config, credentials *credentials, timestamp *time.Time) (bool, error) {

@@ -154,10 +154,10 @@ The above commands build the `uhppoted-app-wild-apricot` executable to the `bin`
 | *Dependency*                                                                 | *Description*                              |
 | ---------------------------------------------------------------------------- | ------------------------------------------ |
 | [com.github/uhppoted/uhppote-core](https://github.com/uhppoted/uhppote-core) | Device level API implementation            |
-| [com.github/uhppoted/uhppoted-api](https://github.com/uhppoted/uhppoted-api) | Common API for external applications       |
+| [com.github/uhppoted/uhppoted-lib](https://github.com/uhppoted/uhppoted-lib) | Shared application library                 |
 | [github.com/hyperjumptech/grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) | Grule rule engine for processing ACL rules |
-| github.com/sirupsen/logrus                                                     | Indirect dependency from [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) |
-| golang.org/x/sys                                                     | Library for Windows system calls |
+| github.com/sirupsen/logrus                                                   | Indirect dependency from [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) |
+| golang.org/x/sys                                                             | Library for Windows system calls |
 
 ## uhppoted-app-wild-apricot
 

@@ -1,4 +1,4 @@
-VERSION     = v0.7.0
+VERSION     = v0.7.x
 LDFLAGS     = -ldflags "-X uhppote.VERSION=$(VERSION)" 
 DIST       ?= development
 CLI         = ./bin/uhppoted-app-wild-apricot
@@ -58,7 +58,7 @@ release: build-all
 
 bump:
 	go get -u github.com/uhppoted/uhppote-core
-	go get -u github.com/uhppoted/uhppoted-api
+	go get -u github.com/uhppoted/uhppoted-lib
 
 debug: build
 	$(CLI) load-acl    --credentials $(CREDENTIALS) --rules $(RULES) --force --dry-run

@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	api "github.com/uhppoted/uhppoted-api/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	api "github.com/uhppoted/uhppoted-lib/acl"
 )
 
 type Members struct {

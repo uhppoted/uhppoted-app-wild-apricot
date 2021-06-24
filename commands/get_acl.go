@@ -8,8 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	api "github.com/uhppoted/uhppoted-api/acl"
-	"github.com/uhppoted/uhppoted-api/config"
+	api "github.com/uhppoted/uhppoted-lib/acl"
+	"github.com/uhppoted/uhppoted-lib/config"
 )
 
 var GetACLCmd = GetACL{

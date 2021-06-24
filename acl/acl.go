@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	api "github.com/uhppoted/uhppoted-api/acl"
+	api "github.com/uhppoted/uhppoted-lib/acl"
 )
 
 type ACL struct {

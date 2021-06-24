@@ -1,12 +1,6 @@
-# TODO - v0.7.0
+# TODO - v0.7.x
 
-- [x] grant => vararags
-- [x] Add time profile support to `get-acl`
-- [x] Add time profile support to `compare-acl`
-- [x] Add time profile support to `load-acl`
-- [x] Show 'no differences' on console for `compare-acl`
-- [x] Verify that hash works with new record struct
-- [x] Update README
+- [x] Update to latest `uhppote-core` and `uhppoted-lib`
 
 # TODO
 

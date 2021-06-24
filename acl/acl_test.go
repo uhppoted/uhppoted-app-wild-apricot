@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	api "github.com/uhppoted/uhppoted-api/acl"
+	api "github.com/uhppoted/uhppoted-lib/acl"
 )
 
 func TestAsTable(t *testing.T) {
