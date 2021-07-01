@@ -1,5 +1,3 @@
-VERSION     = v0.7.x
-LDFLAGS     = -ldflags "-X uhppote.VERSION=$(VERSION)" 
 DIST       ?= development
 CLI         = ./bin/uhppoted-app-wild-apricot
 WORKDIR     = ../runtime/wild-apricot

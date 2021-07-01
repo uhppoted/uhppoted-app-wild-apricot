@@ -1,10 +1,10 @@
-# TODO - v0.7.x
+# TODO - v0.7.1
 
 - [x] Update to latest `uhppote-core` and `uhppoted-lib`
 
-# TODO
+## TODO
 
 - [ ] Use templates for report output
 - [ ] Implement generalized struct transcoding
 
-# NOTES
+## NOTES
