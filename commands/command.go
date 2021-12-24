@@ -67,7 +67,7 @@ func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.De
 	for _, id := range keys {
 		d := conf.Devices[id]
 
-		if device := uhppote.NewDevice(d.Name, id, d.Address, d.Rollover, d.Doors); device != nil {
+		if device := uhppote.NewDevice(d.Name, id, d.Address, d.Doors); device != nil {
 			devices = append(devices, *device)
 		}
 	}
