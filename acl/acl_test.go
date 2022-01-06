@@ -1,6 +1,7 @@
 package acl
 
 import (
+	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -66,6 +67,8 @@ func TestAsTable(t *testing.T) {
 		},
 	}
 
+	year := time.Now().Year()
+
 	expected := api.Table{
 		Header: []string{
 			"Card Number",
@@ -78,9 +81,9 @@ func TestAsTable(t *testing.T) {
 		},
 
 		Records: [][]string{
-			[]string{"1000001", "1880-02-29", "2022-01-31", "Y", "Y", "29", "Y"},
-			[]string{"2000001", "1981-07-01", "2022-01-31", "N", "N", "N", "N"},
-			[]string{"6000001", "2021-01-01", "2021-06-30", "Y", "N", "N", "N"},
+			[]string{"1000001", "1880-02-29", fmt.Sprintf("%04d-01-31", year+1), "Y", "Y", "29", "Y"},
+			[]string{"2000001", "1981-07-01", fmt.Sprintf("%04d-01-31", year+1), "N", "N", "N", "N"},
+			[]string{"6000001", fmt.Sprintf("%04d-01-01", year), "2021-06-30", "Y", "N", "N", "N"},
 			[]string{"6000002", "2020-06-25", "2021-06-30", "Y", "N", "N", "Y"},
 		},
 	}
@@ -105,7 +108,7 @@ func TestHash(t *testing.T) {
 		Name:       "Albus Dumbledore",
 		CardNumber: 1000001,
 		StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
-		EndDate:    endOfYear().AddDate(0, 1, 0),
+		EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
 		Granted: map[string]interface{}{
 			"Great Hall":      true,
 			"Whomping Willow": true,
@@ -119,7 +122,7 @@ func TestHash(t *testing.T) {
 		Name:       "Tom Riddle",
 		CardNumber: 2000001,
 		StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
-		EndDate:    endOfYear().AddDate(0, 1, 0),
+		EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
 		Granted:    map[string]interface{}{},
 		Revoked:    map[string]struct{}{},
 	}
@@ -128,7 +131,7 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  startOfYear(),
+			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
 			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
 			Granted: map[string]interface{}{
 				"Great Hall": true,
@@ -141,7 +144,7 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  startOfYear(),
+			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
 			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
 			Granted: map[string]interface{}{
 				"Great Hall": 29,
@@ -154,7 +157,7 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  startOfYear(),
+			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
 			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
 			Granted: map[string]interface{}{
 				"Great Hall": true,
@@ -168,7 +171,7 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  startOfYear(),
+			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
 			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
 			Granted: map[string]interface{}{
 				"Great Hall": true,
