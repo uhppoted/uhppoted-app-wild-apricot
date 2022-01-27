@@ -1,7 +1,6 @@
-# TODO - v0.7.x
+# TODO - v0.7.2
 
 - [x] Update to latest `uhppote-core` and `uhppoted-lib`
-- [x] Fix ACL unit tests
 
 ## TODO
 
