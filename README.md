@@ -146,7 +146,7 @@ If you prefer not to use `make`:
 git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
 cd uhppoted-app-wild-apricot
 mkdir bin
-go build -o bin ./...
+go build -trimpath -o bin ./...
 ```
 
 The above commands build the `uhppoted-app-wild-apricot` executable to the `bin` directory.
