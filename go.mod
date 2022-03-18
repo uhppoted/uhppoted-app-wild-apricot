@@ -1,6 +1,6 @@
 module github.com/uhppoted/uhppoted-app-wild-apricot
 
-go 1.17
+go 1.18
 
 require (
 	github.com/hyperjumptech/grule-rule-engine v1.10.4
