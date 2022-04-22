@@ -3,12 +3,12 @@ module github.com/uhppoted/uhppoted-app-wild-apricot
 go 1.18
 
 require (
-	github.com/hyperjumptech/grule-rule-engine v1.10.4
+	github.com/hyperjumptech/grule-rule-engine v1.10.5
 	github.com/sirupsen/logrus v1.8.1
-	github.com/uhppoted/uhppote-core v0.7.3-0.20220209060920-850b355446cc
-	github.com/uhppoted/uhppoted-lib v0.7.3-0.20220128210643-c4d9a4bc1660
-	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
-	golang.org/x/sys v0.0.0-20220207234003-57398862261d
+	github.com/uhppoted/uhppote-core v0.7.3-0.20220421222154-111fcb9c4e58
+	github.com/uhppoted/uhppoted-lib v0.7.3-0.20220318231650-43f3f7637836
+	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
+	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150
 )
 
 require (
@@ -22,11 +22,8 @@ require (
 	github.com/sergi/go-diff v1.0.0 // indirect
 	github.com/src-d/gcfg v1.4.0 // indirect
 	github.com/xanzy/ssh-agent v0.2.1 // indirect
-	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d // indirect
+	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
 	gopkg.in/src-d/go-billy.v4 v4.3.2 // indirect
 	gopkg.in/src-d/go-git.v4 v4.13.1 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )
-
-replace github.com/uhppoted/uhppote-core => ../uhppote-core
-replace github.com/uhppoted/uhppoted-lib => ../uhppoted-lib
