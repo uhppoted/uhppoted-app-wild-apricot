@@ -70,6 +70,7 @@ var voldemort = types.Member{
 }
 
 var grules = `
+// *** GRULES ***
 rule StartDate "Sets the start date to the 'registered' field" {
      when
 		member.HasRegistered()
@@ -85,9 +86,11 @@ rule EndDate "Sets the end date to the 'expires' field" {
          permissions.SetEndDate(member.Expires);
          Retract("EndDate");
 }
+// *** END GRULES ***
 `
 
 var grant = `
+// *** GRULES ***
 rule Grant "Grants permission to the Whomping Willow" {
      when
 		member.HasCardNumber(6000001)
@@ -95,9 +98,11 @@ rule Grant "Grants permission to the Whomping Willow" {
          permissions.Grant("Whomping Willow");
          Retract("Grant");
 }
+// *** END GRULES ***
 `
 
 var grantWithTimeProfile = `
+// *** GRULES ***
 rule Grant "Grants permission to the Whomping Willow" {
      when
 		member.HasCardNumber(6000001)
@@ -105,9 +110,11 @@ rule Grant "Grants permission to the Whomping Willow" {
          permissions.Grant("Whomping Willow:29");
          Retract("Grant");
 }
+// *** END GRULES ***
 `
 
 var grantAndTimeProfile = `
+// *** GRULES ***
 rule Grant "Grants permission to the Whomping Willow" {
      when
 		member.HasCardNumber(6000001)
@@ -115,9 +122,11 @@ rule Grant "Grants permission to the Whomping Willow" {
          permissions.Grant("Whomping Willow",55);
          Retract("Grant");
 }
+// *** END GRULES ***
 `
 
 var revoke = `
+// *** GRULES ***
 rule Revoke "Revokes permission to the Whomping Willow" {
      when
 		member.HasCardNumber(6000001)
@@ -125,6 +134,7 @@ rule Revoke "Revokes permission to the Whomping Willow" {
          permissions.Revoke("Whomping Willow");
          Retract("Revoke");
 }
+// *** END GRULES ***
 `
 
 func TestMakeACL(t *testing.T) {
@@ -435,6 +445,7 @@ func TestVariadicGrant(t *testing.T) {
 	}
 
 	grant := `
+// *** GRULES ***
 rule Grant "Grants permission to the Whomping Willow" {
      when
 		member.HasCardNumber(6000001)
@@ -442,6 +453,7 @@ rule Grant "Grants permission to the Whomping Willow" {
          permissions.Grant("Whomping Willow", "Gryffindor", "Great Hall");
          Retract("Grant");
 }
+// *** END GRULES ***
 `
 
 	r, err := NewRules([]byte(grules+grant), true)
@@ -529,6 +541,7 @@ func TestVariadicRevoke(t *testing.T) {
 	}
 
 	revoke := `
+// *** GRULES ***
 rule Revoke "Revokes permission to the Whomping Willow" {
      when
 		member.HasCardNumber(6000001)
@@ -536,6 +549,7 @@ rule Revoke "Revokes permission to the Whomping Willow" {
          permissions.Revoke("Whomping Willow", "Dungeon", "Hogsmeade");
          Retract("Revoke");
 }
+// *** END GRULES ***
 `
 
 	r, err := NewRules([]byte(grules+revoke), true)

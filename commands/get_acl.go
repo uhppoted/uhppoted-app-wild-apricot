@@ -98,7 +98,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		return err
 	}
 
-	rules, err := getRules(cmd.rules, cmd.debug)
+	rules, err := getRules(cmd.rules, cmd.workdir, cmd.debug)
 	if err != nil {
 		return err
 	}

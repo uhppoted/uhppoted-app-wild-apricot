@@ -2,6 +2,8 @@ package commands
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -99,11 +101,50 @@ func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, er
 	return groups, nil
 }
 
-func getRules(uri string, debug bool) (*acl.Rules, error) {
+// Ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2
+func getRules(uri string, workdir string, dbg bool) (*acl.Rules, error) {
 	ruleset, err := fetch(uri)
 	if err != nil {
 		return nil, err
 	}
 
-	return acl.NewRules(ruleset, debug)
+	if dbg {
+		filename := time.Now().Format("RULES 2006-01-02 15:04:05.grl")
+		path := filepath.Join(os.TempDir(), filename)
+		if f, err := os.Create(path); err != nil {
+			warn(fmt.Sprintf("%v", err))
+		} else {
+			f.Write(ruleset)
+			f.Close()
+			debug(fmt.Sprintf("Stashed rules list in file %s\n", path))
+		}
+	}
+
+	if rules, err := acl.NewRules(ruleset, dbg); err != nil {
+		warn(fmt.Sprintf("%v", err))
+	} else {
+		stash(ruleset, filepath.Join(workdir, "wild-apricot.grl"))
+
+		return rules, nil
+	}
+
+	// ... try load cached rules
+	stashed := filepath.Join(workdir, "wild-apricot.grl")
+	if ruleset, err := os.ReadFile(stashed); err != nil {
+		return nil, err
+	} else {
+		warn(fmt.Sprintf("Using stashed 'grules' file (%v)", stashed))
+		return acl.NewRules(ruleset, dbg)
+	}
+}
+
+func stash(bytes []byte, file string) {
+	if f, err := os.Create(file); err != nil {
+		warn(fmt.Sprintf("Error creating stashed 'grules' file (%v)", err))
+	} else {
+		f.Write(bytes)
+		f.Close()
+	}
+
+	info(fmt.Sprintf("Stashed downloaded 'grules' file to %v", file))
 }

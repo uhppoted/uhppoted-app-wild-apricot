@@ -49,7 +49,7 @@ func (cmd *CompareACL) Usage() string {
 
 func (cmd *CompareACL) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <url>] [--summary] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <url>] [--summary] [--report <file>]\n", APP)
 	fmt.Println()
 	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and stores the generated")
 	fmt.Println("  access control list to a TSV file")
@@ -61,7 +61,7 @@ func (cmd *CompareACL) Help() {
 	fmt.Println("  Examples:")
 	fmt.Println(`    uhppote-app-wild-apricot --debug --config uhppoted.conf compare-acl --credentials ".credentials/wild-apricot.json" \"`)
 	fmt.Println(`                                                                         --rules "wild-apricot.grl" \`)
-	fmt.Println(`                                                                         --file "example.tsv"`)
+	fmt.Println(`                                                                         --report "example.tsv"`)
 	fmt.Println()
 }
 
@@ -103,7 +103,7 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		return err
 	}
 
-	rules, err := getRules(cmd.rules, cmd.debug)
+	rules, err := getRules(cmd.rules, cmd.workdir, cmd.debug)
 	if err != nil {
 		return err
 	}

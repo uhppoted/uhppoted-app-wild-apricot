@@ -110,7 +110,7 @@ get-doors: build
 	cat "$(WORKDIR)/doors.tsv"
 
 get-acl: build
-	$(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "$(WORKDIR)/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-file: build
 	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"

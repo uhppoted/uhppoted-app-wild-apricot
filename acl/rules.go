@@ -1,9 +1,13 @@
 package acl
 
 import (
+	"bufio"
+	"bytes"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"sort"
+	"strings"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
@@ -27,6 +31,34 @@ func NewRules(ruleset []byte, debug bool) (*Rules, error) {
 		logger.SetLogLevel(logrus.ErrorLevel)
 	}
 
+	// ... check for header and footer
+	// Ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2
+
+	first := ""
+	last := ""
+	b := bytes.NewBuffer(ruleset)
+	scanner := bufio.NewScanner(b)
+
+	for scanner.Scan() {
+		line := scanner.Text()
+		if first == "" {
+			first = line
+		}
+
+		if strings.TrimSpace(line) != "" {
+			last = line
+		}
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, err
+	}
+
+	if !strings.Contains(first, "** GRULES **") || !strings.Contains(last, "*** END GRULES ***") {
+		return nil, fmt.Errorf("Invalid 'grules' file - missing start/end markers")
+	}
+
+	// ... parse
 	hash := sha256.Sum256(ruleset)
 	kb := ast.NewKnowledgeLibrary()
 	if err := builder.NewRuleBuilder(kb).BuildRuleFromResource("acl", "0.0.0", pkg.NewBytesResource(ruleset)); err != nil {

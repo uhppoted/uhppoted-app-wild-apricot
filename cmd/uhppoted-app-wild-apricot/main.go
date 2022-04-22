@@ -50,7 +50,7 @@ func main() {
 	}
 
 	if err = cmd.Execute(&options); err != nil {
-		log.Fatalf("ERROR: %v", err)
+		log.Fatalf("ERROR %v", err)
 		os.Exit(1)
 	}
 }

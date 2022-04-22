@@ -128,14 +128,22 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+		filename := time.Now().Format("MEMBERS 2006-01-02 15:04:05.tsv")
+		path := filepath.Join(os.TempDir(), filename)
+		if f, err := os.Create(path); err != nil {
+			fmt.Printf("ERROR %v", err)
+		} else {
+			fmt.Fprintf(f, "%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+			f.Close()
+			fmt.Printf("DEBUG stashed Wild Apricot members list in file %s\n", path)
+		}
 	}
 
 	// ... get rules
 
-	rules, err := getRules(cmd.rules, cmd.debug)
+	rules, err := getRules(cmd.rules, cmd.workdir, cmd.debug)
 	if err != nil {
-		return fmt.Errorf("Unable to create ruleset (%v)", err)
+		return fmt.Errorf("Failed to load ruleset (%v)", err)
 	}
 
 	// ... updated?
@@ -155,11 +163,17 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("DOORS:\n")
-		for _, d := range doors {
-			fmt.Printf("  %v\n", d)
+		filename := time.Now().Format("DOORS 2006-01-02 15:04:05.txt")
+		path := filepath.Join(os.TempDir(), filename)
+		if f, err := os.Create(path); err != nil {
+			fmt.Printf("ERROR %v", err)
+		} else {
+			for _, d := range doors {
+				fmt.Fprintf(f, "  %v\n", d)
+			}
+			f.Close()
+			fmt.Printf("DEBUG stashed doors list in file %s\n", path)
 		}
-		fmt.Println()
 	}
 
 	acl, err := rules.MakeACL(*members, doors)
@@ -168,7 +182,15 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
+		filename := time.Now().Format("ACL 2006-01-02 15:04:05.tsv")
+		path := filepath.Join(os.TempDir(), filename)
+		if f, err := os.Create(path); err != nil {
+			fmt.Printf("ERROR %v", err)
+		} else {
+			fmt.Fprintf(f, "%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
+			f.Close()
+			fmt.Printf("DEBUG stashed Wild Apricot ACL in file %s\n", path)
+		}
 	}
 
 	// ... load

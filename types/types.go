@@ -15,7 +15,7 @@ func DateFromString(s string) (*Date, error) {
 		return nil, err
 	}
 
-	return (*Date)(date), nil
+	return (*Date)(&date), nil
 }
 
 func (d *Date) String() string {
