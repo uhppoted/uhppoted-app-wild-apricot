@@ -64,6 +64,8 @@ A _credentials_ file should be a valid JSON file that contains the Wild Apricot 
 
 The _rules_ file is a text file containing the [Grule](http://hyperjumptech.viewdocs.io/grule-rule-engine) rules that define the member access e.g.:
 ```
+// *** GRULES ***
+
 rule Teacher "Grants a teacher access to common areas and Hogsmeade" {
      when
          member.HasGroup("Teacher")
@@ -122,6 +124,7 @@ rule DeathEaters "Denies Hogwarts access to any known members of the Death Eater
          Retract("DeathEaters");
 }
 
+// *** GRULES ***
 ```
 _Notes:_
 
@@ -129,6 +132,18 @@ _Notes:_
 2. To grant time based access to a door:
    ```
    record.Grant("Kitchen:100");
+   ```
+3. The grules file must have markers at the start and end of the file as a basic validity check for downloaded files e.g. Google Drive
+   shares occasionally download as empty files without error (ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2)
+
+   - The first non-blank line should be 
+   ```
+   // *** GRULES ***
+   ```
+   
+   - The last non-blank line should be:
+   ```
+   // *** END GRULES ***
    ```
 
 ### Building from source
