@@ -3,16 +3,16 @@ module github.com/uhppoted/uhppoted-app-wild-apricot
 go 1.18
 
 require (
-	github.com/hyperjumptech/grule-rule-engine v1.10.5
+	github.com/hyperjumptech/grule-rule-engine v1.10.6
 	github.com/sirupsen/logrus v1.8.1
-	github.com/uhppoted/uhppote-core v0.7.3-0.20220421222154-111fcb9c4e58
-	github.com/uhppoted/uhppoted-lib v0.7.3-0.20220318231650-43f3f7637836
+	github.com/uhppoted/uhppote-core v0.7.3-0.20220531203103-a62fd3184110
+	github.com/uhppoted/uhppoted-lib v0.7.3-0.20220531204140-34d8876e5e89
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
 )
 
 require (
-	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20210928164016-886d244c73ef // indirect
+	github.com/antlr/antlr4/runtime/Go/antlr v0.0.0-20220527190237-ee62e23da966 // indirect
 	github.com/bmatcuk/doublestar v1.3.2 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/google/uuid v1.1.1 // indirect

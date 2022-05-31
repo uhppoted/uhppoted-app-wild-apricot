@@ -1,6 +1,6 @@
-# TODO - v0.7.x
+# TODO - v0.7.3
 
-- [x] Add -trimpath to `go build`
+### IN PROGRESS
 
 ## TODO
 

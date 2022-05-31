@@ -2,7 +2,7 @@
 
 # uhppoted-app-wild-apricot
 
-```cron```'able command line utility to manage the access control lists of a set of UHPPOTE UTO311-L0x access access controllers from a [Wild Apricot](https://www.wildapricot.com) organisational account  
+```cron```'able command line utility to manage the access control lists of a set of UHPPOTE UTO311-L0x access access controllers from a [Wild Apricot](https://www.wildapricot.com) organisational account.
 
 Supported operating systems:
 - Linux
@@ -12,13 +12,14 @@ Supported operating systems:
 
 ## Releases
 
-| *Version* | *Description*                                                                  |
-| --------- | ------------------------------------------------------------------------------ |
-| v0.7.2    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib`           |
-| v0.7.1    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib`           |
-| v0.7.0    | Added support for time profiles from the extended API                          |
-| v0.6.12   | Implemented prepended facility code for card numbers retrieved without         |
-| v0.6.10   | Initial release                                                                |
+| *Version* | *Description*                                                                   |
+| --------- | ------------------------------------------------------------------------------- |
+| v0.7.3    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
+| v0.7.2    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
+| v0.7.1    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
+| v0.7.0    | Added support for time profiles from the extended API                           |
+| v0.6.12   | Implemented prepended facility code for card numbers retrieved without          |
+| v0.6.10   | Initial release                                                                 |
 
 ## Installation
 
