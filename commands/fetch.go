@@ -22,7 +22,8 @@ func fetch(uri string) ([]byte, error) {
 }
 
 // Ref. https://stackoverflow.com/questions/18177419/download-public-file-from-google-drive-golang
-//      Need to use https://drive.google.com/uc?export=download&id=<ID> for Google Drive shares.
+//
+//	Need to use https://drive.google.com/uc?export=download&id=<ID> for Google Drive shares.
 func fetchHTTP(url string) ([]byte, error) {
 	response, err := http.Get(url)
 	if err != nil {

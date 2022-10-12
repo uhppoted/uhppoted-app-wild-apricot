@@ -14,7 +14,6 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/engine"
 	"github.com/hyperjumptech/grule-rule-engine/logger"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
-	"github.com/sirupsen/logrus"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
@@ -26,9 +25,9 @@ type Rules struct {
 
 func NewRules(ruleset []byte, debug bool) (*Rules, error) {
 	if debug {
-		logger.SetLogLevel(logrus.TraceLevel)
+		logger.SetLogLevel(logger.TraceLevel)
 	} else {
-		logger.SetLogLevel(logrus.ErrorLevel)
+		logger.SetLogLevel(logger.ErrorLevel)
 	}
 
 	// ... check for header and footer
