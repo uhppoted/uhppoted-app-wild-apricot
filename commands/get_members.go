@@ -104,7 +104,7 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 		return err
 	}
 
-	info(fmt.Sprintf("Retrieved member list to file %s\n", cmd.file))
+	infof("Retrieved member list to file %s", cmd.file)
 
 	return nil
 }

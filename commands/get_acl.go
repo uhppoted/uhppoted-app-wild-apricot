@@ -137,7 +137,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	for _, w := range warnings {
-		warn(w.Error())
+		warnf("%v", w.Error())
 	}
 
 	// ... write to stdout
@@ -156,7 +156,7 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		return err
 	}
 
-	info(fmt.Sprintf("ACL saved to %s\n", cmd.file))
+	infof("ACL saved to %s", cmd.file)
 
 	return nil
 }

@@ -88,7 +88,7 @@ func (cmd *GetDoors) Execute(args ...interface{}) error {
 		return err
 	}
 
-	info(fmt.Sprintf("Extracted doors list to file %s\n", cmd.file))
+	infof("Extracted doors list to file %s", cmd.file)
 
 	return nil
 }

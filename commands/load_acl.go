@@ -5,15 +5,16 @@ import (
 	"encoding/csv"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	api "github.com/uhppoted/uhppoted-lib/acl"
+	"github.com/uhppoted/uhppoted-lib/lockfile"
+
 	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	api "github.com/uhppoted/uhppoted-lib/acl"
 	"github.com/uhppoted/uhppoted-lib/config"
 )
 
@@ -98,15 +99,19 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	// ... locked?
-	lockfile, err := cmd.lock()
-	if err != nil {
-		return err
+	lockFile := config.Lockfile{
+		File:   filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock"),
+		Remove: false, // FIXME pending go package repository update - lockfile.RemoveLockfile,
 	}
 
-	defer func() {
-		info(fmt.Sprintf("Removing lockfile '%v'", lockfile))
-		os.Remove(lockfile)
-	}()
+	if kraken, err := lockfile.MakeLockFile(lockFile); err != nil {
+		return err
+	} else {
+		defer func() {
+			infof("Removing lockfile '%v'", lockFile.File)
+			kraken.Release()
+		}()
+	}
 
 	// ... get config, credentials and version information
 	conf := config.NewConfig()
@@ -152,7 +157,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	//       So just ignore errors and rely on the hashes for the members and rules
 	updated, err := revised(conf, credentials, version.Timestamp)
 	if err != nil {
-		warn(fmt.Sprintf("Unable to get DB version information (%v)", err))
+		warnf("Unable to get DB version information (%v)", err)
 	}
 
 	// ... make ACL
@@ -203,7 +208,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	// }
 
 	if !cmd.force && !updated && !members.Updated(version.Hashes.Members) && !rules.Updated(version.Hashes.Rules) {
-		info("Nothing to do")
+		infof("Nothing to do")
 		return nil
 	}
 
@@ -214,11 +219,11 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	if rpt != nil {
 		if err := cmd.log(rpt, warnings); err != nil {
-			warn(fmt.Sprintf("Error appending summary report to log file (%v)", err))
+			warnf("Error appending summary report to log file (%v)", err)
 		}
 
 		if err := cmd.report(rpt, *members); err != nil {
-			warn(fmt.Sprintf("Error writing report file (%v)", err))
+			warnf("Error writing report file (%v)", err)
 		}
 	}
 
@@ -229,26 +234,26 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	return nil
 }
 
-func (cmd *LoadACL) lock() (string, error) {
-	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
-	pid := fmt.Sprintf("%d\n", os.Getpid())
-
-	if err := os.MkdirAll(filepath.Dir(lockfile), 0770); err != nil {
-		return "", fmt.Errorf("Unable to create directory '%v' for lockfile (%v)", lockfile, err)
-	}
-
-	if _, err := os.Stat(lockfile); err == nil {
-		return "", fmt.Errorf("Locked by '%v'", lockfile)
-	} else if !os.IsNotExist(err) {
-		return "", fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
-	}
-
-	if err := ioutil.WriteFile(lockfile, []byte(pid), 0660); err != nil {
-		return "", fmt.Errorf("Unable to create lockfile '%v' (%v)", lockfile, err)
-	}
-
-	return lockfile, nil
-}
+// func (cmd *LoadACL) lock() (string, error) {
+// 	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
+// 	pid := fmt.Sprintf("%d\n", os.Getpid())
+//
+// 	if err := os.MkdirAll(filepath.Dir(lockfile), 0770); err != nil {
+// 		return "", fmt.Errorf("Unable to create directory '%v' for lockfile (%v)", lockfile, err)
+// 	}
+//
+// 	if _, err := os.Stat(lockfile); err == nil {
+// 		return "", fmt.Errorf("Locked by '%v'", lockfile)
+// 	} else if !os.IsNotExist(err) {
+// 		return "", fmt.Errorf("Error checking PID lockfile '%v' (%v)", lockfile, err)
+// 	}
+//
+// 	if err := ioutil.WriteFile(lockfile, []byte(pid), 0660); err != nil {
+// 		return "", fmt.Errorf("Unable to create lockfile '%v' (%v)", lockfile, err)
+// 	}
+//
+// 	return lockfile, nil
+// }
 
 func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *api.Table) (map[uint32]api.Report, []error, error) {
 	acl, warnings, err := api.ParseTable(cards, devices, cmd.strict)
@@ -257,7 +262,7 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *ap
 	}
 
 	for _, w := range warnings {
-		warn(w.Error())
+		warnf("%v", w.Error())
 	}
 
 	rpt, errors := api.PutACL(u, *acl, cmd.dryrun)
@@ -267,14 +272,14 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *ap
 
 	for k, v := range rpt {
 		for _, err := range v.Errors {
-			fatal(fmt.Sprintf("%v  %v", k, err))
+			errorf("%v  %v", k, err)
 		}
 	}
 
 	summary := api.Summarize(rpt)
 	format := "%v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v"
 	for _, v := range summary {
-		info(fmt.Sprintf(format, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings)))
+		infof(format, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings))
 	}
 
 	return rpt, warnings, nil

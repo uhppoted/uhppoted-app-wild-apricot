@@ -129,7 +129,7 @@ compare-acl-summary: build
 	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
-#	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report
+	# $(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report
 #	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report.tsv
 	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES)
 

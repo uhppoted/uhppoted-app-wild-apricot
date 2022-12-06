@@ -103,7 +103,7 @@ func (cmd *GetGroups) Execute(args ...interface{}) error {
 		return err
 	}
 
-	info(fmt.Sprintf("Retrieved groups list to file %s\n", cmd.file))
+	infof("Retrieved groups list to file %s", cmd.file)
 
 	return nil
 }

@@ -2,7 +2,9 @@
 
 ## [Unreleased]
 
+### Changed
 1. Moved default `git` branch to `main`, in line with current development practice.
+2. Reworked lockfile implementation to use `flock` _syscall_.
 
 
 ## [0.8.2](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.2) - 2022-10-14

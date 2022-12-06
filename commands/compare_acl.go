@@ -171,7 +171,7 @@ func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, car
 	}
 
 	for _, w := range warnings {
-		warn(w.Error())
+		warnf("%v", w.Error())
 	}
 
 	if acl == nil {
@@ -210,7 +210,7 @@ func (cmd *CompareACL) summarize(diff api.SystemDiff) error {
 		return err
 	}
 
-	info(fmt.Sprintf("ACL compare report summary saved to %s\n", cmd.file))
+	infof("ACL compare report summary saved to %s", cmd.file)
 
 	return nil
 }
@@ -244,7 +244,7 @@ func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error 
 		return err
 	}
 
-	info(fmt.Sprintf("ACL compare report saved to %s\n", cmd.file))
+	infof("ACL compare report saved to %s", cmd.file)
 
 	return nil
 }

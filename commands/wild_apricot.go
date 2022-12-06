@@ -33,7 +33,7 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 		return false, err
 	}
 
-	info(fmt.Sprintf("Updated records: %v", N))
+	infof("Updated records: %v", N)
 
 	return N > 0, nil
 }
@@ -64,7 +64,7 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 
 	members, errors := types.MakeMemberList(contacts, groups, cardNumberField, facilityCode, groupDisplayOrder)
 	for _, err := range errors {
-		warn(err.Error())
+		warnf("%v", err.Error())
 	}
 
 	if members == nil {
@@ -112,16 +112,16 @@ func getRules(uri string, workdir string, dbg bool) (*acl.Rules, error) {
 		filename := time.Now().Format("RULES 2006-01-02 15:04:05.grl")
 		path := filepath.Join(os.TempDir(), filename)
 		if f, err := os.Create(path); err != nil {
-			warn(fmt.Sprintf("%v", err))
+			warnf("%v", err)
 		} else {
 			f.Write(ruleset)
 			f.Close()
-			debug(fmt.Sprintf("Stashed rules list in file %s\n", path))
+			debugf("Stashed rules list in file %s", path)
 		}
 	}
 
 	if rules, err := acl.NewRules(ruleset, dbg); err != nil {
-		warn(fmt.Sprintf("%v", err))
+		warnf("%v", err)
 	} else {
 		stash(ruleset, filepath.Join(workdir, "wild-apricot.grl"))
 
@@ -133,18 +133,18 @@ func getRules(uri string, workdir string, dbg bool) (*acl.Rules, error) {
 	if ruleset, err := os.ReadFile(stashed); err != nil {
 		return nil, err
 	} else {
-		warn(fmt.Sprintf("Using stashed 'grules' file (%v)", stashed))
+		warnf("Using stashed 'grules' file (%v)", stashed)
 		return acl.NewRules(ruleset, dbg)
 	}
 }
 
 func stash(bytes []byte, file string) {
 	if f, err := os.Create(file); err != nil {
-		warn(fmt.Sprintf("Error creating stashed 'grules' file (%v)", err))
+		warnf("Error creating stashed 'grules' file (%v)", err)
 	} else {
 		f.Write(bytes)
 		f.Close()
 	}
 
-	info(fmt.Sprintf("Stashed downloaded 'grules' file to %v", file))
+	infof("Stashed downloaded 'grules' file to %v", file)
 }
