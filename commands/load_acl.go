@@ -101,7 +101,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	// ... locked?
 	lockFile := config.Lockfile{
 		File:   filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock"),
-		Remove: false, // FIXME pending go package repository update - lockfile.RemoveLockfile,
+		Remove: lockfile.RemoveLockfile,
 	}
 
 	if kraken, err := lockfile.MakeLockFile(lockFile); err != nil {
