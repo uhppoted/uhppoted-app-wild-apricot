@@ -77,6 +77,10 @@ release: update-release build-all
 	find . -name ".DS_Store" -delete
 	tar --directory=dist --exclude=".DS_Store" -cvzf dist/$(DIST).tar.gz $(DIST)
 
+publish: release
+	echo "Releasing version $(VERSION)"
+	gh release create "$(VERSION)" ./dist/*.tar.gz --draft --prerelease --title "($VERSION)-beta" --notes-file release-notes.md
+
 debug: build
 	go test ./acl/... -run TestHash
 	# $(CLI) load-acl    --credentials $(CREDENTIALS) --rules $(RULES) --force --dry-run

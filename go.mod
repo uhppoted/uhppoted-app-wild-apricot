@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/hyperjumptech/grule-rule-engine v1.12.0
 	github.com/sirupsen/logrus v1.9.0 // indirect
-	github.com/uhppoted/uhppote-core v0.8.3-0.20221215204503-14fbfedc62c0
+	github.com/uhppoted/uhppote-core v0.8.3
 	github.com/uhppoted/uhppoted-lib v0.8.3-0.20221215204943-fd6ce4cba602
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/sys v0.3.0
