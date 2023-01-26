@@ -86,6 +86,9 @@ debug: build
 	# $(CLI) load-acl    --credentials $(CREDENTIALS) --rules $(RULES) --force --dry-run
 	# $(CLI) load-acl    --credentials $(CREDENTIALS) --rules $(RULES) --force
 
+godoc:
+	godoc -http=:80	-index_interval=60s
+
 # GENERAL COMMANDS
 
 usage: build
