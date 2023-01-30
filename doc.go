@@ -7,7 +7,7 @@ Package uhppoted-app-wild-apricot integrates the uhppote-core API with a members
 
 uhppoted-app-wild-apricot can be used from the command line but is really intended to be run from a cron job
 to maintain the cards and permissions on a set of access controllers by deriving a unified access control list (ACL)
-from a Wild Apricot membership list. 
+from a Wild Apricot membership list.
 
 uhppoted-app-wild-apricot supports the following commands:
 
@@ -17,6 +17,5 @@ uhppoted-app-wild-apricot supports the following commands:
   - get-members, to retrieve a list of members from Wild Apricot and store it to a TSV file
   - get-groups, to retrieve a list of member groups from Wild Apricot and store it to a TSV file
   - get-doors, to extract a list of managed doors from the controller configuration file and store it to a TSV file
-
 */
 package wild_apricot
