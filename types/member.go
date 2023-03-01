@@ -89,7 +89,7 @@ func (m *Member) Is(membership interface{}) bool {
 	return false
 }
 
-func (m *Member) HasCardNumber(card interface{}) bool {
+func (m *Member) HasCardNumber(card any) bool {
 	if m != nil && m.CardNumber != nil {
 		switch v := card.(type) {
 		case int64:
@@ -97,6 +97,14 @@ func (m *Member) HasCardNumber(card interface{}) bool {
 				return true
 			}
 		}
+	}
+
+	return false
+}
+
+func (m *Member) HasPIN() bool {
+	if m != nil && m.PIN > 0 && m.PIN < 1000000 {
+		return true
 	}
 
 	return false

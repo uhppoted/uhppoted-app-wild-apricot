@@ -3,6 +3,7 @@ CLI         = ./bin/uhppoted-app-wild-apricot
 WORKDIR     = ../runtime/wild-apricot
 CREDENTIALS = $(WORKDIR)/.credentials.json
 RULES       = $(WORKDIR)/wild-apricot.grl
+RULES_WITH_PIN = $(WORKDIR)/wild-apricot-with-pin.grl
 
 DATETIME  = $(shell date "+%Y-%m-%d %H:%M:%S")
 DEBUG    ?= --debug
@@ -126,9 +127,9 @@ get-acl: build
 	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES) --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-with-pin: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --file "$(WORKDIR)/ACL.tsv"
-	cat "$(WORKDIR)/ACL.tsv"
+	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
+	# $(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin --file "$(WORKDIR)/ACL.tsv"
+	# cat "$(WORKDIR)/ACL.tsv"
 
 get-acl-file: build
 	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
@@ -138,7 +139,15 @@ get-acl-drive: build
 
 compare-acl: build
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
+	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
+	# cat "$(WORKDIR)/ACL.rpt"
+
+compare-acl-with-pin: build
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary
+	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary --report "$(WORKDIR)/ACL.rpt"
 	cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-summary: build

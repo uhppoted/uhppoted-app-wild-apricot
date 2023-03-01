@@ -10,16 +10,18 @@ import (
 	"time"
 
 	"github.com/uhppoted/uhppote-core/uhppote"
+	lib "github.com/uhppoted/uhppoted-lib/acl"
+	"github.com/uhppoted/uhppoted-lib/config"
+
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	api "github.com/uhppoted/uhppoted-lib/acl"
-	"github.com/uhppoted/uhppoted-lib/config"
 )
 
 var CompareACLCmd = CompareACL{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
+	withPIN:     false,
 	summary:     false,
 	strict:      false,
 	debug:       false,
@@ -30,6 +32,7 @@ type CompareACL struct {
 	credentials string
 	rules       string
 	file        string
+	withPIN     bool
 	summary     bool
 	strict      bool
 	debug       bool
@@ -71,6 +74,7 @@ func (cmd *CompareACL) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
+	flagset.BoolVar(&cmd.withPIN, "with-pin", cmd.withPIN, "Include card keypad PIN code ACL comparison")
 	flagset.BoolVar(&cmd.summary, "summary", cmd.summary, "Report only a summary of the comparison. Defaults to "+fmt.Sprintf("%v", cmd.summary))
 	flagset.StringVar(&cmd.file, "report", cmd.file, "Report file name. Defaults to stdout")
 	flagset.BoolVar(&cmd.strict, "strict", cmd.strict, "Fails with an error if the members list contains duplicate card numbers")
@@ -118,7 +122,6 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	// ... make ACL
-
 	doors, err := getDoors(conf)
 	if err != nil {
 		return err
@@ -132,7 +135,15 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 		fmt.Println()
 	}
 
-	acl, err := rules.MakeACL(*members, doors)
+	makeACL := func(members types.Members, doors []string) (*acl.ACL, error) {
+		if cmd.withPIN {
+			return rules.MakeACLWithPIN(members, doors)
+		} else {
+			return rules.MakeACL(members, doors)
+		}
+	}
+
+	acl, err := makeACL(*members, doors)
 	if err != nil {
 		return err
 	}
@@ -159,13 +170,21 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	return cmd.report(*members, *diff)
 }
 
-func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *acl.ACL) (*api.SystemDiff, error) {
-	current, errors := api.GetACL(u, devices)
+func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *acl.ACL) (*lib.SystemDiff, error) {
+	current, errors := lib.GetACL(u, devices)
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("%v", errors)
 	}
 
-	acl, warnings, err := api.ParseTable(cards.AsTable(), devices, cmd.strict)
+	asTable := func(cards *acl.ACL) *lib.Table {
+		if cmd.withPIN {
+			return cards.AsTableWithPIN()
+		} else {
+			return cards.AsTable()
+		}
+	}
+
+	acl, warnings, err := lib.ParseTable(asTable(cards), devices, cmd.strict)
 	if err != nil {
 		return nil, err
 	}
@@ -178,17 +197,25 @@ func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, car
 		return nil, fmt.Errorf("Error creating ACL from cards (%v)", cards)
 	}
 
-	d, err := api.Compare(current, *acl)
+	compare := func(current, acl lib.ACL) (map[uint32]lib.Diff, error) {
+		if cmd.withPIN {
+			return lib.CompareWithPIN(current, acl)
+		} else {
+			return lib.Compare(current, acl)
+		}
+	}
+
+	d, err := compare(current, *acl)
 	if err != nil {
 		return nil, err
 	}
 
-	diff := api.SystemDiff(d)
+	diff := lib.SystemDiff(d)
 
 	return &diff, nil
 }
 
-func (cmd *CompareACL) summarize(diff api.SystemDiff) error {
+func (cmd *CompareACL) summarize(diff lib.SystemDiff) error {
 	rpt := summarize(diff)
 
 	if cmd.file == "" {
@@ -215,7 +242,7 @@ func (cmd *CompareACL) summarize(diff api.SystemDiff) error {
 	return nil
 }
 
-func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error {
+func (cmd *CompareACL) report(members types.Members, diff lib.SystemDiff) error {
 	rpt := detail(members, diff)
 
 	if cmd.file == "" {
@@ -249,7 +276,7 @@ func (cmd *CompareACL) report(members types.Members, diff api.SystemDiff) error 
 	return nil
 }
 
-func summarize(diff api.SystemDiff) *api.Table {
+func summarize(diff lib.SystemDiff) *lib.Table {
 	keys := []uint32{}
 	for k, _ := range diff {
 		keys = append(keys, k)
@@ -314,7 +341,7 @@ func summarize(diff api.SystemDiff) *api.Table {
 		}
 	}
 
-	table := api.Table{
+	table := lib.Table{
 		Header:  header,
 		Records: data,
 	}
@@ -322,7 +349,7 @@ func summarize(diff api.SystemDiff) *api.Table {
 	return &table
 }
 
-func detail(members types.Members, diff api.SystemDiff) *api.Table {
+func detail(members types.Members, diff lib.SystemDiff) *lib.Table {
 	type card struct {
 		cardnumber uint32
 		action     string
@@ -387,7 +414,7 @@ func detail(members types.Members, diff api.SystemDiff) *api.Table {
 		}
 	}
 
-	table := api.Table{
+	table := lib.Table{
 		Header:  header,
 		Records: data,
 	}
