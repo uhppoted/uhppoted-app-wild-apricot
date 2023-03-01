@@ -26,6 +26,7 @@ type Member struct {
 	id         uint32
 	Name       string
 	CardNumber *CardNumber
+	PIN        uint32
 	Active     bool
 	Suspended  bool
 	Registered *Date
@@ -63,6 +64,7 @@ const (
 	fRegistered
 	fExpires
 	fSuspended
+	fPIN
 )
 
 func (f field) String() string {
@@ -155,11 +157,12 @@ func (m *Member) Get(field interface{}) string {
 	return ""
 }
 
-func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber, facilityCode string, displayOrder []string) (*Members, []error) {
+func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber, pin, facilityCode string, displayOrder []string) (*Members, []error) {
 	errors := []error{}
 
 	fields := map[field]string{
 		fCardNumber: normalise(cardnumber),
+		fPIN:        normalise(pin),
 		fRegistered: normalise("MemberSince"),
 		fSuspended:  normalise("IsSuspendedMember"),
 		fExpires:    normalise("RenewalDue"),
@@ -250,8 +253,34 @@ func (members *Members) AsTable() *api.Table {
 		Records: data,
 	}
 }
+
+func (members *Members) AsTableWithPIN() *api.Table {
+	header, data := members.asTableWithPIN()
+
+	return &api.Table{
+		Header:  header,
+		Records: data,
+	}
+}
+
 func (members *Members) ToTSV(f io.Writer) error {
 	header, data := members.asTable()
+
+	w := csv.NewWriter(f)
+	w.Comma = '\t'
+
+	w.Write(header)
+	for _, row := range data {
+		w.Write(row)
+	}
+
+	w.Flush()
+
+	return nil
+}
+
+func (members *Members) ToTSVWithPIN(f io.Writer) error {
+	header, data := members.asTableWithPIN()
 
 	w := csv.NewWriter(f)
 	w.Comma = '\t'
@@ -324,6 +353,74 @@ func (members *Members) asTable() ([]string, [][]string) {
 	return header, data
 }
 
+func (members *Members) asTableWithPIN() ([]string, [][]string) {
+	header := []string{
+		"Name",
+		"Card Number",
+		"PIN",
+		"Membership",
+		"Active",
+		"Suspended",
+		"Registered",
+		"Expires",
+	}
+
+	data := [][]string{}
+
+	f := func(b bool) string {
+		if b {
+			return "Y"
+		}
+
+		return "N"
+	}
+
+	if members != nil {
+		sort.SliceStable(members.Groups, func(i, j int) bool { return normalise(members.Groups[i].Name) < normalise(members.Groups[j].Name) })
+		sort.SliceStable(members.Groups, func(i, j int) bool { return members.Groups[i].index < members.Groups[j].index })
+
+		for _, group := range members.Groups {
+			header = append(header, group.Name)
+		}
+
+		sort.SliceStable(members.Members, func(i, j int) bool {
+			return strings.ToLower(members.Members[i].Name) < strings.ToLower(members.Members[j].Name)
+		})
+
+		for _, m := range members.Members {
+			var pin string
+
+			if m.PIN != 0 {
+				pin = fmt.Sprintf("%v", m.PIN)
+			} else {
+				pin = ""
+			}
+
+			row := []string{}
+			row = append(row, fmt.Sprintf("%v", m.Name))
+			row = append(row, fmt.Sprintf("%v", m.CardNumber))
+			row = append(row, fmt.Sprintf("%v", pin))
+			row = append(row, fmt.Sprintf("%v", m.Membership.Name))
+			row = append(row, f(m.Active))
+			row = append(row, f(m.Suspended))
+			row = append(row, fmt.Sprintf("%v", m.Registered))
+			row = append(row, fmt.Sprintf("%v", m.Expires))
+
+			for _, g := range members.Groups {
+				if _, ok := m.Groups[g.ID]; ok {
+					row = append(row, "Y")
+				} else {
+					row = append(row, "N")
+				}
+			}
+
+			data = append(data, row)
+		}
+	}
+
+	return header, data
+}
+
 func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, error) {
 	member := Member{
 		id:   contact.ID,
@@ -371,6 +468,17 @@ func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, e
 					} else {
 						nn := uint32(n)
 						member.CardNumber = (*CardNumber)(&nn)
+					}
+				}
+			}
+
+		case normalise(f.Name) == fields[fPIN]:
+			if v, ok := f.Value.(string); ok {
+				if v != "" {
+					if n, err := strconv.ParseUint(v, 10, 32); err != nil {
+						return nil, fmt.Errorf("Error parsing PIN '%v' (%v)", v, err)
+					} else {
+						member.PIN = uint32(n)
 					}
 				}
 			}

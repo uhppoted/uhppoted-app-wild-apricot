@@ -4,16 +4,21 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
+	lib "github.com/uhppoted/uhppoted-lib/acl"
 	"github.com/uhppoted/uhppoted-lib/config"
+
+	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var GetMembersCmd = GetMembers{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
+	withPIN:     false,
 	debug:       false,
 }
 
@@ -21,6 +26,7 @@ type GetMembers struct {
 	workdir     string
 	credentials string
 	file        string
+	withPIN     bool
 	debug       bool
 }
 
@@ -58,6 +64,7 @@ func (cmd *GetMembers) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to stdout if not supplied")
+	flagset.BoolVar(&cmd.withPIN, "with-pin", cmd.withPIN, "Include card keypad PIN code in retrieved ACL information")
 
 	return flagset
 }
@@ -89,14 +96,30 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 	}
 
 	// ... write to stdout
+	asTable := func(m *types.Members) *lib.Table {
+		if cmd.withPIN {
+			return m.AsTableWithPIN()
+		} else {
+			return m.AsTable()
+		}
+	}
+
 	if cmd.file == "" {
-		fmt.Fprintln(os.Stdout, string(members.AsTable().MarshalTextIndent("  ", " ")))
+		fmt.Fprintln(os.Stdout, string(asTable(members).MarshalTextIndent("  ", " ")))
 		return nil
 	}
 
 	// ... write to TSV file
+	asTSV := func(m *types.Members, w io.Writer) error {
+		if cmd.withPIN {
+			return m.ToTSVWithPIN(w)
+		} else {
+			return m.ToTSV(w)
+		}
+	}
+
 	var b bytes.Buffer
-	if err := members.ToTSV(&b); err != nil {
+	if err := asTSV(members, &b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 

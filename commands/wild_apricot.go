@@ -44,6 +44,7 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 	delay := conf.WildApricot.HTTP.RetryDelay
 
 	cardNumberField := conf.WildApricot.Fields.CardNumber
+	pinField := conf.WildApricot.Fields.PIN
 	facilityCode := conf.WildApricot.FacilityCode
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
@@ -62,7 +63,7 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 		return nil, err
 	}
 
-	members, errors := types.MakeMemberList(contacts, groups, cardNumberField, facilityCode, groupDisplayOrder)
+	members, errors := types.MakeMemberList(contacts, groups, cardNumberField, pinField, facilityCode, groupDisplayOrder)
 	for _, err := range errors {
 		warnf("%v", err.Error())
 	}

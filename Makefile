@@ -107,6 +107,11 @@ get-members: build
 #	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "$(WORKDIR)/members.tsv"
 #	cat "$(WORKDIR)/members.tsv"
 
+get-members-with-pin: build
+	$(CLI) --debug get-members --credentials $(CREDENTIALS) --with-pin
+	$(CLI) --debug get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
+	cat "$(WORKDIR)/members.tsv"
+
 get-groups: build
 	$(CLI) --debug get-groups --credentials $(CREDENTIALS)
 #	$(CLI) --debug get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
