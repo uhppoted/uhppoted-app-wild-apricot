@@ -11,6 +11,7 @@ import (
 type record struct {
 	Name       string
 	CardNumber uint32
+	PIN        uint32
 	StartDate  time.Time
 	EndDate    time.Time
 	Granted    map[string]interface{}

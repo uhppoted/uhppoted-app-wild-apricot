@@ -114,6 +114,43 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 	return &acl, nil
 }
 
+func (rules *Rules) MakeACLWithPIN(members types.Members, doors []string) (*ACL, error) {
+	acl := ACL{
+		doors:   doors,
+		records: []record{},
+	}
+
+	startDate := startOfYear()
+	endDate := endOfYear().AddDate(0, 1, 0)
+
+	for _, m := range members.Members {
+		r := record{
+			Name:      m.Name,
+			PIN:       m.PIN,
+			StartDate: startDate,
+			EndDate:   endDate,
+			Granted:   map[string]interface{}{},
+			Revoked:   map[string]struct{}{},
+		}
+
+		if m.CardNumber != nil {
+			r.CardNumber = uint32(*m.CardNumber)
+		}
+
+		if err := rules.eval(m, &r); err != nil {
+			return nil, err
+		}
+
+		if r.CardNumber > 0 {
+			acl.records = append(acl.records, r)
+		}
+	}
+
+	sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
+
+	return &acl, nil
+}
+
 func (rules *Rules) Hash() string {
 	if rules != nil {
 		return hex.EncodeToString(rules.hash)

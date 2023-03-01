@@ -57,8 +57,33 @@ func (acl *ACL) AsTable() *api.Table {
 	}
 }
 
+func (acl *ACL) AsTableWithPIN() *api.Table {
+	header, data := acl.asTableWithPIN()
+
+	return &api.Table{
+		Header:  header,
+		Records: data,
+	}
+}
+
 func (acl *ACL) ToTSV(f io.Writer) error {
 	header, data := acl.asTable()
+
+	w := csv.NewWriter(f)
+	w.Comma = '\t'
+
+	w.Write(header)
+	for _, row := range data {
+		w.Write(row)
+	}
+
+	w.Flush()
+
+	return nil
+}
+
+func (acl *ACL) ToTSVWithPIN(f io.Writer) error {
+	header, data := acl.asTableWithPIN()
 
 	w := csv.NewWriter(f)
 	w.Comma = '\t'
@@ -93,6 +118,96 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 		for _, r := range acl.records {
 			row := []string{
 				fmt.Sprintf("%v", r.CardNumber),
+				r.StartDate.Format("2006-01-02"),
+				r.EndDate.Format("2006-01-02"),
+			}
+
+			for _, door := range acl.doors {
+				granted := false
+				revoked := false
+				profile := -1
+				d := normalise(door)
+
+				if _, ok := r.Granted["*"]; ok {
+					granted = true
+				}
+
+				for k, v := range r.Granted {
+					if d == normalise(k) {
+						switch vv := v.(type) {
+						case bool:
+							if vv == true {
+								granted = true
+							}
+
+						case int:
+							if vv >= 2 && vv <= 254 {
+								granted = true
+								profile = vv
+							}
+
+						}
+					}
+				}
+
+				if _, ok := r.Revoked["*"]; ok {
+					revoked = true
+				}
+
+				for k, _ := range r.Revoked {
+					if d == normalise(k) {
+						revoked = true
+					}
+				}
+
+				if granted && !revoked {
+					if profile != -1 {
+						row = append(row, fmt.Sprintf("%v", profile))
+					} else {
+						row = append(row, "Y")
+					}
+				} else {
+					row = append(row, "N")
+				}
+			}
+
+			data = append(data, row)
+		}
+	}
+
+	return header, data
+}
+
+func (acl *ACL) asTableWithPIN() ([]string, [][]string) {
+	header := []string{}
+	data := [][]string{}
+
+	if acl != nil {
+		header = append(header, []string{
+			"Card Number",
+			"PIN",
+			"From",
+			"To",
+		}...)
+
+		for _, door := range acl.doors {
+			header = append(header, door)
+		}
+
+		sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
+
+		for _, r := range acl.records {
+			var pin string
+
+			if r.PIN != 0 {
+				pin = fmt.Sprintf("%v", r.PIN)
+			} else {
+				pin = ""
+			}
+
+			row := []string{
+				fmt.Sprintf("%v", r.CardNumber),
+				pin,
 				r.StartDate.Format("2006-01-02"),
 				r.EndDate.Format("2006-01-02"),
 			}

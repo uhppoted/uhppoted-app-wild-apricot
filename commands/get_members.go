@@ -44,7 +44,7 @@ func (cmd *GetMembers) Usage() string {
 
 func (cmd *GetMembers) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-members [--credentials <file>] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-members [--credentials <file>] [--with-pin] [--file <file>]\n", APP)
 	fmt.Println()
 	fmt.Println("  Downloads the members list from a Wild Apricot member database and (optionally) stores it to a TSV file")
 	fmt.Println()
@@ -64,7 +64,7 @@ func (cmd *GetMembers) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.file, "file", cmd.file, "TSV file name. Defaults to stdout if not supplied")
-	flagset.BoolVar(&cmd.withPIN, "with-pin", cmd.withPIN, "Include card keypad PIN code in retrieved ACL information")
+	flagset.BoolVar(&cmd.withPIN, "with-pin", cmd.withPIN, "Include card keypad PIN code in retrieved membmer information")
 
 	return flagset
 }

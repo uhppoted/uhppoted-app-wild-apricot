@@ -4,18 +4,23 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strings"
 
-	api "github.com/uhppoted/uhppoted-lib/acl"
+	lib "github.com/uhppoted/uhppoted-lib/acl"
 	"github.com/uhppoted/uhppoted-lib/config"
+
+	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
+	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var GetACLCmd = GetACL{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
+	withPIN:     false,
 	debug:       false,
 }
 
@@ -24,6 +29,7 @@ type GetACL struct {
 	credentials string
 	rules       string
 	file        string
+	withPIN     bool
 	debug       bool
 }
 
@@ -41,7 +47,7 @@ func (cmd *GetACL) Usage() string {
 
 func (cmd *GetACL) Help() {
 	fmt.Println()
-	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-acl [--credentials <file>] [--rules <url>] [--file <file>]\n", APP)
+	fmt.Printf("  Usage: %s [--debug] [--config <file>] get-acl [--credentials <file>] [--with-pin] [--rules <url>] [--file <file>]\n", APP)
 	fmt.Println()
 	fmt.Println("  Downloads an access control list from a Wild Apricot member database, applies the ACL rules and")
 	fmt.Println("  stores the generated access control list to a TSV file")
@@ -64,6 +70,7 @@ func (cmd *GetACL) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
 	flagset.StringVar(&cmd.file, "file", cmd.file, "Output file name. Defaults to stdout")
+	flagset.BoolVar(&cmd.withPIN, "with-pin", cmd.withPIN, "Include card keypad PIN code in retrieved ACL information")
 
 	return flagset
 }
@@ -121,19 +128,35 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 		fmt.Println()
 	}
 
-	acl, err := rules.MakeACL(*members, doors)
+	makeACL := func(members types.Members, doors Doors) (*acl.ACL, error) {
+		if cmd.withPIN {
+			return rules.MakeACLWithPIN(members, doors)
+		} else {
+			return rules.MakeACL(members, doors)
+		}
+	}
+
+	ACL, err := makeACL(*members, doors)
 	if err != nil {
 		return err
 	}
 
+	asTable := func(a *acl.ACL) *lib.Table {
+		if cmd.withPIN {
+			return a.AsTableWithPIN()
+		} else {
+			return a.AsTable()
+		}
+	}
+
 	_, devices := getDevices(conf, cmd.debug)
-	_, warnings, err := api.ParseTable(acl.AsTable(), devices, false)
+	_, warnings, err := lib.ParseTable(asTable(ACL), devices, false)
 	if err != nil {
 		return err
 	}
 
 	if cmd.debug {
-		fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
+		fmt.Printf("ACL:\n%s\n", string(ACL.AsTable().MarshalTextIndent("  ", " ")))
 	}
 
 	for _, w := range warnings {
@@ -142,13 +165,21 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 
 	// ... write to stdout
 	if cmd.file == "" {
-		fmt.Fprintln(os.Stdout, string(acl.AsTable().MarshalTextIndent("  ", " ")))
+		fmt.Fprintln(os.Stdout, string(asTable(ACL).MarshalTextIndent("  ", " ")))
 		return nil
 	}
 
 	// ... write to TSV file
+	asTSV := func(a *acl.ACL, w io.Writer) error {
+		if cmd.withPIN {
+			return a.ToTSVWithPIN(w)
+		} else {
+			return a.ToTSV(w)
+		}
+	}
+
 	var b bytes.Buffer
-	if err := acl.ToTSV(&b); err != nil {
+	if err := asTSV(ACL, &b); err != nil {
 		return fmt.Errorf("Error creating TSV file (%v)", err)
 	}
 
