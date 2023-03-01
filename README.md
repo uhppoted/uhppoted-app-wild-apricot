@@ -222,11 +222,14 @@ Command line:
 
 ```uhppoted-app-wild-apricot get-members --credentials <file>``` 
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] get-members [--credentials <file>] [--workdir <dir>] [--file <file>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-members [--credentials <file>] [--with-pin] [--workdir <dir>] [--file <file>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key. 
                        Defaults to <config dir>/.wild-apricot/credentials.json
+
+  --with-pin     Optionally includes the card keypad PIN field in the retrieved member information. Defaults 
+                 to false.
 
   --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
                  - /var/uhppoted on Linux
@@ -312,7 +315,7 @@ Command line:
 
 ```uhppoted-app-wild-apricot get-acl --credentials <file> --rules <uri>``` 
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--workdir <dir>] [--file <TSV>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--with-pin] [--workdir <dir>] [--file <TSV>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
@@ -323,6 +326,9 @@ Command line:
                  Note that for rules files stored on Google Drive, the URI should be
                  of the form:
                  https://drive.google.com/uc?export=download&id=<file ID>
+
+  --with-pin     Optionally includes the card keypad PIN field in the retrieved ACL. Defaults 
+                 to false.
 
   --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
                  - /var/uhppoted on Linux
@@ -351,7 +357,7 @@ Command line:
 
 ```uhppoted-app-wild-apricot compare-acl --credentials <file> --rules <uri>``` 
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <uri>] [--strict] [--summary] [--workdir <dir>] [--report <file>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <uri>] [--with-pin] [--strict] [--summary] [--workdir <dir>] [--report <file>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
@@ -362,6 +368,8 @@ Command line:
                  Note that for rules files stored on Google Drive, the URI should be
                  of the form:
                  https://drive.google.com/uc?export=download&id=<file ID>
+
+  --with-pin     Optionally includes the card keypad PIN field when comparing the ACLs. Defaults to false.
 
   --strict       Fails with an error if the contacts and/or membership groups contains  
                  errors e.g. duplicate card numbers
@@ -399,7 +407,7 @@ Command line:
 
 ```uhppoted-app-wild-apricot load-acl```
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <uri>] [--force] [--strict] [--dry-run] [--workdir <dir>] [--log <file>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <uri>] [--with-pin] [--force] [--strict] [--dry-run] [--workdir <dir>] [--log <file>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
@@ -410,6 +418,8 @@ Command line:
                  Note that for rules files stored on Google Drive, the URI should be
                  of the form:
                  https://drive.google.com/uc?export=download&id=<file ID>
+
+  --with-pin     Optionally updates the card keypad PIN on the access controllers. Defaults to false.
 
   --force        Retrieves and updates the access control lists unconditionally.
   --strict       Fails with an error if the contacts and/or membership groups contains  

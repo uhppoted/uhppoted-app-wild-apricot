@@ -22,6 +22,10 @@ type Members struct {
 	Members []Member
 }
 
+type MembersWithPIN struct {
+	Members
+}
+
 type Member struct {
 	id         uint32
 	Name       string
@@ -223,8 +227,8 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 	}, errors
 }
 
-func (members *Members) Updated(hash string) bool {
-	if hash != "" && hash == members.Hash() {
+func (members *Members) Updated(hash string, withPIN bool) bool {
+	if hash != "" && hash == members.hash(withPIN) {
 		return false
 	}
 
@@ -232,8 +236,24 @@ func (members *Members) Updated(hash string) bool {
 }
 
 func (members *Members) Hash() string {
+	return members.hash(false)
+}
+
+func (members *MembersWithPIN) Hash() string {
+	return members.hash(true)
+}
+
+func (members *Members) hash(withPIN bool) string {
+	asTable := func() ([]string, [][]string) {
+		if withPIN {
+			return members.asTableWithPIN()
+		} else {
+			return members.asTable()
+		}
+	}
+
 	if members != nil {
-		header, data := members.asTable()
+		header, data := asTable()
 
 		hash := sha256.New()
 

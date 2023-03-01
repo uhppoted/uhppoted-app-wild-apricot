@@ -10,18 +10,20 @@ import (
 	"strings"
 	"time"
 
-	api "github.com/uhppoted/uhppoted-lib/acl"
+	"github.com/uhppoted/uhppote-core/uhppote"
+	lib "github.com/uhppoted/uhppoted-lib/acl"
+	"github.com/uhppoted/uhppoted-lib/config"
 	"github.com/uhppoted/uhppoted-lib/lockfile"
 
-	"github.com/uhppoted/uhppote-core/uhppote"
+	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	"github.com/uhppoted/uhppoted-lib/config"
 )
 
 var LoadACLCmd = LoadACL{
 	workdir:     DEFAULT_WORKDIR,
 	credentials: filepath.Join(DEFAULT_CONFIG_DIR, ".wild-apricot", "credentials.json"),
 	rules:       filepath.Join(DEFAULT_CONFIG_DIR, "wild-apricot.grl"),
+	withPIN:     false,
 	force:       false,
 	strict:      false,
 	dryrun:      false,
@@ -32,6 +34,7 @@ type LoadACL struct {
 	workdir     string
 	credentials string
 	rules       string
+	withPIN     bool
 	force       bool
 	strict      bool
 	dryrun      bool
@@ -74,6 +77,7 @@ func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
 	flagset.StringVar(&cmd.rules, "rules", cmd.rules, "URI for the 'grule' rules file. Support file path, HTTP and HTTPS. Defaults to "+cmd.rules)
+	flagset.BoolVar(&cmd.withPIN, "with-pin", cmd.withPIN, "Updates the card keypad PIN code on the access controllers")
 	flagset.BoolVar(&cmd.force, "force", cmd.force, "Forces an update, overriding the  version and compare logic")
 	flagset.BoolVar(&cmd.strict, "strict", cmd.strict, "Fails with an error if the members list contains duplicate card numbers")
 	flagset.BoolVar(&cmd.dryrun, "dry-run", cmd.dryrun, "Simulates a load-acl without making any changes to the access controllers")
@@ -145,14 +149,12 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	// ... get rules
-
 	rules, err := getRules(cmd.rules, cmd.workdir, cmd.debug)
 	if err != nil {
 		return fmt.Errorf("Failed to load ruleset (%v)", err)
 	}
 
 	// ... updated?
-
 	// NOTE: Wild Apricot's 'get updated profiles since' query is iffy at best.
 	//       So just ignore errors and rely on the hashes for the members and rules
 	updated, err := revised(conf, credentials, version.Timestamp)
@@ -161,7 +163,6 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	}
 
 	// ... make ACL
-
 	doors, err := getDoors(conf)
 	if err != nil {
 		return err
@@ -181,7 +182,23 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		}
 	}
 
-	acl, err := rules.MakeACL(*members, doors)
+	makeACL := func(members types.Members, doors []string) (*acl.ACL, error) {
+		if cmd.withPIN {
+			return rules.MakeACLWithPIN(members, doors)
+		} else {
+			return rules.MakeACL(members, doors)
+		}
+	}
+
+	asTable := func(a *acl.ACL) *lib.Table {
+		if cmd.withPIN {
+			return a.AsTableWithPIN()
+		} else {
+			return a.AsTable()
+		}
+	}
+
+	ACL, err := makeACL(*members, doors)
 	if err != nil {
 		return err
 	}
@@ -192,7 +209,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		if f, err := os.Create(path); err != nil {
 			fmt.Printf("ERROR %v", err)
 		} else {
-			fmt.Fprintf(f, "%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
+			fmt.Fprintf(f, "%s\n", string(asTable(ACL).MarshalTextIndent("  ", " ")))
 			f.Close()
 			fmt.Printf("DEBUG stashed Wild Apricot ACL in file %s\n", path)
 		}
@@ -200,14 +217,14 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	// ... load
 	u, devices := getDevices(conf, cmd.debug)
-	cards := acl.AsTable()
+	cards := asTable(ACL)
 
 	// different, err := cmd.compare(&u, devices, cards)
 	// if err != nil {
 	// 	return err
 	// }
 
-	if !cmd.force && !updated && !members.Updated(version.Hashes.Members) && !rules.Updated(version.Hashes.Rules) {
+	if !cmd.force && !updated && !members.Updated(version.Hashes.Members, cmd.withPIN) && !rules.Updated(version.Hashes.Rules) {
 		infof("Nothing to do")
 		return nil
 	}
@@ -227,8 +244,18 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		}
 	}
 
-	if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, members, rules, acl); err != nil {
-		return fmt.Errorf("Failed to store updated version information (%v)", err)
+	if cmd.withPIN {
+		membersWithPIN := types.MembersWithPIN{
+			Members: *members,
+		}
+
+		if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, &membersWithPIN, rules, ACL); err != nil {
+			return fmt.Errorf("Failed to store updated version information (%v)", err)
+		}
+	} else {
+		if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, members, rules, ACL); err != nil {
+			return fmt.Errorf("Failed to store updated version information (%v)", err)
+		}
 	}
 
 	return nil
@@ -255,8 +282,8 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 // 	return lockfile, nil
 // }
 
-func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *api.Table) (map[uint32]api.Report, []error, error) {
-	acl, warnings, err := api.ParseTable(cards, devices, cmd.strict)
+func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *lib.Table) (map[uint32]lib.Report, []error, error) {
+	acl, warnings, err := lib.ParseTable(cards, devices, cmd.strict)
 	if err != nil {
 		return nil, warnings, err
 	}
@@ -265,7 +292,15 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *ap
 		warnf("%v", w.Error())
 	}
 
-	rpt, errors := api.PutACL(u, *acl, cmd.dryrun)
+	putACL := func(acl lib.ACL) (map[uint32]lib.Report, []error) {
+		if cmd.withPIN {
+			return lib.PutACLWithPIN(u, acl, cmd.dryrun)
+		} else {
+			return lib.PutACL(u, acl, cmd.dryrun)
+		}
+	}
+
+	rpt, errors := putACL(*acl)
 	if len(errors) > 0 {
 		return nil, warnings, fmt.Errorf("%v", errors)
 	}
@@ -276,7 +311,7 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *ap
 		}
 	}
 
-	summary := api.Summarize(rpt)
+	summary := lib.Summarize(rpt)
 	format := "%v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v"
 	for _, v := range summary {
 		infof(format, v.DeviceID, v.Unchanged, v.Updated, v.Added, v.Deleted, v.Failed, v.Errored+len(warnings))
@@ -285,13 +320,13 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *ap
 	return rpt, warnings, nil
 }
 
-func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *api.Table) (bool, error) {
-	current, errors := api.GetACL(u, devices)
+func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *lib.Table) (bool, error) {
+	current, errors := lib.GetACL(u, devices)
 	if len(errors) > 0 {
 		return false, fmt.Errorf("%v", errors)
 	}
 
-	acl, _, err := api.ParseTable(cards, devices, false)
+	acl, _, err := lib.ParseTable(cards, devices, false)
 	if err != nil {
 		return false, err
 	}
@@ -300,7 +335,15 @@ func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards 
 		return false, fmt.Errorf("Error creating ACL from cards (%v)", cards)
 	}
 
-	diff, err := api.Compare(current, *acl)
+	compare := func(current lib.ACL, acl lib.ACL) (map[uint32]lib.Diff, error) {
+		if cmd.withPIN {
+			return lib.CompareWithPIN(current, acl)
+		} else {
+			return lib.Compare(current, acl)
+		}
+	}
+
+	diff, err := compare(current, *acl)
 	if err != nil {
 		return false, err
 	}
@@ -314,10 +357,10 @@ func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards 
 	return false, nil
 }
 
-func (cmd *LoadACL) log(rpt map[uint32]api.Report, warnings []error) error {
+func (cmd *LoadACL) log(rpt map[uint32]lib.Report, warnings []error) error {
 	if cmd.logfile != "" {
 		var b bytes.Buffer
-		summary := api.Summarize(rpt)
+		summary := lib.Summarize(rpt)
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 		format := "%v  %v  unchanged:%v  updated:%v  added:%v  deleted:%v  failed:%v  errors:%v\n"
@@ -342,7 +385,7 @@ func (cmd *LoadACL) log(rpt map[uint32]api.Report, warnings []error) error {
 	return nil
 }
 
-func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) error {
+func (cmd *LoadACL) report(rpt map[uint32]lib.Report, members types.Members) error {
 	// ... build card/name map
 	names := map[uint32]string{}
 	for _, m := range members.Members {
@@ -362,7 +405,7 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	consolidated := api.Consolidate(rpt)
+	consolidated := lib.Consolidate(rpt)
 
 	format := []struct {
 		Cards  []uint32
@@ -416,7 +459,7 @@ func (cmd *LoadACL) report(rpt map[uint32]api.Report, members types.Members) err
 
 		w.Flush()
 	} else {
-		table := api.Table{
+		table := lib.Table{
 			Header:  header,
 			Records: rows,
 		}

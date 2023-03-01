@@ -5,8 +5,10 @@
       - [x] get-members
       - [x] get-acl
       - [x] compare-acl
-      - [ ] CHANGELOG
-      - [ ] README
+      - [x] load-acl
+      - [ ] debug out
+      - [x] CHANGELOG
+      - [x] README
 - [ ] Add static-check to lint
 - [ ] Add lock to `get-acl` and `compare-acl`
 

@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Added
+1. `doc.go` package overview documentation.
+2. Added `--with-pin` option for card keypad PIN to `get-members`, `get-acl`, `compare-acl`, 
+   and `load-acl` commands
+
+### Updated
 
 ## [0.8.3](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.3) - 2022-12-16
 
