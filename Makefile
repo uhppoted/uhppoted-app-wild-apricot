@@ -109,8 +109,9 @@ get-members: build
 #	cat "$(WORKDIR)/members.tsv"
 
 get-members-with-pin: build
-	$(CLI) --debug get-members --credentials $(CREDENTIALS) --with-pin
-	$(CLI) --debug get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
+	# $(CLI) --debug get-members --credentials $(CREDENTIALS) --with-pin
+	$(CLI) get-members --credentials $(CREDENTIALS) --with-pin
+	$(CLI) get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
 	cat "$(WORKDIR)/members.tsv"
 
 get-groups: build
@@ -128,6 +129,7 @@ get-acl: build
 
 get-acl-with-pin: build
 	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
+	# $(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
 	# $(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin --file "$(WORKDIR)/ACL.tsv"
 	# cat "$(WORKDIR)/ACL.tsv"
 
@@ -143,6 +145,7 @@ compare-acl: build
 	# cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-with-pin: build
+	# $(CLI) --debug compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
 	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --report "$(WORKDIR)/ACL.rpt"
 	cat "$(WORKDIR)/ACL.rpt"
@@ -161,6 +164,7 @@ load-acl: build
 	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 load-acl-with-pin: build
+	# $(CLI) --debug load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
 	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
 
 

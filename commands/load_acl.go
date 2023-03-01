@@ -142,7 +142,12 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		if f, err := os.Create(path); err != nil {
 			fmt.Printf("ERROR %v", err)
 		} else {
-			fmt.Fprintf(f, "%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+			if cmd.withPIN {
+				fmt.Fprintf(f, "%s\n", string(members.AsTableWithPIN().MarshalTextIndent("  ", " ")))
+			} else {
+				fmt.Fprintf(f, "%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+			}
+
 			f.Close()
 			fmt.Printf("DEBUG stashed Wild Apricot members list in file %s\n", path)
 		}

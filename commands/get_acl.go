@@ -111,7 +111,11 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+		if cmd.withPIN {
+			fmt.Printf("MEMBERS:\n%s\n", string(members.AsTableWithPIN().MarshalTextIndent("  ", " ")))
+		} else {
+			fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+		}
 	}
 
 	// ... create ACL
@@ -156,7 +160,11 @@ func (cmd *GetACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("ACL:\n%s\n", string(ACL.AsTable().MarshalTextIndent("  ", " ")))
+		if cmd.withPIN {
+			fmt.Printf("ACL:\n%s\n", string(ACL.AsTableWithPIN().MarshalTextIndent("  ", " ")))
+		} else {
+			fmt.Printf("ACL:\n%s\n", string(ACL.AsTable().MarshalTextIndent("  ", " ")))
+		}
 	}
 
 	for _, w := range warnings {

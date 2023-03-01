@@ -118,7 +118,11 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+		if cmd.withPIN {
+			fmt.Printf("MEMBERS:\n%s\n", string(members.AsTableWithPIN().MarshalTextIndent("  ", " ")))
+		} else {
+			fmt.Printf("MEMBERS:\n%s\n", string(members.AsTable().MarshalTextIndent("  ", " ")))
+		}
 	}
 
 	// ... make ACL
@@ -149,7 +153,11 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 	}
 
 	if cmd.debug {
-		fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
+		if cmd.withPIN {
+			fmt.Printf("ACL:\n%s\n", string(acl.AsTableWithPIN().MarshalTextIndent("  ", " ")))
+		} else {
+			fmt.Printf("ACL:\n%s\n", string(acl.AsTable().MarshalTextIndent("  ", " ")))
+		}
 	}
 
 	// ... compare
