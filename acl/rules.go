@@ -54,7 +54,7 @@ func NewRules(ruleset []byte, debug bool) (*Rules, error) {
 	}
 
 	if !strings.Contains(first, "** GRULES **") || !strings.Contains(last, "*** END GRULES ***") {
-		return nil, fmt.Errorf("Invalid 'grules' file - missing start/end markers")
+		return nil, fmt.Errorf("invalid 'grules' file - missing start/end markers")
 	}
 
 	// ... parse

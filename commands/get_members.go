@@ -76,13 +76,13 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 
 	// ... check parameters
 	if strings.TrimSpace(cmd.credentials) == "" {
-		return fmt.Errorf("Invalid credentials file")
+		return fmt.Errorf("invalid credentials file")
 	}
 
 	// ... get contacts list and member groups
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
-		return fmt.Errorf("Could not load configuration (%v)", err)
+		return fmt.Errorf("could not load configuration (%v)", err)
 	}
 
 	credentials, err := getCredentials(cmd.credentials)
@@ -120,7 +120,7 @@ func (cmd *GetMembers) Execute(args ...interface{}) error {
 
 	var b bytes.Buffer
 	if err := asTSV(members, &b); err != nil {
-		return fmt.Errorf("Error creating TSV file (%v)", err)
+		return fmt.Errorf("error creating TSV file (%v)", err)
 	}
 
 	if err := write(cmd.file, b.Bytes()); err != nil {

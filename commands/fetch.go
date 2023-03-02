@@ -4,14 +4,14 @@ import (
 	"bytes"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 )
 
 func fetch(uri string) ([]byte, error) {
-	f := ioutil.ReadFile
+	f := os.ReadFile
 	if strings.HasPrefix(uri, "http://") || strings.HasPrefix(uri, "https://") {
 		f = fetchHTTP
 	} else if strings.HasPrefix(uri, "file://") {
@@ -43,8 +43,8 @@ func fetchHTTP(url string) ([]byte, error) {
 func fetchFile(url string) ([]byte, error) {
 	match := regexp.MustCompile("^file://(.*)").FindStringSubmatch(url)
 	if len(match) != 2 {
-		return nil, fmt.Errorf("Invalid file URI (%s)", url)
+		return nil, fmt.Errorf("invalid file URI (%s)", url)
 	}
 
-	return ioutil.ReadFile(match[1])
+	return os.ReadFile(match[1])
 }

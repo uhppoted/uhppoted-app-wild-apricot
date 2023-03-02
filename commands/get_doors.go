@@ -64,7 +64,7 @@ func (cmd *GetDoors) Execute(args ...interface{}) error {
 	// ... get doors
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
-		return fmt.Errorf("Could not load configuration (%v)", err)
+		return fmt.Errorf("could not load configuration (%v)", err)
 	}
 
 	doors, err := getDoors(conf)
@@ -81,7 +81,7 @@ func (cmd *GetDoors) Execute(args ...interface{}) error {
 	// ... write to TSV file
 	var b bytes.Buffer
 	if err := doors.AsTable().ToTSV(&b); err != nil {
-		return fmt.Errorf("Error creating TSV file (%v)", err)
+		return fmt.Errorf("error creating TSV file (%v)", err)
 	}
 
 	if err := write(cmd.file, b.Bytes()); err != nil {

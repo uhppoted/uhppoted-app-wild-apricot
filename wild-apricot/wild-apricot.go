@@ -5,7 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -39,7 +39,7 @@ func Authorize(apiKey string, timeout time.Duration) (string, error) {
 		"scope":      []string{"auto"},
 	}
 
-	rq, err := http.NewRequest("POST", "https://oauth.wildapricot.org/auth/token", strings.NewReader(form.Encode()))
+	rq, _ := http.NewRequest("POST", "https://oauth.wildapricot.org/auth/token", strings.NewReader(form.Encode()))
 	rq.Header.Set("Authorization", fmt.Sprintf("Basic %s", auth))
 	rq.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	rq.Header.Set("Accepts", "application/json")
@@ -52,10 +52,10 @@ func Authorize(apiKey string, timeout time.Duration) (string, error) {
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("Authorization request failed (%s)", response.Status)
+		return "", fmt.Errorf("authorization request failed (%s)", response.Status)
 	}
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return "", err
 	}
@@ -75,7 +75,7 @@ func GetContacts(accountId uint32, token string, timeout time.Duration, retries 
 	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true")
 
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
-	rq, err := http.NewRequest("GET", uri, nil)
+	rq, _ := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Accept-Encoding", "gzip")
@@ -95,7 +95,7 @@ func GetContacts(accountId uint32, token string, timeout time.Duration, retries 
 		}
 	}
 
-	body, err := ioutil.ReadAll(reader)
+	body, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -114,7 +114,7 @@ func GetContacts(accountId uint32, token string, timeout time.Duration, retries 
 func GetMemberGroups(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration) ([]MemberGroup, error) {
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups", accountId)
 
-	rq, err := http.NewRequest("GET", uri, nil)
+	rq, _ := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Accept-Encoding", "gzip")
@@ -134,7 +134,7 @@ func GetMemberGroups(accountId uint32, token string, timeout time.Duration, retr
 		}
 	}
 
-	body, err := ioutil.ReadAll(reader)
+	body, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
@@ -155,7 +155,7 @@ func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout tim
 
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
 
-	rq, err := http.NewRequest("GET", uri, nil)
+	rq, _ := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Authorization", "Bearer "+token)
 
@@ -166,7 +166,7 @@ func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout tim
 
 	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	body, err := io.ReadAll(response.Body)
 	if err != nil {
 		return 0, err
 	}
@@ -200,7 +200,7 @@ func get(rq *http.Request, timeout time.Duration, retries int, retryDelay time.D
 			if response.StatusCode == http.StatusOK {
 				break
 			} else {
-				err = fmt.Errorf("Error getting contact list (%v)", response.Status)
+				err = fmt.Errorf("error getting contact list (%v)", response.Status)
 			}
 		}
 

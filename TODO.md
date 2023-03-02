@@ -1,6 +1,7 @@
 # TODO
 
 - [x] doc.go overview file
+- [x] Add static-check to lint
 - [x] Card keypad PIN code support (cf. https://github.com/uhppoted/uhppote-core/issues/8)
       - [x] get-members
       - [x] get-acl
@@ -10,7 +11,6 @@
       - [x] CHANGELOG
       - [x] README
 
-- [ ] Add static-check to lint
 - [ ] Add lock to `get-acl` and `compare-acl`
 
 ## TODO

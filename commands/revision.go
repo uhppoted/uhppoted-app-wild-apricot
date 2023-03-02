@@ -3,7 +3,7 @@ package commands
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"time"
 )
@@ -24,7 +24,7 @@ type versionInfo struct {
 
 func getVersionInfo(workdir string, accountID uint32) versionInfo {
 	file := filepath.Join(workdir, ".wild-apricot", fmt.Sprintf("%v.version", accountID))
-	bytes, err := ioutil.ReadFile(file)
+	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return versionInfo{}
 	}
@@ -64,7 +64,7 @@ func storeVersionInfo(workdir string, accountID uint32, timestamp time.Time, mem
 	file := filepath.Join(workdir, ".wild-apricot", fmt.Sprintf("%v.version", accountID))
 	bytes = append(bytes, []byte("\n")...)
 
-	if err := ioutil.WriteFile(file, bytes, 0644); err != nil {
+	if err := os.WriteFile(file, bytes, 0644); err != nil {
 		return err
 	}
 

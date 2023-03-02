@@ -95,11 +95,11 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 
 	// ... check parameters
 	if strings.TrimSpace(cmd.credentials) == "" {
-		return fmt.Errorf("Invalid credentials file")
+		return fmt.Errorf("invalid credentials file")
 	}
 
 	if strings.TrimSpace(cmd.rules) == "" {
-		return fmt.Errorf("Invalid rules file")
+		return fmt.Errorf("invalid rules file")
 	}
 
 	// ... locked?
@@ -120,7 +120,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	// ... get config, credentials and version information
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
-		return fmt.Errorf("Could not load configuration (%v)", err)
+		return fmt.Errorf("could not load configuration (%v)", err)
 	}
 
 	credentials, err := getCredentials(cmd.credentials)
@@ -156,7 +156,7 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	// ... get rules
 	rules, err := getRules(cmd.rules, cmd.workdir, cmd.debug)
 	if err != nil {
-		return fmt.Errorf("Failed to load ruleset (%v)", err)
+		return fmt.Errorf("failed to load ruleset (%v)", err)
 	}
 
 	// ... updated?
@@ -255,11 +255,11 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 		}
 
 		if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, &membersWithPIN, rules, ACL); err != nil {
-			return fmt.Errorf("Failed to store updated version information (%v)", err)
+			return fmt.Errorf("failed to store updated version information (%v)", err)
 		}
 	} else {
 		if err := storeVersionInfo(cmd.workdir, credentials.AccountID, timestamp, members, rules, ACL); err != nil {
-			return fmt.Errorf("Failed to store updated version information (%v)", err)
+			return fmt.Errorf("failed to store updated version information (%v)", err)
 		}
 	}
 
@@ -325,42 +325,42 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *li
 	return rpt, warnings, nil
 }
 
-func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *lib.Table) (bool, error) {
-	current, errors := lib.GetACL(u, devices)
-	if len(errors) > 0 {
-		return false, fmt.Errorf("%v", errors)
-	}
-
-	acl, _, err := lib.ParseTable(cards, devices, false)
-	if err != nil {
-		return false, err
-	}
-
-	if acl == nil {
-		return false, fmt.Errorf("Error creating ACL from cards (%v)", cards)
-	}
-
-	compare := func(current lib.ACL, acl lib.ACL) (map[uint32]lib.Diff, error) {
-		if cmd.withPIN {
-			return lib.CompareWithPIN(current, acl)
-		} else {
-			return lib.Compare(current, acl)
-		}
-	}
-
-	diff, err := compare(current, *acl)
-	if err != nil {
-		return false, err
-	}
-
-	for _, v := range diff {
-		if v.HasChanges() {
-			return true, nil
-		}
-	}
-
-	return false, nil
-}
+// func (cmd *LoadACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *lib.Table) (bool, error) {
+// 	current, errors := lib.GetACL(u, devices)
+// 	if len(errors) > 0 {
+// 		return false, fmt.Errorf("%v", errors)
+// 	}
+//
+// 	acl, _, err := lib.ParseTable(cards, devices, false)
+// 	if err != nil {
+// 		return false, err
+// 	}
+//
+// 	if acl == nil {
+// 		return false, fmt.Errorf("error creating ACL from cards (%v)", cards)
+// 	}
+//
+// 	compare := func(current lib.ACL, acl lib.ACL) (map[uint32]lib.Diff, error) {
+// 		if cmd.withPIN {
+// 			return lib.CompareWithPIN(current, acl)
+// 		} else {
+// 			return lib.Compare(current, acl)
+// 		}
+// 	}
+//
+// 	diff, err := compare(current, *acl)
+// 	if err != nil {
+// 		return false, err
+// 	}
+//
+// 	for _, v := range diff {
+// 		if v.HasChanges() {
+// 			return true, nil
+// 		}
+// 	}
+//
+// 	return false, nil
+// }
 
 func (cmd *LoadACL) log(rpt map[uint32]lib.Report, warnings []error) error {
 	if cmd.logfile != "" {
@@ -382,7 +382,7 @@ func (cmd *LoadACL) log(rpt map[uint32]lib.Report, warnings []error) error {
 			return err
 		}
 
-		fmt.Fprintf(f, "%s", string(b.Bytes()))
+		fmt.Fprintf(f, "%s", b.String())
 
 		return f.Close()
 	}
@@ -478,11 +478,11 @@ func (cmd *LoadACL) report(rpt map[uint32]lib.Report, members types.Members) err
 			return err
 		}
 
-		fmt.Fprintf(f, "%s", string(b.Bytes()))
+		fmt.Fprintf(f, "%s", b.String())
 
 		return f.Close()
 	}
 
-	fmt.Printf("%s\n", string(b.Bytes()))
+	fmt.Printf("%s\n", b.String())
 	return nil
 }

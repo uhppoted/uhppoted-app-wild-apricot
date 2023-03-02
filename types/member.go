@@ -123,7 +123,7 @@ func (m *Member) HasExpires() bool {
 }
 
 func (m *Member) IsActive() bool {
-	return m != nil && m.Active == true
+	return m != nil && m.Active
 }
 
 func (m *Member) IsSuspended() bool {
@@ -472,7 +472,7 @@ func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, e
 		case normalise(f.SystemCode) == fields[fRegistered]:
 			if v, ok := f.Value.(string); ok {
 				if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
-					return nil, fmt.Errorf("Unable to parse 'Member since' date '%v' (%v)", v, err)
+					return nil, fmt.Errorf("unable to parse 'Member since' date '%v' (%v)", v, err)
 				} else {
 					member.Registered = (*Date)(&d)
 				}
@@ -481,7 +481,7 @@ func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, e
 		case normalise(f.SystemCode) == fields[fExpires]:
 			if v, ok := f.Value.(string); ok {
 				if d, err := time.Parse("2006-01-02T15:04:05", v); err != nil {
-					return nil, fmt.Errorf("Unable to parse 'Renewal' date '%v' (%v)", v, err)
+					return nil, fmt.Errorf("unable to parse 'Renewal' date '%v' (%v)", v, err)
 				} else {
 					expires := d.AddDate(0, 0, -1)
 					member.Expires = (*Date)(&expires)
@@ -492,7 +492,7 @@ func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, e
 			if v, ok := f.Value.(string); ok {
 				if v != "" {
 					if n, err := strconv.ParseUint(v, 10, 32); err != nil {
-						return nil, fmt.Errorf("Error parsing card number '%v' (%v)", v, err)
+						return nil, fmt.Errorf("error parsing card number '%v' (%v)", v, err)
 					} else {
 						nn := uint32(n)
 						member.CardNumber = (*CardNumber)(&nn)
@@ -504,7 +504,7 @@ func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, e
 			if v, ok := f.Value.(string); ok {
 				if v != "" {
 					if n, err := strconv.ParseUint(v, 10, 32); err != nil {
-						return nil, fmt.Errorf("Error parsing PIN '%v' (%v)", v, err)
+						return nil, fmt.Errorf("error parsing PIN '%v' (%v)", v, err)
 					} else {
 						member.PIN = uint32(n)
 					}

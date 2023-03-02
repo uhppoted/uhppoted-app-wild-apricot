@@ -69,7 +69,7 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 	}
 
 	if members == nil {
-		return nil, fmt.Errorf("Invalid members list")
+		return nil, fmt.Errorf("invalid members list")
 	}
 
 	return members, nil
@@ -96,7 +96,7 @@ func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, er
 	if err != nil {
 		return nil, err
 	} else if groups == nil {
-		return nil, fmt.Errorf("Invalid groups list")
+		return nil, fmt.Errorf("invalid groups list")
 	}
 
 	return groups, nil

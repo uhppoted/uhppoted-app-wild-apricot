@@ -198,7 +198,7 @@ func TestMakeACL(t *testing.T) {
 		if len(acl.records) != len(expected.records) {
 			t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 		} else {
-			for i, _ := range expected.records {
+			for i := range expected.records {
 				compare(acl.records[i], expected.records[i], t)
 			}
 		}
@@ -291,7 +291,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 		if len(acl.records) != len(expected.records) {
 			t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 		} else {
-			for i, _ := range expected.records {
+			for i := range expected.records {
 				compare(acl.records[i], expected.records[i], t)
 			}
 		}
@@ -333,7 +333,7 @@ func TestGrant(t *testing.T) {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}
@@ -374,7 +374,7 @@ func TestGrantWithDoorWithTimeProfile(t *testing.T) {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}
@@ -415,7 +415,7 @@ func TestGrantWithDoorAndTimeProfile(t *testing.T) {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}
@@ -469,7 +469,7 @@ rule Grant "Grants permission to the Whomping Willow" {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}
@@ -510,7 +510,7 @@ func TestRevoke(t *testing.T) {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}
@@ -565,7 +565,7 @@ rule Revoke "Revokes permission to the Whomping Willow" {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}
@@ -608,7 +608,7 @@ func TestGrantAndRevoke(t *testing.T) {
 	if len(acl.records) != len(expected.records) {
 		t.Errorf("Invalid ACL - expected %v records, got %v", len(expected.records), len(acl.records))
 	} else {
-		for i, _ := range expected.records {
+		for i := range expected.records {
 			compare(acl.records[i], expected.records[i], t)
 		}
 	}

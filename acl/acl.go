@@ -109,9 +109,7 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 			"To",
 		}...)
 
-		for _, door := range acl.doors {
-			header = append(header, door)
-		}
+		header = append(header, acl.doors...)
 
 		sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
 
@@ -136,7 +134,7 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 					if d == normalise(k) {
 						switch vv := v.(type) {
 						case bool:
-							if vv == true {
+							if vv {
 								granted = true
 							}
 
@@ -154,7 +152,7 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 					revoked = true
 				}
 
-				for k, _ := range r.Revoked {
+				for k := range r.Revoked {
 					if d == normalise(k) {
 						revoked = true
 					}
@@ -190,9 +188,7 @@ func (acl *ACL) asTableWithPIN() ([]string, [][]string) {
 			"To",
 		}...)
 
-		for _, door := range acl.doors {
-			header = append(header, door)
-		}
+		header = append(header, acl.doors...)
 
 		sort.SliceStable(acl.records, func(i, j int) bool { return acl.records[i].CardNumber < acl.records[j].CardNumber })
 
@@ -226,7 +222,7 @@ func (acl *ACL) asTableWithPIN() ([]string, [][]string) {
 					if d == normalise(k) {
 						switch vv := v.(type) {
 						case bool:
-							if vv == true {
+							if vv {
 								granted = true
 							}
 
@@ -244,7 +240,7 @@ func (acl *ACL) asTableWithPIN() ([]string, [][]string) {
 					revoked = true
 				}
 
-				for k, _ := range r.Revoked {
+				for k := range r.Revoked {
 					if d == normalise(k) {
 						revoked = true
 					}

@@ -3,7 +3,6 @@ package commands
 import (
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -43,7 +42,7 @@ func helpOptions(flagset *flag.FlagSet) {
 
 func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.Device) {
 	keys := []uint32{}
-	for id, _ := range conf.Devices {
+	for id := range conf.Devices {
 		keys = append(keys, id)
 	}
 
@@ -78,7 +77,7 @@ func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.De
 }
 
 func write(file string, bytes []byte) error {
-	tmp, err := ioutil.TempFile(os.TempDir(), "ACL")
+	tmp, err := os.CreateTemp(os.TempDir(), "ACL")
 	if err != nil {
 		return err
 	}

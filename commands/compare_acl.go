@@ -89,17 +89,17 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 
 	// ... check parameters
 	if strings.TrimSpace(cmd.credentials) == "" {
-		return fmt.Errorf("Invalid credentials file")
+		return fmt.Errorf("invalid credentials file")
 	}
 
 	if strings.TrimSpace(cmd.rules) == "" {
-		return fmt.Errorf("Invalid rules file")
+		return fmt.Errorf("invalid rules file")
 	}
 
 	// ... get config, members and rules
 	conf := config.NewConfig()
 	if err := conf.Load(options.Config); err != nil {
-		return fmt.Errorf("Could not load configuration (%v)", err)
+		return fmt.Errorf("could not load configuration (%v)", err)
 	}
 
 	credentials, err := getCredentials(cmd.credentials)
@@ -202,7 +202,7 @@ func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, car
 	}
 
 	if acl == nil {
-		return nil, fmt.Errorf("Error creating ACL from cards (%v)", cards)
+		return nil, fmt.Errorf("error creating ACL from cards (%v)", cards)
 	}
 
 	compare := func(current, acl lib.ACL) (map[uint32]lib.Diff, error) {
@@ -238,7 +238,7 @@ func (cmd *CompareACL) summarize(diff lib.SystemDiff) error {
 
 	var b bytes.Buffer
 	if err := rpt.ToTSV(&b); err != nil {
-		return fmt.Errorf("Error creating TSV file from 'compare' report (%v)", err)
+		return fmt.Errorf("error creating TSV file from 'compare' report (%v)", err)
 	}
 
 	if err := write(cmd.file, b.Bytes()); err != nil {
@@ -272,7 +272,7 @@ func (cmd *CompareACL) report(members types.Members, diff lib.SystemDiff) error 
 
 	var b bytes.Buffer
 	if err := rpt.ToTSV(&b); err != nil {
-		return fmt.Errorf("Error creating TSV file from 'compare' report (%v)", err)
+		return fmt.Errorf("error creating TSV file from 'compare' report (%v)", err)
 	}
 
 	if err := write(cmd.file, b.Bytes()); err != nil {
@@ -286,7 +286,7 @@ func (cmd *CompareACL) report(members types.Members, diff lib.SystemDiff) error 
 
 func summarize(diff lib.SystemDiff) *lib.Table {
 	keys := []uint32{}
-	for k, _ := range diff {
+	for k := range diff {
 		keys = append(keys, k)
 	}
 
@@ -402,7 +402,7 @@ func detail(members types.Members, diff lib.SystemDiff) *lib.Table {
 	}
 
 	keys := []uint32{}
-	for k, _ := range cards {
+	for k := range cards {
 		keys = append(keys, k)
 	}
 
@@ -414,10 +414,10 @@ func detail(members types.Members, diff lib.SystemDiff) *lib.Table {
 	for _, k := range keys {
 		if card, ok := cards[k]; ok {
 			data = append(data, []string{
-				fmt.Sprintf("%s", timestamp),
-				fmt.Sprintf("%s", names[card.cardnumber]),
+				timestamp,
+				names[card.cardnumber],
 				fmt.Sprintf("%v", card.cardnumber),
-				fmt.Sprintf("%s", card.action),
+				card.action,
 			})
 		}
 	}
