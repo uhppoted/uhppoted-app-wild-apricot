@@ -27,6 +27,7 @@ var LoadACLCmd = LoadACL{
 	force:       false,
 	strict:      false,
 	dryrun:      false,
+	lockfile:    "",
 	debug:       false,
 }
 
@@ -40,6 +41,7 @@ type LoadACL struct {
 	dryrun      bool
 	logfile     string
 	rptfile     string
+	lockfile    string
 	debug       bool
 }
 
@@ -73,6 +75,7 @@ func (cmd *LoadACL) Help() {
 
 func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("load-acl", flag.ExitOnError)
+	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
@@ -83,6 +86,7 @@ func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 	flagset.BoolVar(&cmd.dryrun, "dry-run", cmd.dryrun, "Simulates a load-acl without making any changes to the access controllers")
 	flagset.StringVar(&cmd.logfile, "log", cmd.logfile, "File to which the (optional) summary report is appended")
 	flagset.StringVar(&cmd.rptfile, "report", cmd.rptfile, "File to which the detail report is written. Defaults to stdout if not provided")
+	flagset.StringVar(&cmd.lockfile, "lockfile", cmd.lockfile, fmt.Sprintf("Filepath for lock file. Defaults to %v", lockfile))
 
 	return flagset
 }
@@ -106,6 +110,13 @@ func (cmd *LoadACL) Execute(args ...interface{}) error {
 	lockFile := config.Lockfile{
 		File:   filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock"),
 		Remove: lockfile.RemoveLockfile,
+	}
+
+	if cmd.lockfile != "" {
+		lockFile = config.Lockfile{
+			File:   cmd.lockfile,
+			Remove: lockfile.RemoveLockfile,
+		}
 	}
 
 	if kraken, err := lockfile.MakeLockFile(lockFile); err != nil {

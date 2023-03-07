@@ -12,6 +12,7 @@ import (
 	"github.com/uhppoted/uhppote-core/uhppote"
 	lib "github.com/uhppoted/uhppoted-lib/acl"
 	"github.com/uhppoted/uhppoted-lib/config"
+	"github.com/uhppoted/uhppoted-lib/lockfile"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
@@ -24,6 +25,7 @@ var CompareACLCmd = CompareACL{
 	withPIN:     false,
 	summary:     false,
 	strict:      false,
+	lockfile:    "",
 	debug:       false,
 }
 
@@ -35,6 +37,7 @@ type CompareACL struct {
 	withPIN     bool
 	summary     bool
 	strict      bool
+	lockfile    string
 	debug       bool
 }
 
@@ -70,6 +73,7 @@ func (cmd *CompareACL) Help() {
 
 func (cmd *CompareACL) FlagSet() *flag.FlagSet {
 	flagset := flag.NewFlagSet("compare-acl", flag.ExitOnError)
+	lockfile := filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock")
 
 	flagset.StringVar(&cmd.workdir, "workdir", cmd.workdir, "Directory for working files (tokens, revisions, etc)'")
 	flagset.StringVar(&cmd.credentials, "credentials", cmd.credentials, "Path for the 'credentials.json' file. Defaults to "+cmd.credentials)
@@ -78,6 +82,7 @@ func (cmd *CompareACL) FlagSet() *flag.FlagSet {
 	flagset.BoolVar(&cmd.summary, "summary", cmd.summary, "Report only a summary of the comparison. Defaults to "+fmt.Sprintf("%v", cmd.summary))
 	flagset.StringVar(&cmd.file, "report", cmd.file, "Report file name. Defaults to stdout")
 	flagset.BoolVar(&cmd.strict, "strict", cmd.strict, "Fails with an error if the members list contains duplicate card numbers")
+	flagset.StringVar(&cmd.lockfile, "lockfile", cmd.lockfile, fmt.Sprintf("Filepath for lock file. Defaults to %v", lockfile))
 
 	return flagset
 }
@@ -94,6 +99,28 @@ func (cmd *CompareACL) Execute(args ...interface{}) error {
 
 	if strings.TrimSpace(cmd.rules) == "" {
 		return fmt.Errorf("invalid rules file")
+	}
+
+	// ... locked?
+	lockFile := config.Lockfile{
+		File:   filepath.Join(cmd.workdir, ".wild-apricot", "uhppoted-app-wild-apricot.lock"),
+		Remove: lockfile.RemoveLockfile,
+	}
+
+	if cmd.lockfile != "" {
+		lockFile = config.Lockfile{
+			File:   cmd.lockfile,
+			Remove: lockfile.RemoveLockfile,
+		}
+	}
+
+	if kraken, err := lockfile.MakeLockFile(lockFile); err != nil {
+		return err
+	} else {
+		defer func() {
+			infof("Removing lockfile '%v'", lockFile.File)
+			kraken.Release()
+		}()
 	}
 
 	// ... get config, members and rules

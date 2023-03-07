@@ -85,7 +85,7 @@ publish: release
 	gh release create "$(VERSION)" ./dist/*.tar.gz --draft --prerelease --title "($VERSION)-beta" --notes-file release-notes.md
 
 debug: build
-	go test ./acl/... -run TestHash
+	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run  --lockfile ".lock.me"
 	# $(CLI) load-acl    --credentials $(CREDENTIALS) --rules $(RULES) --force --dry-run
 	# $(CLI) load-acl    --credentials $(CREDENTIALS) --rules $(RULES) --force
 

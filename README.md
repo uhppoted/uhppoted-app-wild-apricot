@@ -315,7 +315,7 @@ Command line:
 
 ```uhppoted-app-wild-apricot get-acl --credentials <file> --rules <uri>``` 
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--with-pin] [--workdir <dir>] [--file <TSV>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] get-acl --credentials <file> --rules <uri> [--with-pin] [--workdir <dir>] [--lockfile <file>] [--file <TSV>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
@@ -329,6 +329,9 @@ Command line:
 
   --with-pin     Optionally includes the card keypad PIN field in the retrieved ACL. Defaults 
                  to false.
+
+  --lockfile     Optionally specifies the path to the lockfile used to serialize ACL requests. Defaults 
+                 to <workdir>/.wild-apricot/uhppoted-uhppoted-app-wild-apricot.lock.
 
   --workdir      Directory for working files, in particular the tokens, revisions, etc. Defaults to:
                  - /var/uhppoted on Linux
@@ -357,7 +360,7 @@ Command line:
 
 ```uhppoted-app-wild-apricot compare-acl --credentials <file> --rules <uri>``` 
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <uri>] [--with-pin] [--strict] [--summary] [--workdir <dir>] [--report <file>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] compare-acl [--credentials <file>] [--rules <uri>] [--with-pin] [--strict] [--summary] [--workdir <dir>] [--lockfile <file>] [--report <file>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
@@ -384,6 +387,9 @@ Command line:
   --report <file> File path for the optional output file. Displays the compare report on
                   the console if not provided. Formats the output as TSV if the provided
                   file has a .tsv extension.
+
+  --lockfile     Optionally specifies the path to the lockfile used to serialize ACL requests. Defaults 
+                 to <workdir>/.wild-apricot/uhppoted-uhppoted-app-wild-apricot.lock.
     
   --config      File path to the uhppoted.conf file containing the access
                 controller configuration information. Defaults to:
@@ -407,7 +413,7 @@ Command line:
 
 ```uhppoted-app-wild-apricot load-acl```
 
-```uhppoted-app-wild-apricot [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <uri>] [--with-pin] [--force] [--strict] [--dry-run] [--workdir <dir>] [--log <file>]```
+```uhppoted-app-wild-apricot [--debug] [--config <file>] load-acl [--credentials <file>] [--rules <uri>] [--with-pin] [--force] [--strict] [--dry-run] [--workdir <dir>] [--lockfile <file>] [--log <file>]```
 
 ```
   --credentials <file> File path for the credentials file with the Wild Apricot account ID and API key.
@@ -434,6 +440,9 @@ Command line:
                      - /var/uhppoted on Linux
                      - /usr/local/var/com.github.uhppoted on MacOS
                      - ./uhppoted on Microsoft Windows
+
+  --lockfile     Optionally specifies the path to the lockfile used to serialize ACL requests. Defaults 
+                 to <workdir>/.wild-apricot/uhppoted-uhppoted-app-wild-apricot.lock.
 
   --log <file>  Optional output file for a summary of the load operation. Formatted as
                 headerless TSV if the file has a .tsv extension. worksheet

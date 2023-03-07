@@ -11,7 +11,7 @@
       - [x] CHANGELOG
       - [x] README
 
-- [ ] Add lock to `get-acl` and `compare-acl`
+- [x] Add lock to `get-acl` and `compare-acl`
 
 ## TODO
 
