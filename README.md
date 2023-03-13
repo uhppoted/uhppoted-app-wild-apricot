@@ -14,6 +14,7 @@ Supported operating systems:
 
 | *Version* | *Description*                                                                   |
 | --------- | ------------------------------------------------------------------------------- |
+| v0.8.4    | Added support for card keypad PINs                                              |
 | v0.8.3    | Reworked lockfile to use `flock` _syscall_                                      |
 | v0.8.2    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
 | v0.8.1    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
