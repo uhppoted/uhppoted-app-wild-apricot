@@ -1,17 +1,6 @@
 # TODO
 
-- [x] doc.go overview file
-- [x] Add static-check to lint
-- [x] Card keypad PIN code support (cf. https://github.com/uhppoted/uhppote-core/issues/8)
-      - [x] get-members
-      - [x] get-acl
-      - [x] compare-acl
-      - [x] load-acl
-      - [x] debug out
-      - [x] CHANGELOG
-      - [x] README
-
-- [x] Add lock to `get-acl` and `compare-acl`
+- [x] Replace os.Rename with lib implementation for tmpfs support (cf. https://github.com/uhppoted/uhppoted-httpd/issues/20)
 
 ## TODO
 

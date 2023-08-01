@@ -12,6 +12,7 @@ import (
 	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
 	"github.com/uhppoted/uhppoted-lib/config"
+	lib "github.com/uhppoted/uhppoted-lib/os"
 )
 
 const APP = "uhppoted-app-wild-apricot"
@@ -95,7 +96,7 @@ func write(file string, bytes []byte) error {
 		return err
 	}
 
-	if err := os.Rename(tmp.Name(), file); err != nil {
+	if err := lib.Rename(tmp.Name(), file); err != nil {
 		return err
 	}
 
