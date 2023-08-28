@@ -23,20 +23,19 @@ clean:
 update:
 	go get -u github.com/uhppoted/uhppote-core@master
 	go get -u github.com/uhppoted/uhppoted-lib@master
-	go get -u github.com/hyperjumptech/grule-rule-engine
-	go get -u github.com/sirupsen/logrus
-	go get -u github.com/uhppoted/uhppote-core
-	go get -u github.com/uhppoted/uhppoted-lib
+	# go get -u github.com/hyperjumptech/grule-rule-engine
 	go get -u golang.org/x/sys
 	go mod tidy
 
 update-release:
 	go get -u github.com/uhppoted/uhppote-core
 	go get -u github.com/uhppoted/uhppoted-lib
-	go get -u github.com/hyperjumptech/grule-rule-engine
-	go get -u github.com/sirupsen/logrus
+	go mod tidy
+
+update-all:
 	go get -u github.com/uhppoted/uhppote-core
 	go get -u github.com/uhppoted/uhppoted-lib
+	go get -u github.com/hyperjumptech/grule-rule-engine
 	go get -u golang.org/x/sys
 	go mod tidy
 
