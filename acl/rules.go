@@ -171,7 +171,10 @@ func (rules *Rules) eval(m types.Member, r *record) error {
 	}
 
 	enjin := engine.NewGruleEngine()
-	kb := rules.library.NewKnowledgeBaseInstance("acl", "0.0.0")
 
-	return enjin.Execute(context, kb)
+	if kb, err := rules.library.NewKnowledgeBaseInstance("acl", "0.0.0"); err != nil {
+		return err
+	} else {
+		return enjin.Execute(context, kb)
+	}
 }
