@@ -10,23 +10,14 @@ Supported operating systems:
 - Windows
 - ARM7
 
-## Releases
+## Release Notes
 
-| *Version* | *Description*                                                                   |
-| --------- | ------------------------------------------------------------------------------- |
-| v0.8.6    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.8.5    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.8.4    | Added support for card keypad PINs                                              |
-| v0.8.3    | Reworked lockfile to use `flock` _syscall_                                      |
-| v0.8.2    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.8.1    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.8.0    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.7.3    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.7.2    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.7.1    | Maintenance release to update dependencies on `uhppote-core` and `uhppoted-lib` |
-| v0.7.0    | Added support for time profiles from the extended API                           |
-| v0.6.12   | Implemented prepended facility code for card numbers retrieved without          |
-| v0.6.10   | Initial release                                                                 |
+### Current Release
+
+**[v0.8.7](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.7) - 2023-12-01**
+
+1. Maintenance release for compatibility with [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib) v0.8.7
+
 
 ## Installation
 
