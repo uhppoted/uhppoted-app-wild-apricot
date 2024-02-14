@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+### Updated
+1. Bumped Go version to 1.
+
 
 ## [0.8.7](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.7) - 2023-12-01
 
