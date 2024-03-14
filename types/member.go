@@ -6,13 +6,13 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 	api "github.com/uhppoted/uhppoted-lib/acl"
 )
@@ -130,7 +130,7 @@ func (m *Member) IsSuspended() bool {
 	return m != nil && m.Suspended
 }
 
-func (m *Member) HasGroup(group interface{}) bool {
+func (m *Member) HasGroup(group any) bool {
 	if m != nil {
 		switch v := group.(type) {
 		case string:
@@ -202,15 +202,15 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 
 	members := []Member{}
 	for _, c := range contacts {
-		if m, err := transcode(c, fields); err != nil {
+		if m, err := transcode(c, groups, fields); err != nil {
 			errors = append(errors, fmt.Errorf("Member ID: %d, %v", c.ID, err))
 		} else if m != nil {
 			if m.CardNumber != nil && *m.CardNumber > 0 && *m.CardNumber < 100000 && facilityCode != "" {
 				cardNo := fmt.Sprintf("%v%05v", facilityCode, m.CardNumber)
 				if v, err := strconv.ParseUint(cardNo, 10, 32); err != nil {
-					log.Printf("ERROR Prepending facility code '%v' to card number '%v' for member %v (%v)", facilityCode, m.CardNumber, m.id, err)
+					log.Warnf("prepending facility code '%v' to card number '%v' for member %v (%v)", facilityCode, m.CardNumber, m.id, err)
 				} else {
-					log.Printf("INFO  Prepending facility code '%v' to card %v for member %v\n", facilityCode, m.CardNumber, m.id)
+					log.Infof("prepending facility code '%v' to card %v for member %v\n", facilityCode, m.CardNumber, m.id)
 					nn := uint32(v)
 					m.CardNumber = (*CardNumber)(&nn)
 
@@ -449,7 +449,7 @@ func (members *Members) asTableWithPIN() ([]string, [][]string) {
 	return header, data
 }
 
-func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, error) {
+func transcode(contact wildapricot.Contact, sysgroups []Group, fields map[field]string) (*Member, error) {
 	member := Member{
 		id:   contact.ID,
 		Name: fmt.Sprintf("%[1]s %[2]s", contact.FirstName, contact.LastName),
@@ -512,20 +512,39 @@ func transcode(contact wildapricot.Contact, fields map[field]string) (*Member, e
 			}
 
 		case normalise(f.SystemCode) == "groups":
-			if groups, ok := f.Value.([]interface{}); ok {
+			if groups, ok := f.Value.([]any); ok {
 				for _, g := range groups {
-					if gg, ok := g.(map[string]interface{}); ok {
+					if gg, ok := g.(map[string]any); ok {
 						group := Group{}
 
 						if v, ok := gg["Id"]; ok {
 							if id, ok := v.(float64); ok {
 								group.ID = uint32(id)
+
+								for _, sysgroup := range sysgroups {
+									if group.ID == sysgroup.ID {
+										group.Name = sysgroup.Name
+									}
+								}
 							}
 						}
 
+						// Ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/6
+						//      Replaced with actual group name from groups list - Wild Apricot does not keep
+						//      the member group names synchronized with the actual group names leading to
+						//      confusion when resolving permissions by group name.
+						// if v, ok := gg["Label"]; ok {
+						// 	if name, ok := v.(string); ok {
+						// 		group.Name = name
+						// 	}
+						// }
+
+						// ... warn if member group name does not match group name (for legacy systems)
 						if v, ok := gg["Label"]; ok {
 							if name, ok := v.(string); ok {
-								group.Name = name
+								if name != group.Name {
+									log.Warnf("%v: group name (%v) does not match groups name (%v)", member.Name, name, group.Name)
+								}
 							}
 						}
 

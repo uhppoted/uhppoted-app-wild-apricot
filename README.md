@@ -144,6 +144,10 @@ _Notes:_
    ```
    // *** END GRULES ***
    ```
+4. `member.HasGroup` resolves against the group name in the _Wild Apricot_ groups list and not the group names in the member
+   record. If a member is assigned to a group and the name of that group is subsequently changed, the _Wild Apricot_ member
+   record is not updated and still reflects the original group name. Since a group name could be changed several times in the
+   lifetime of an organisation the `HasGroup` function resolves against the actual group name.
 
 ### Building from source
 

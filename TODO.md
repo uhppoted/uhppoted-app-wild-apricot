@@ -1,6 +1,9 @@
 # TODO
 
-- [x] Replace os.Rename with lib implementation for tmpfs support (cf. https://github.com/uhppoted/uhppoted-httpd/issues/20)
+- [x] [Fix HasGroup lookup logic to resolve using group ID](https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/6)
+      - [x] Resolve member groups names using system groups
+      - [x] CHANGELOG
+      - [x] README
 
 ## TODO
 
