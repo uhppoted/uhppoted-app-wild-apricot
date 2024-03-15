@@ -148,7 +148,7 @@ get-acl-drive: build
 	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1dwc9HFCbjCf4YB2siexk--coI_xOAtul"
 
 compare-acl: build
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
+	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
 	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
 	# cat "$(WORKDIR)/ACL.rpt"
 
