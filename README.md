@@ -14,9 +14,12 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.7](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.7) - 2023-12-01**
+**[v0.8.8](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.8) - 2024-03-27**
 
-1. Maintenance release for compatibility with [uhppoted-lib](https://github.com/uhppoted/uhppoted-lib) v0.8.7
+1. Bumped Go version to 1.22
+2. Reworked member initialisation to resolve group names against system group names using
+   group ID because Wild Apricot does not keep the member groups fields consistent.
+3. Fixed bug that ignored '0' when normalising strings.
 
 
 ## Installation

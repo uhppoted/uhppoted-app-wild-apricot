@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## [0.8.8](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.8) - 2024-03-27
 
 ### Updated
 1. Bumped Go version to 1.22
