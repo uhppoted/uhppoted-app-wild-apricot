@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/uhppoted/uhppote-core/uhppote"
@@ -42,13 +41,6 @@ func helpOptions(flagset *flag.FlagSet) {
 }
 
 func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.Device) {
-	keys := []uint32{}
-	for id := range conf.Devices {
-		keys = append(keys, id)
-	}
-
-	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
-
 	bind, broadcast, listen := config.DefaultIpAddresses()
 
 	if conf.BindAddress != nil {
@@ -63,18 +55,11 @@ func getDevices(conf *config.Config, debug bool) (uhppote.IUHPPOTE, []uhppote.De
 		listen = *conf.ListenAddress
 	}
 
-	devices := []uhppote.Device{}
-	for _, id := range keys {
-		d := conf.Devices[id]
+	controllers := conf.Devices.ToControllers()
 
-		if device := uhppote.NewDevice(d.Name, id, d.Address, d.Doors); device != nil {
-			devices = append(devices, *device)
-		}
-	}
+	u := uhppote.NewUHPPOTE(bind, broadcast, listen, conf.Timeout, controllers, false)
 
-	u := uhppote.NewUHPPOTE(bind, broadcast, listen, conf.Timeout, devices, false)
-
-	return u, devices
+	return u, controllers
 }
 
 func write(file string, bytes []byte) error {
