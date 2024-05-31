@@ -10,7 +10,7 @@ import (
 type Date core.Date
 
 func DateFromString(s string) (*Date, error) {
-	date, err := core.DateFromString(s)
+	date, err := core.ParseDate(s)
 	if err != nil {
 		return nil, err
 	}
