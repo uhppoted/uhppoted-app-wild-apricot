@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	core "github.com/uhppoted/uhppote-core/types"
 )
 
 func TestGrantWithDoorsOnly(t *testing.T) {
@@ -11,7 +13,7 @@ func TestGrantWithDoorsOnly(t *testing.T) {
 		Name:       "Harry Potter",
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
-		EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		EndDate:    core.ToDate(2021, time.June, 30),
 		Granted: map[string]interface{}{
 			"dungeon":    true,
 			"greathall":  true,
@@ -24,7 +26,7 @@ func TestGrantWithDoorsOnly(t *testing.T) {
 		Name:       "Harry Potter",
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
-		EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		EndDate:    core.ToDate(2021, time.June, 30),
 		Granted:    map[string]interface{}{},
 		Revoked:    map[string]struct{}{},
 	}
@@ -41,7 +43,7 @@ func TestGrantWithDoorProfile(t *testing.T) {
 		Name:       "Harry Potter",
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
-		EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		EndDate:    core.ToDate(2021, time.June, 30),
 		Granted: map[string]interface{}{
 			"dungeon":    29,
 			"greathall":  true,
@@ -54,7 +56,7 @@ func TestGrantWithDoorProfile(t *testing.T) {
 		Name:       "Harry Potter",
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
-		EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		EndDate:    core.ToDate(2021, time.June, 30),
 		Granted:    map[string]interface{}{},
 		Revoked:    map[string]struct{}{},
 	}
@@ -71,7 +73,7 @@ func TestGrantWithDoorAndProfile(t *testing.T) {
 		Name:       "Harry Potter",
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
-		EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		EndDate:    core.ToDate(2021, time.June, 30),
 		Granted: map[string]interface{}{
 			"dungeon": 29,
 		},
@@ -82,7 +84,7 @@ func TestGrantWithDoorAndProfile(t *testing.T) {
 		Name:       "Harry Potter",
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
-		EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+		EndDate:    core.ToDate(2021, time.June, 30),
 		Granted:    map[string]interface{}{},
 		Revoked:    map[string]struct{}{},
 	}

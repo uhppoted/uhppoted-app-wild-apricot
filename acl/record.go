@@ -5,15 +5,15 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	core "github.com/uhppoted/uhppote-core/types"
 )
 
 type record struct {
 	Name       string
 	CardNumber uint32
 	PIN        uint32
-	StartDate  time.Time
-	EndDate    time.Time
+	StartDate  core.Date
+	EndDate    core.Date
 	Granted    map[string]interface{}
 	Revoked    map[string]struct{}
 }
@@ -32,44 +32,50 @@ func (r *record) SetCardNumber(card interface{}) {
 	}
 }
 
-func (r *record) SetStartDate(t interface{}) {
+func (r *record) SetStartDate(t any) {
 	if r != nil {
 		switch v := t.(type) {
 		case string:
-			if date, err := time.Parse("2006-01-02", v); err == nil {
+			if date, err := core.ParseDate(v); err == nil {
 				r.StartDate = date
 			}
 
 		case *time.Time:
 			if v != nil {
+				r.StartDate = core.Date(*v)
+			}
+
+		case *core.Date:
+			if v != nil {
 				r.StartDate = *v
 			}
 
-		case *types.Date:
-			if v != nil {
-				r.StartDate = time.Time(*v)
-			}
+		case core.Date:
+			r.StartDate = v
 		}
 	}
 }
 
-func (r *record) SetEndDate(t interface{}) {
+func (r *record) SetEndDate(t any) {
 	if r != nil {
 		switch v := t.(type) {
 		case string:
-			if date, err := time.Parse("2006-01-02", v); err == nil {
+			if date, err := core.ParseDate(v); err == nil {
 				r.EndDate = date
 			}
 
 		case *time.Time:
 			if v != nil {
+				r.EndDate = core.Date(*v)
+			}
+
+		case *core.Date:
+			if v != nil {
 				r.EndDate = *v
 			}
 
-		case *types.Date:
-			if v != nil {
-				r.EndDate = time.Time(*v)
-			}
+		case core.Date:
+			r.EndDate = v
 		}
 	}
 }

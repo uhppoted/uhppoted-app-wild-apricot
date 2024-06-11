@@ -12,9 +12,11 @@ import (
 	"strings"
 	"time"
 
+	core "github.com/uhppoted/uhppote-core/types"
+	lib "github.com/uhppoted/uhppoted-lib/acl"
+
 	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
-	api "github.com/uhppoted/uhppoted-lib/acl"
 )
 
 type Members struct {
@@ -33,8 +35,8 @@ type Member struct {
 	PIN        uint32
 	Active     bool
 	Suspended  bool
-	Registered *Date
-	Expires    *Date
+	Registered core.Date
+	Expires    core.Date
 	Groups     map[uint32]Group
 	Membership Membership
 	Fields     []Field
@@ -115,11 +117,11 @@ func (m *Member) HasPIN() bool {
 }
 
 func (m *Member) HasRegistered() bool {
-	return m != nil && m.Registered != nil
+	return m != nil && !m.Registered.IsZero()
 }
 
 func (m *Member) HasExpires() bool {
-	return m != nil && m.Expires != nil
+	return m != nil && !m.Expires.IsZero()
 }
 
 func (m *Member) IsActive() bool {
@@ -273,19 +275,19 @@ func (members *Members) hash(withPIN bool) string {
 	return ""
 }
 
-func (members *Members) AsTable() *api.Table {
+func (members *Members) AsTable() *lib.Table {
 	header, data := members.asTable()
 
-	return &api.Table{
+	return &lib.Table{
 		Header:  header,
 		Records: data,
 	}
 }
 
-func (members *Members) AsTableWithPIN() *api.Table {
+func (members *Members) AsTableWithPIN() *lib.Table {
 	header, data := members.asTableWithPIN()
 
-	return &api.Table{
+	return &lib.Table{
 		Header:  header,
 		Records: data,
 	}
@@ -474,7 +476,7 @@ func transcode(contact wildapricot.Contact, sysgroups []Group, fields map[field]
 				if d, err := time.Parse("2006-01-02T15:04:05-07:00", v); err != nil {
 					return nil, fmt.Errorf("unable to parse 'Member since' date '%v' (%v)", v, err)
 				} else {
-					member.Registered = (*Date)(&d)
+					member.Registered = core.Date(d)
 				}
 			}
 
@@ -484,7 +486,7 @@ func transcode(contact wildapricot.Contact, sysgroups []Group, fields map[field]
 					return nil, fmt.Errorf("unable to parse 'Renewal' date '%v' (%v)", v, err)
 				} else {
 					expires := d.AddDate(0, 0, -1)
-					member.Expires = (*Date)(&expires)
+					member.Expires = core.Date(expires)
 				}
 			}
 

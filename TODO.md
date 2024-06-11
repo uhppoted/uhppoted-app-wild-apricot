@@ -1,10 +1,29 @@
 # TODO
 
-- [x] Fix [ HasGroup lookup logic to resolve using group ID](https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/6)
-- [x] Fix [Strings normalization does not allow for a '0' digit](https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/5)
-      - [x] Fix
-      - [x] Unit test
-      - [x] CHANGELOG
+- [ ] Clean up endOfYear in rules::MakeACL:
+```
+func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error) {
+    ...
+    for _, m := range members.Members {
+        r := record{
+            ...
+            ...
+            EndDate:   plusOneDay(endOfYear())),
+    ...
+
+
+func (rules *Rules) MakeACLWithPIN(members types.Members, doors []string) (*ACL, error) {
+    ...
+    for _, m := range members.Members {
+        r := record{
+            ...
+            ...
+            EndDate:   plusOneDay(endOfYear())),
+    ...
+```
+- [ ] // FIXME EndDate: 
+- [ ] // FIXME use date.Equal
+- [ ] // FIXME double check (end date has changed)
 
 ## TODO
 

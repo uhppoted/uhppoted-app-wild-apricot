@@ -1,10 +1,13 @@
 package acl
 
 import (
+	"fmt"
 	"reflect"
 	"sort"
 	"testing"
 	"time"
+
+	core "github.com/uhppoted/uhppote-core/types"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
@@ -19,7 +22,7 @@ var dumbledore = types.Member{
 	CardNumber: &C1000001,
 	Active:     true,
 	Suspended:  false,
-	Registered: dateFromString("1880-02-29"),
+	Registered: core.MustParseDate("1880-02-29"),
 	Membership: types.Membership{
 		ID:   25342355,
 		Name: "Staff",
@@ -37,7 +40,7 @@ var harry = types.Member{
 	CardNumber: &C6000001,
 	Active:     true,
 	Suspended:  false,
-	Expires:    dateFromString("2021-06-30"),
+	Expires:    core.MustParseDate("2021-06-30"),
 	Membership: types.Membership{
 		ID:   545454,
 		Name: "Stduent",
@@ -49,8 +52,8 @@ var hermione = types.Member{
 	CardNumber: &C6000002,
 	Active:     false,
 	Suspended:  false,
-	Registered: dateFromString("2020-06-25"),
-	Expires:    dateFromString("2021-06-30"),
+	Registered: core.MustParseDate("2020-06-25"),
+	Expires:    core.MustParseDate("2021-06-30"),
 	Membership: types.Membership{
 		ID:   545454,
 		Name: "Stduent",
@@ -62,7 +65,7 @@ var voldemort = types.Member{
 	CardNumber: &C2000001,
 	Active:     false,
 	Suspended:  true,
-	Registered: dateFromString("1981-07-01"),
+	Registered: core.MustParseDate("1981-07-01"),
 	Membership: types.Membership{
 		ID:   7777777,
 		Name: "Alumni",
@@ -149,16 +152,16 @@ func TestMakeACL(t *testing.T) {
 			record{
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
-				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.ToDate(1880, time.February, 29),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
-				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.ToDate(1981, time.July, 1),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -166,15 +169,15 @@ func TestMakeACL(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
 				Name:       "Hermione Granger",
 				CardNumber: 6000002,
-				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				StartDate:  core.ToDate(2020, time.June, 25),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -218,7 +221,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: &C1000001,
 				Active:     true,
 				Suspended:  false,
-				Registered: dateFromString("2001-02-28"),
+				Registered: core.MustParseDate("2001-02-28"),
 				Membership: types.Membership{
 					ID:   25342355,
 					Name: "Other",
@@ -234,16 +237,16 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 			record{
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
-				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.ToDate(1880, time.February, 29),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
-				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.ToDate(1981, time.July, 1),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -251,23 +254,23 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
 				Name:       "Hermione Granger",
 				CardNumber: 6000002,
-				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				StartDate:  core.ToDate(2020, time.June, 25),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
 				Name:       "Aberforth Dumbledore",
 				CardNumber: 1000001,
-				StartDate:  time.Date(2001, time.February, 28, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.ToDate(2001, time.February, 28),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -311,7 +314,7 @@ func TestGrant(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted: map[string]interface{}{
 					"whompingwillow": true,
 				},
@@ -352,7 +355,7 @@ func TestGrantWithDoorWithTimeProfile(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted: map[string]interface{}{
 					"whompingwillow": 29,
 				},
@@ -393,7 +396,7 @@ func TestGrantWithDoorAndTimeProfile(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted: map[string]interface{}{
 					"whompingwillow": 55,
 				},
@@ -433,7 +436,7 @@ func TestVariadicGrant(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted: map[string]interface{}{
 					"whompingwillow": true,
 					"gryffindor":     true,
@@ -488,7 +491,7 @@ func TestRevoke(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted:    map[string]interface{}{},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},
@@ -529,7 +532,7 @@ func TestVariadicRevoke(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted:    map[string]interface{}{},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},
@@ -584,7 +587,7 @@ func TestGrantAndRevoke(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.ToDate(2021, time.June, 30),
 				Granted: map[string]interface{}{
 					"whompingwillow": true,
 				},
@@ -627,12 +630,14 @@ func compare(r, expected record, t *testing.T) {
 		t.Errorf("Invalid ACL record 'card number' - expected:%v, got:%v", r.CardNumber, expected.CardNumber)
 	}
 
-	if r.StartDate.Format("2006-01-02") != expected.StartDate.Format("2006-01-02") {
-		t.Errorf("Invalid ACL record 'start date' - expected:%v, got:%v", r.StartDate.Format("2006-01-02"), expected.StartDate.Format("2006-01-02"))
+	// FIXME use date.Equal
+	if fmt.Sprintf("%v", r.StartDate) != fmt.Sprintf("%v", expected.StartDate) {
+		t.Errorf("Invalid ACL record 'start date' - expected:%v, got:%v", r.StartDate, expected.StartDate)
 	}
 
-	if r.EndDate.Format("2006-01-02") != expected.EndDate.Format("2006-01-02") {
-		t.Errorf("Invalid ACL record 'end date' - expected:%v, got:%v", r.EndDate.Format("2006-01-02"), expected.EndDate.Format("2006-01-02"))
+	// FIXME use date.Equal
+	if fmt.Sprintf("%v", r.EndDate) != fmt.Sprintf("%v", expected.EndDate) {
+		t.Errorf("Invalid ACL record 'end date' - expected:%v, got:%v", r.EndDate, expected.EndDate)
 	}
 
 	if !reflect.DeepEqual(r.Granted, expected.Granted) {
@@ -644,14 +649,4 @@ func compare(r, expected record, t *testing.T) {
 	}
 
 	t.Errorf("Invalid ACL record - expected:%v, got:%v", expected, r)
-}
-
-func dateFromString(s string) *types.Date {
-	date, err := types.DateFromString(s)
-	if err != nil {
-		panic(err)
-	}
-
-	return date
-
 }

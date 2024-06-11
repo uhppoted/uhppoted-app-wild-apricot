@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+### Updated
+1. Replaced date pointers with concrete types.
 
 ## [0.8.8](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.8) - 2024-03-27
 

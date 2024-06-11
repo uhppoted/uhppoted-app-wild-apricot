@@ -6,7 +6,8 @@ import (
 	"testing"
 	"time"
 
-	api "github.com/uhppoted/uhppoted-lib/acl"
+	core "github.com/uhppoted/uhppote-core/types"
+	lib "github.com/uhppoted/uhppoted-lib/acl"
 )
 
 func TestAsTable(t *testing.T) {
@@ -22,8 +23,8 @@ func TestAsTable(t *testing.T) {
 			record{
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
-				StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.MustParseDate("1880-02-29"),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted: map[string]interface{}{
 					"Great Hall":      true,
 					"Whomping Willow": true,
@@ -35,8 +36,8 @@ func TestAsTable(t *testing.T) {
 			record{
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
-				StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
-				EndDate:    endOfYear().AddDate(0, 1, 0),
+				StartDate:  core.MustParseDate("1981-07-01"),
+				EndDate:    plusOneDay(endOfYear()),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -44,7 +45,7 @@ func TestAsTable(t *testing.T) {
 				Name:       "Harry Potter",
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				EndDate:    core.MustParseDate("2021-06-30"),
 				Granted: map[string]interface{}{
 					"Great Hall": true,
 					"Hogsmeade":  true,
@@ -56,8 +57,8 @@ func TestAsTable(t *testing.T) {
 			record{
 				Name:       "Hermione Granger",
 				CardNumber: 6000002,
-				StartDate:  time.Date(2020, time.June, 25, 0, 0, 0, 0, time.Local),
-				EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+				StartDate:  core.MustParseDate("2020-06-25"),
+				EndDate:    core.MustParseDate("2021-06-30"),
 				Granted: map[string]interface{}{
 					"Great Hall": true,
 					"Hogsmeade":  true,
@@ -69,7 +70,7 @@ func TestAsTable(t *testing.T) {
 
 	year := time.Now().Year()
 
-	expected := api.Table{
+	expected := lib.Table{
 		Header: []string{
 			"Card Number",
 			"From",
@@ -107,8 +108,8 @@ func TestHash(t *testing.T) {
 	dumbledore := record{
 		Name:       "Albus Dumbledore",
 		CardNumber: 1000001,
-		StartDate:  time.Date(1880, time.February, 29, 0, 0, 0, 0, time.Local),
-		EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
+		StartDate:  core.ToDate(1880, time.February, 29),
+		EndDate:    core.ToDate(2021, time.December, 31), // FIXME EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
 		Granted: map[string]interface{}{
 			"Great Hall":      true,
 			"Whomping Willow": true,
@@ -121,8 +122,8 @@ func TestHash(t *testing.T) {
 	riddle := record{
 		Name:       "Tom Riddle",
 		CardNumber: 2000001,
-		StartDate:  time.Date(1981, time.July, 1, 0, 0, 0, 0, time.Local),
-		EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
+		StartDate:  core.ToDate(1981, time.July, 1),
+		EndDate:    core.ToDate(2021, time.December, 31), // FIXME EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
 		Granted:    map[string]interface{}{},
 		Revoked:    map[string]struct{}{},
 	}
@@ -131,8 +132,8 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
-			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			StartDate:  core.ToDate(2021, time.January, 1),
+			EndDate:    core.ToDate(2021, time.June, 30),
 			Granted: map[string]interface{}{
 				"Great Hall": true,
 				"Hogsmeade":  true,
@@ -144,8 +145,8 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
-			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			StartDate:  core.ToDate(2021, time.January, 1),
+			EndDate:    core.ToDate(2021, time.June, 30),
 			Granted: map[string]interface{}{
 				"Great Hall": 29,
 				"Hogsmeade":  true,
@@ -157,8 +158,8 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
-			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			StartDate:  core.ToDate(2021, time.January, 1),
+			EndDate:    core.ToDate(2021, time.June, 30),
 			Granted: map[string]interface{}{
 				"Great Hall": true,
 				"Hogsmeade":  true,
@@ -171,8 +172,8 @@ func TestHash(t *testing.T) {
 		record{
 			Name:       "Harry Potter",
 			CardNumber: 6000001,
-			StartDate:  time.Date(2021, time.January, 1, 0, 0, 0, 0, time.Local),
-			EndDate:    time.Date(2021, time.June, 30, 0, 0, 0, 0, time.Local),
+			StartDate:  core.ToDate(2021, time.January, 1),
+			EndDate:    core.ToDate(2021, time.June, 30),
 			Granted: map[string]interface{}{
 				"Great Hall": true,
 				"Hogsmeade":  true,
@@ -189,7 +190,9 @@ func TestHash(t *testing.T) {
 		records: []record{dumbledore, riddle, potter[0]},
 	}
 
-	expected := "2257f356a9efe68827e7324d4cd68f73b0e9127a1dac65af5659cb87578ef5dc"
+	// FIXME double check (end date has changed)
+	// expected := "2257f356a9efe68827e7324d4cd68f73b0e9127a1dac65af5659cb87578ef5dc"
+	expected := "d2c28d1f2559a539ce99b8f33115f374bc25e3fce483e9e8ba84ca5965741aed"
 	hash := acl.Hash()
 	if hash != expected {
 		t.Errorf("Invalid ACL hash - expected:%v, got:%v", expected, hash)

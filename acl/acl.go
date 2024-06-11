@@ -10,7 +10,8 @@ import (
 	"strings"
 	"time"
 
-	api "github.com/uhppoted/uhppoted-lib/acl"
+	core "github.com/uhppoted/uhppote-core/types"
+	lib "github.com/uhppoted/uhppoted-lib/acl"
 )
 
 type ACL struct {
@@ -48,19 +49,19 @@ func (acl *ACL) Hash() string {
 	return ""
 }
 
-func (acl *ACL) AsTable() *api.Table {
+func (acl *ACL) AsTable() *lib.Table {
 	header, data := acl.asTable()
 
-	return &api.Table{
+	return &lib.Table{
 		Header:  header,
 		Records: data,
 	}
 }
 
-func (acl *ACL) AsTableWithPIN() *api.Table {
+func (acl *ACL) AsTableWithPIN() *lib.Table {
 	header, data := acl.asTableWithPIN()
 
-	return &api.Table{
+	return &lib.Table{
 		Header:  header,
 		Records: data,
 	}
@@ -116,8 +117,8 @@ func (acl *ACL) asTable() ([]string, [][]string) {
 		for _, r := range acl.records {
 			row := []string{
 				fmt.Sprintf("%v", r.CardNumber),
-				r.StartDate.Format("2006-01-02"),
-				r.EndDate.Format("2006-01-02"),
+				fmt.Sprintf("%v", r.StartDate),
+				fmt.Sprintf("%v", r.EndDate),
 			}
 
 			for _, door := range acl.doors {
@@ -204,8 +205,8 @@ func (acl *ACL) asTableWithPIN() ([]string, [][]string) {
 			row := []string{
 				fmt.Sprintf("%v", r.CardNumber),
 				pin,
-				r.StartDate.Format("2006-01-02"),
-				r.EndDate.Format("2006-01-02"),
+				fmt.Sprintf("%v", r.StartDate),
+				fmt.Sprintf("%v", r.EndDate),
 			}
 
 			for _, door := range acl.doors {
@@ -268,10 +269,21 @@ func normalise(v string) string {
 	return strings.ToLower(strings.ReplaceAll(v, " ", ""))
 }
 
-func startOfYear() time.Time {
-	return time.Date(time.Now().Year(), time.January, 1, 0, 0, 0, 0, time.Local)
+func startOfYear() core.Date {
+	now := time.Now()
+	year := now.Year()
+	month := time.January
+	day := 1
+
+	return core.ToDate(year, month, day)
 }
 
-func endOfYear() time.Time {
-	return time.Date(time.Now().Year(), time.December, 31, 23, 59, 59, 0, time.Local)
+func endOfYear() core.Date {
+	now := time.Now()
+	year := now.Year()
+	month := time.December
+	day := 31
+
+	return core.ToDate(year, month, day)
+	// return time.Date(, time.December, 31, 23, 59, 59, 0, time.Local)
 }
