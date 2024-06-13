@@ -1,7 +1,6 @@
 package acl
 
 import (
-	"fmt"
 	"reflect"
 	"sort"
 	"testing"
@@ -153,7 +152,7 @@ func TestMakeACL(t *testing.T) {
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
 				StartDate:  core.ToDate(1880, time.February, 29),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -161,7 +160,7 @@ func TestMakeACL(t *testing.T) {
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
 				StartDate:  core.ToDate(1981, time.July, 1),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -238,7 +237,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
 				StartDate:  core.ToDate(1880, time.February, 29),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -246,7 +245,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
 				StartDate:  core.ToDate(1981, time.July, 1),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -270,7 +269,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				Name:       "Aberforth Dumbledore",
 				CardNumber: 1000001,
 				StartDate:  core.ToDate(2001, time.February, 28),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -630,13 +629,11 @@ func compare(r, expected record, t *testing.T) {
 		t.Errorf("Invalid ACL record 'card number' - expected:%v, got:%v", r.CardNumber, expected.CardNumber)
 	}
 
-	// FIXME use date.Equal
-	if fmt.Sprintf("%v", r.StartDate) != fmt.Sprintf("%v", expected.StartDate) {
+	if !r.StartDate.Equals(expected.StartDate) {
 		t.Errorf("Invalid ACL record 'start date' - expected:%v, got:%v", r.StartDate, expected.StartDate)
 	}
 
-	// FIXME use date.Equal
-	if fmt.Sprintf("%v", r.EndDate) != fmt.Sprintf("%v", expected.EndDate) {
+	if !r.EndDate.Equals(expected.EndDate) {
 		t.Errorf("Invalid ACL record 'end date' - expected:%v, got:%v", r.EndDate, expected.EndDate)
 	}
 

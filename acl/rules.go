@@ -8,15 +8,12 @@ import (
 	"fmt"
 	"sort"
 	"strings"
-	"time"
 
 	"github.com/hyperjumptech/grule-rule-engine/ast"
 	"github.com/hyperjumptech/grule-rule-engine/builder"
 	"github.com/hyperjumptech/grule-rule-engine/engine"
 	"github.com/hyperjumptech/grule-rule-engine/logger"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
-
-	core "github.com/uhppoted/uhppote-core/types"
 
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
@@ -91,7 +88,7 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 		r := record{
 			Name:      m.Name,
 			StartDate: startOfYear(),
-			EndDate:   plusOneDay(endOfYear()),
+			EndDate:   endOfYear(),
 			Granted:   map[string]interface{}{},
 			Revoked:   map[string]struct{}{},
 		}
@@ -125,7 +122,7 @@ func (rules *Rules) MakeACLWithPIN(members types.Members, doors []string) (*ACL,
 			Name:      m.Name,
 			PIN:       m.PIN,
 			StartDate: startOfYear(),
-			EndDate:   plusOneDay(endOfYear()),
+			EndDate:   endOfYear(),
 			Granted:   map[string]interface{}{},
 			Revoked:   map[string]struct{}{},
 		}
@@ -174,13 +171,4 @@ func (rules *Rules) eval(m types.Member, r *record) error {
 	} else {
 		return enjin.Execute(context, kb)
 	}
-}
-
-func plusOneDay(date core.Date) core.Date {
-	d := time.Time(date).AddDate(0, 1, 0)
-	year := d.Year()
-	month := d.Month()
-	day := d.Day()
-
-	return core.ToDate(year, month, day)
 }

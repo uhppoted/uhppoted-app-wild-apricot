@@ -24,7 +24,7 @@ func TestAsTable(t *testing.T) {
 				Name:       "Albus Dumbledore",
 				CardNumber: 1000001,
 				StartDate:  core.MustParseDate("1880-02-29"),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted: map[string]interface{}{
 					"Great Hall":      true,
 					"Whomping Willow": true,
@@ -37,7 +37,7 @@ func TestAsTable(t *testing.T) {
 				Name:       "Tom Riddle",
 				CardNumber: 2000001,
 				StartDate:  core.MustParseDate("1981-07-01"),
-				EndDate:    plusOneDay(endOfYear()),
+				EndDate:    endOfYear(),
 				Granted:    map[string]interface{}{},
 				Revoked:    map[string]struct{}{},
 			},
@@ -82,8 +82,8 @@ func TestAsTable(t *testing.T) {
 		},
 
 		Records: [][]string{
-			[]string{"1000001", "1880-02-29", fmt.Sprintf("%04d-01-31", year+1), "Y", "Y", "29", "Y"},
-			[]string{"2000001", "1981-07-01", fmt.Sprintf("%04d-01-31", year+1), "N", "N", "N", "N"},
+			[]string{"1000001", "1880-02-29", fmt.Sprintf("%04d-12-31", year), "Y", "Y", "29", "Y"},
+			[]string{"2000001", "1981-07-01", fmt.Sprintf("%04d-12-31", year), "N", "N", "N", "N"},
 			[]string{"6000001", fmt.Sprintf("%04d-01-01", year), "2021-06-30", "Y", "N", "N", "N"},
 			[]string{"6000002", "2020-06-25", "2021-06-30", "Y", "N", "N", "Y"},
 		},

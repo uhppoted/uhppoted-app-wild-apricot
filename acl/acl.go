@@ -285,5 +285,4 @@ func endOfYear() core.Date {
 	day := 31
 
 	return core.ToDate(year, month, day)
-	// return time.Date(, time.December, 31, 23, 59, 59, 0, time.Local)
 }
