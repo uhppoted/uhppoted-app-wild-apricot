@@ -2,9 +2,13 @@
 
 ## Unreleased
 
+### Added
+1. TCP/IP support.
+
 ### Updated
 1. Replaced date pointers with concrete types.
 2. Replaced the 'start of next year' default card 'valid until' date with end of year.
+3. Updated to Go 1.23.
 
 
 ## [0.8.8](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.8) - 2024-03-27
