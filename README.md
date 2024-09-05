@@ -14,12 +14,12 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.8](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.8) - 2024-03-27**
+**[v0.8.9](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.9) - 2024-09-06**
 
-1. Bumped Go version to 1.22
-2. Reworked member initialisation to resolve group names against system group names using
-   group ID because Wild Apricot does not keep the member groups fields consistent.
-3. Fixed bug that ignored '0' when normalising strings.
+1. Added TCP/IP support.
+2. Replaced date pointers with concrete types.
+3. Replaced the 'start of next year' default card 'valid until' date with end of year.
+4. Updated to Go 1.23.
 
 
 ## Installation
