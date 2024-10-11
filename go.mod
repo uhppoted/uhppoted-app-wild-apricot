@@ -5,10 +5,10 @@ go 1.23
 require (
 	github.com/hyperjumptech/grule-rule-engine v1.15.0
 	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/uhppoted/uhppote-core v0.8.9
-	github.com/uhppoted/uhppoted-lib v0.8.9
+	github.com/uhppoted/uhppote-core v0.8.10-0.20241004174540-7675ee2e4254
+	github.com/uhppoted/uhppoted-lib v0.8.10-0.20241007153101-aa559cf3e032
 	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/sys v0.25.0
+	golang.org/x/sys v0.26.0
 )
 
 require (
