@@ -4,11 +4,9 @@ go 1.23
 
 require (
 	github.com/hyperjumptech/grule-rule-engine v1.15.0
-	github.com/sirupsen/logrus v1.9.3 // indirect
-	github.com/uhppoted/uhppote-core v0.8.10-0.20241004174540-7675ee2e4254
-	github.com/uhppoted/uhppoted-lib v0.8.10-0.20241007153101-aa559cf3e032
-	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/sys v0.26.0
+	github.com/uhppoted/uhppote-core v0.8.9
+	github.com/uhppoted/uhppoted-lib v0.8.9
+	golang.org/x/sys v0.29.0
 )
 
 require (
@@ -29,12 +27,14 @@ require (
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/pjbgf/sha1cd v0.3.0 // indirect
 	github.com/sergi/go-diff v1.1.0 // indirect
+	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/skeema/knownhosts v1.2.1 // indirect
 	github.com/xanzy/ssh-agent v0.3.3 // indirect
 	go.uber.org/multierr v1.10.0 // indirect
 	go.uber.org/zap v1.25.0 // indirect
+	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/mod v0.12.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/tools v0.13.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 )

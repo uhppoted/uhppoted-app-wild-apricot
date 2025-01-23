@@ -8,7 +8,7 @@ Supported operating systems:
 - Linux
 - MacOS
 - Windows
-- ARM7
+- RaspberryPi (ARM/ARM7/ARM6)
 
 ## Release Notes
 
@@ -40,15 +40,15 @@ _devices_ section to resolve non-local controller IP addresses and door to contr
 
 It also uses the following additional configuration items:
 
-| *Key* | *Default value* | *Description*                                             |
-| ----- | --------------- | --------------------------------------------------------- |
-| `wild-apricot.http.client-timeout` | 10s | Wild Apricot API request timeout           |
-| `wild-apricot.http.retries`        | 3   | Number of times retry a failed API request | 
-| `wild-apricot.http.retry-delay`    | 5s  | Interval between retries of a failed API request |
-| `wild-apricot.facility-code`  | Facility code | Facility code prepended to card numbers that are 5 digits or less |
-| `wild-apricot.fields.card-number`  | Card Number | Contact field name to use for card number  |
+| *Key* | *Default value*             | *Description*                                                        |
+| ----- | --------------------------- | -------------------------------------------------------------------- |
+| `wild-apricot.http.client-timeout`  | 10s            | Wild Apricot API request timeout                    |
+| `wild-apricot.http.retries`         | 3              | Number of times retry a failed API request          | 
+| `wild-apricot.http.retry-delay`     | 5s             | Interval between retries of a failed API request    |
+| `wild-apricot.facility-code`        | Facility code  | Facility code prepended to card numbers that are 5 digits or less |
+| `wild-apricot.fields.card-number`   | Card Number    | Contact field name to use for card number           |
 | `wild-apricot.display-order.groups` | _(alphabetic)_ | Optional output ordering for the member list groups | 
-| `wild-apricot.display-order.doors`  | _(alphabetic)_ | Optional output ordering for the ACL doors |
+| `wild-apricot.display-order.doors`  | _(alphabetic)_ | Optional output ordering for the ACL doors          |
 
 A sample _[uhppoted.conf](https://github.com/uhppoted/uhppoted/blob/master/app-notes/wild-apricot/uhppoted.conf)_ file is included in the `uhppoted` distribution.
 
@@ -130,12 +130,16 @@ rule DeathEaters "Denies Hogwarts access to any known members of the Death Eater
 ```
 _Notes:_
 
-1. The card associated with a member has access to a door if access has been `granted` and NOT `revoked`. If a card's door access has been both granted and revoked then it will not have access e.g. a _Slytherin_ student could have access to the _Great Hall_, unless of course he/she is a known associate of _Voldemort_.
+1. The card associated with a member has access to a door if access has been `granted` and NOT `revoked`. If a card's door access has been both granted and revoked then it will not have access e.g. a _Slytherin_ student could have access to the _Great Hall_, unless of course he/she is a known associate of 
+_He Who Shall Not Be Named_.
+
 2. To grant time based access to a door:
    ```
    record.Grant("Kitchen:100");
    ```
-3. The grules file must have markers at the start and end of the file as a basic validity check for downloaded files e.g. Google Drive
+   (_where `100` is a predefined time profile_).
+
+3. The _grules_ file must have markers at the start and end of the file as a basic validity check for downloaded files e.g. Google Drive
    shares occasionally download as empty files without error (ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2)
 
    - The first non-blank line should be 
@@ -147,10 +151,61 @@ _Notes:_
    ```
    // *** END GRULES ***
    ```
+
 4. `member.HasGroup` resolves against the group name in the _Wild Apricot_ groups list and not the group names in the member
    record. If a member is assigned to a group and the name of that group is subsequently changed, the _Wild Apricot_ member
    record is not updated and still reflects the original group name. Since a group name could be changed several times in the
-   lifetime of an organisation the `HasGroup` function resolves against the actual group name.
+   lifetime of an organisation the `HasGroup` function resolves against the actual group name. 
+
+5. The system will maintain card records for all members in your _Wild Apricot_ database - to actually remove the cards from the
+   controllers the members have to be removed from _Wild Apricot_. However, you can revoke all permissions for lapsed, overdue or 
+   suspended members with the following rules in your _grules_ file:
+```
+rule StartDate "Sets the start date to the 'registered' field" {
+     when
+         member.HasRegistered()
+     then
+         permissions.SetStartDate(member.Registered);
+         Retract("StartDate");
+} 
+
+rule EndDate "Sets the end date to the 'expires' field" {
+     when
+         member.HasExpires()
+     then
+         permissions.SetEndDate(member.Expires);
+         Retract("EndDate");
+}
+
+rule Active "Revokes all access when not active" {
+     when
+         !member.IsActive()
+     then
+         permissions.Revoke("*");
+         Retract("Active");
+}
+
+rule Suspended "Revokes all access when suspended" {
+     when
+         member.IsSuspended()
+     then
+         permissions.Revoke("*");
+         Retract("Suspended");
+}
+
+```
+
+6. If you have _social members_ who are e.g. allowed access to a club room but not to use equipment then you might want to adjust
+   the above rules and use the `IsActive` to filter individual door permissions, e.g.:
+```
+rule Beginner "Grants an active beginner member access to locker" {
+     when
+         member.IsActive() && !member.Is("Social Member") && (member.HasGroup("Beginner")
+     then
+         permissions.Grant("Club Room");
+         permissions.Grant("Locker");
+         Retract("Beginner");
+```
 
 ### Building from source
 
