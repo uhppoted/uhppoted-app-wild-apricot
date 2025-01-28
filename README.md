@@ -14,12 +14,9 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.9](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.9) - 2024-09-06**
+**[v0.8.10](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.10) - 2025-01-30**
 
-1. Added TCP/IP support.
-2. Replaced date pointers with concrete types.
-3. Replaced the 'start of next year' default card 'valid until' date with end of year.
-4. Updated to Go 1.23.
+1. ARMv6 build target (RaspberryPi ZeroW).
 
 
 ## Installation
