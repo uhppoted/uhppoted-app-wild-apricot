@@ -1,12 +1,12 @@
 module github.com/uhppoted/uhppoted-app-wild-apricot
 
-go 1.23
+go 1.24
 
 require (
 	github.com/hyperjumptech/grule-rule-engine v1.15.0
 	github.com/uhppoted/uhppote-core v0.8.10
 	github.com/uhppoted/uhppoted-lib v0.8.10
-	golang.org/x/sys v0.29.0
+	golang.org/x/sys v0.31.0
 )
 
 require (
