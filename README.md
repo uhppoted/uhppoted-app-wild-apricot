@@ -14,9 +14,9 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.10](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.10) - 2025-01-30**
+**[v0.8.11](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.11) - 2025-07-01**
 
-1. ARMv6 build target (RaspberryPi ZeroW).
+1. Updated to Go 1.24.
 
 
 ## Installation
