@@ -13,6 +13,15 @@ import (
 	"time"
 )
 
+type API struct {
+	PageSize int
+	MaxPages int
+
+	Timeout time.Duration
+	Retries int
+	Delay   time.Duration
+}
+
 type permission struct {
 	AccountID         uint32   `json:"AccountId"`
 	SecurityProfileId uint32   `json:"SecurityProfileId"`
@@ -69,12 +78,52 @@ func Authorize(apiKey string, timeout time.Duration) (string, error) {
 	return authx.AccessToken, nil
 }
 
-func GetContacts(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration) ([]Contact, error) {
+func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
+	list := []Contact{}
+	pageSize := uint32(api.PageSize)
+	maxPages := uint32(api.MaxPages)
+	pages := uint32(0)
+	page := 0
+
+	if pageSize < 1 {
+		pageSize = 100
+	} else if pageSize > 100 {
+		pageSize = 100
+	}
+
+	if maxPages < 10 {
+		maxPages = 10
+	} else if maxPages > 50 {
+		maxPages = 50
+	}
+
+	for pages < maxPages {
+		if contacts, err := getContacts(accountId, token, api.Timeout, api.Retries, api.Delay, pageSize, uint32(page)); err != nil {
+			return nil, err
+		} else if len(contacts) == 0 {
+			return list, nil
+		} else {
+			list = append(list, contacts...)
+			page += len(contacts)
+
+			info("retrieved %v members (total: %v)", len(contacts), len(list))
+		}
+
+		pages++
+	}
+
+	return nil, fmt.Errorf("failed to retrieve entire contact list in %v page requests", pages)
+}
+
+func getContacts(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration, pageSize uint32, page uint32) ([]Contact, error) {
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
+	parameters.Add("$top", fmt.Sprintf("%v", pageSize))
+	parameters.Add("$skip", fmt.Sprintf("%v", page))
 	parameters.Add("$filter", "'Archived' eq false AND 'Member' eq true")
 
 	uri := fmt.Sprintf("https://api.wildapricot.org/v2/accounts/%[1]v/contacts?%[2]s", accountId, parameters.Encode())
+
 	rq, _ := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
@@ -213,6 +262,12 @@ func get(rq *http.Request, timeout time.Duration, retries int, retryDelay time.D
 	}
 
 	return response, nil
+}
+
+func info(f string, args ...any) {
+	format := fmt.Sprintf("%-5s %v", "INFO", f)
+
+	log.Printf(format, args...)
 }
 
 func warn(err error) {

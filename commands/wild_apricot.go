@@ -53,7 +53,15 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 		return nil, err
 	}
 
-	contacts, err := wildapricot.GetContacts(credentials.AccountID, token, timeout, retries, delay)
+	api := wildapricot.API{
+		PageSize: conf.WildApricot.HTTP.PageSize,
+		MaxPages: conf.WildApricot.HTTP.MaxPages,
+		Timeout:  conf.WildApricot.HTTP.ClientTimeout,
+		Retries:  conf.WildApricot.HTTP.Retries,
+		Delay:    conf.WildApricot.HTTP.RetryDelay,
+	}
+
+	contacts, err := wildapricot.GetContacts(credentials.AccountID, token, api)
 	if err != nil {
 		return nil, err
 	}

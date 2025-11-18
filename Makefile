@@ -132,8 +132,8 @@ get-members: build
 #	cat "$(WORKDIR)/members.tsv"
 
 get-members-with-pin: build
-	$(CLI) get-members --credentials $(CREDENTIALS) --with-pin
-	$(CLI) get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
+	$(CLI) --config ../runtime/wild-apricot/uhppoted.conf get-members --credentials $(CREDENTIALS) --with-pin
+	$(CLI) --config ../runtime/wild-apricot/uhppoted.conf get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
 	cat "$(WORKDIR)/members.tsv"
 
 get-groups: build
