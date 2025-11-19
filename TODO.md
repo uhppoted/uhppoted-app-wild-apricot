@@ -19,9 +19,10 @@
     - [x] load-acl
     - [x] load-acl-with-pin
     - [x] CHANGELOG
-    - [ ] README
+    - [x] README
     - [ ] release
         - [ ] set MinPageSize, MinPages, etc
+        - [ ] update README
         - [ ] uhppoted-lib
         - [ ] uhppoted-app-wild-apricot
 
