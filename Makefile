@@ -150,16 +150,16 @@ get-acl: build
 	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 get-acl-with-pin: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
+	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
 	# $(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
 	# $(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin --file "$(WORKDIR)/ACL.tsv"
 	# cat "$(WORKDIR)/ACL.tsv"
 
 get-acl-file: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
+	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-drive: build
-	$(CLI) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1dwc9HFCbjCf4YB2siexk--coI_xOAtul"
+	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1dwc9HFCbjCf4YB2siexk--coI_xOAtul"
 
 compare-acl: build
 	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
@@ -167,18 +167,18 @@ compare-acl: build
 	# cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-with-pin: build
-#	$(CLI) --debug compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --report "$(WORKDIR)/ACL.rpt"
-	cat "$(WORKDIR)/ACL.rpt"
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary --report "$(WORKDIR)/ACL.rpt"
-	cat "$(WORKDIR)/ACL.rpt"
+	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --report "$(WORKDIR)/ACL.rpt"
+	# cat "$(WORKDIR)/ACL.rpt"
+	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary
+	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary --report "$(WORKDIR)/ACL.rpt"
+	# cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-summary: build
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary
-	$(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "$(WORKDIR)/ACL.rpt"
-	cat "$(WORKDIR)/ACL.rpt"
+	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary
+	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "$(WORKDIR)/ACL.rpt"
+	# cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
 #	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report
@@ -187,6 +187,6 @@ load-acl: build
 
 load-acl-with-pin: build
 	# $(CLI) --debug load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
 
 

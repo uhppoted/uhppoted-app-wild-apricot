@@ -24,11 +24,16 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 	}
 
 	t := timestamp.Truncate(1 * time.Second)
-	timeout := conf.WildApricot.HTTP.ClientTimeout
-	retries := conf.WildApricot.HTTP.Retries
-	delay := conf.WildApricot.HTTP.RetryDelay
 
-	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t, timeout, retries, delay)
+	api := wildapricot.API{
+		PageSize: conf.WildApricot.HTTP.PageSize,
+		MaxPages: conf.WildApricot.HTTP.MaxPages,
+		Timeout:  conf.WildApricot.HTTP.ClientTimeout,
+		Retries:  conf.WildApricot.HTTP.Retries,
+		Delay:    conf.WildApricot.HTTP.RetryDelay,
+	}
+
+	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t, api)
 	if err != nil {
 		return false, err
 	}

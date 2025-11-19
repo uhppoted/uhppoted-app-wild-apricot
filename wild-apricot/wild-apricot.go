@@ -253,7 +253,7 @@ func getMemberGroups(accountId uint32, token string, pageSize uint32, page uint3
 	return groups, nil
 }
 
-func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout time.Duration, retries int, delay time.Duration) (int, error) {
+func GetUpdated(accountId uint32, token string, timestamp time.Time, api API) (int, error) {
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
 	parameters.Add("$filter", "'Archived' eq false AND 'Profile last updated' ge "+timestamp.Format("2006-01-02T15:04:05.000-07:00"))
@@ -265,7 +265,7 @@ func GetUpdated(accountId uint32, token string, timestamp time.Time, timeout tim
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Authorization", "Bearer "+token)
 
-	response, err := get(rq, timeout, retries, delay)
+	response, err := get(rq, api.Timeout, api.Retries, api.Delay)
 	if err != nil {
 		return 0, err
 	}
