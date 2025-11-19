@@ -5,7 +5,7 @@
 - [ ] Implement pagination (cf. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/13)
     - [x] get-members
     - [x] get-members-with-pin
-    - [ ] get-groups
+    - [x] get-groups
     - [ ] get-doors
     - [ ] get-acl
     - [ ] get-acl-with-pin

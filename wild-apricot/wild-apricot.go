@@ -36,6 +36,11 @@ type authorisation struct {
 	Permissions  []permission `json:"Permissions"`
 }
 
+const MinPageSize = 2
+const MaxPageSize = 100
+const MinPages = 10
+const MaxPages = 50
+
 func Authorize(apiKey string, timeout time.Duration) (string, error) {
 	client := http.Client{
 		Timeout: timeout,
@@ -85,20 +90,20 @@ func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 	pages := uint32(0)
 	page := 0
 
-	if pageSize < 1 {
-		pageSize = 100
-	} else if pageSize > 100 {
-		pageSize = 100
+	if pageSize < MinPageSize {
+		pageSize = MinPageSize
+	} else if pageSize > MaxPageSize {
+		pageSize = MaxPageSize
 	}
 
-	if maxPages < 10 {
-		maxPages = 10
-	} else if maxPages > 50 {
-		maxPages = 50
+	if maxPages < MinPages {
+		maxPages = MinPages
+	} else if maxPages > MaxPages {
+		maxPages = MaxPages
 	}
 
 	for pages < maxPages {
-		if contacts, err := getContacts(accountId, token, api.Timeout, api.Retries, api.Delay, pageSize, uint32(page)); err != nil {
+		if contacts, err := getContacts(accountId, token, pageSize, uint32(page), api); err != nil {
 			return nil, err
 		} else if len(contacts) == 0 {
 			return list, nil
@@ -106,7 +111,11 @@ func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 			list = append(list, contacts...)
 			page += len(contacts)
 
-			info("retrieved %v members (total: %v)", len(contacts), len(list))
+			if len(contacts) == 1 {
+				info("retrieved %v member (total: %v)", len(contacts), len(list))
+			} else {
+				info("retrieved %v members (total: %v)", len(contacts), len(list))
+			}
 		}
 
 		pages++
@@ -115,7 +124,7 @@ func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 	return nil, fmt.Errorf("failed to retrieve entire contact list in %v page requests", pages)
 }
 
-func getContacts(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration, pageSize uint32, page uint32) ([]Contact, error) {
+func getContacts(accountId uint32, token string, pageSize uint32, page uint32, api API) ([]Contact, error) {
 	parameters := url.Values{}
 	parameters.Set("$async", "false")
 	parameters.Add("$top", fmt.Sprintf("%v", pageSize))
@@ -129,7 +138,7 @@ func getContacts(accountId uint32, token string, timeout time.Duration, retries 
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Accept-Encoding", "gzip")
 
-	response, err := get(rq, timeout, retries, delay)
+	response, err := get(rq, api.Timeout, api.Retries, api.Delay)
 	if err != nil {
 		return nil, err
 	}
@@ -160,15 +169,63 @@ func getContacts(accountId uint32, token string, timeout time.Duration, retries 
 	return contacts.Contacts, nil
 }
 
-func GetMemberGroups(accountId uint32, token string, timeout time.Duration, retries int, delay time.Duration) ([]MemberGroup, error) {
-	uri := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups", accountId)
+func GetMemberGroups(accountId uint32, token string, api API) ([]MemberGroup, error) {
+	list := []MemberGroup{}
+	pageSize := uint32(api.PageSize)
+	maxPages := uint32(api.MaxPages)
+	pages := uint32(0)
+	page := 0
+
+	if pageSize < MinPageSize {
+		pageSize = MinPageSize
+	} else if pageSize > MaxPageSize {
+		pageSize = MaxPageSize
+	}
+
+	if maxPages < MinPages {
+		maxPages = MinPages
+	} else if maxPages > MaxPages {
+		maxPages = MaxPages
+	}
+
+	for pages < maxPages {
+		if groups, err := getMemberGroups(accountId, token, pageSize, uint32(page), api); err != nil {
+			return nil, err
+		} else if len(groups) == 0 {
+			return list, nil
+		} else {
+			list = append(list, groups...)
+			page += len(groups)
+
+			if len(groups) == 1 {
+				info("retrieved %v group (total: %v)", len(groups), len(list))
+			} else {
+				info("retrieved %v groups (total: %v)", len(groups), len(list))
+			}
+		}
+
+		pages++
+	}
+
+	return nil, fmt.Errorf("failed to retrieve entire group list in %v page requests", pages)
+
+	// return getMemberGroups(accountId, token, timeout, retries, delay, 3, 0)
+}
+
+func getMemberGroups(accountId uint32, token string, pageSize uint32, page uint32, api API) ([]MemberGroup, error) {
+	parameters := url.Values{}
+	parameters.Set("$async", "false")
+	parameters.Add("$top", fmt.Sprintf("%v", pageSize))
+	parameters.Add("$skip", fmt.Sprintf("%v", page))
+
+	uri := fmt.Sprintf("https://api.wildapricot.org/v2.2/accounts/%[1]v/membergroups?%[2]s", accountId, parameters.Encode())
 
 	rq, _ := http.NewRequest("GET", uri, nil)
 	rq.Header.Set("Authorization", "Bearer "+token)
 	rq.Header.Set("Accept", "application/json")
 	rq.Header.Set("Accept-Encoding", "gzip")
 
-	response, err := get(rq, timeout, retries, delay)
+	response, err := get(rq, api.Timeout, api.Retries, api.Delay)
 	if err != nil {
 		return nil, err
 	}

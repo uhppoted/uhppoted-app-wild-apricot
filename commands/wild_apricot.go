@@ -40,8 +40,6 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 
 func getMembers(conf *config.Config, credentials *credentials) (*types.Members, error) {
 	timeout := conf.WildApricot.HTTP.ClientTimeout
-	retries := conf.WildApricot.HTTP.Retries
-	delay := conf.WildApricot.HTTP.RetryDelay
 
 	cardNumberField := conf.WildApricot.Fields.CardNumber
 	pinField := conf.WildApricot.Fields.PIN
@@ -66,7 +64,7 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 		return nil, err
 	}
 
-	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, timeout, retries, delay)
+	groups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, api)
 	if err != nil {
 		return nil, err
 	}
@@ -85,8 +83,6 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 
 func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, error) {
 	timeout := conf.WildApricot.HTTP.ClientTimeout
-	retries := conf.WildApricot.HTTP.Retries
-	delay := conf.WildApricot.HTTP.RetryDelay
 
 	groupDisplayOrder := strings.Split(conf.WildApricot.DisplayOrder.Groups, ",")
 
@@ -95,7 +91,15 @@ func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, er
 		return nil, err
 	}
 
-	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, timeout, retries, delay)
+	api := wildapricot.API{
+		PageSize: conf.WildApricot.HTTP.PageSize,
+		MaxPages: conf.WildApricot.HTTP.MaxPages,
+		Timeout:  conf.WildApricot.HTTP.ClientTimeout,
+		Retries:  conf.WildApricot.HTTP.Retries,
+		Delay:    conf.WildApricot.HTTP.RetryDelay,
+	}
+
+	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, api)
 	if err != nil {
 		return nil, err
 	}
