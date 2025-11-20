@@ -26,11 +26,13 @@ func revised(conf *config.Config, credentials *credentials, timestamp *time.Time
 	t := timestamp.Truncate(1 * time.Second)
 
 	api := wildapricot.API{
-		PageSize: conf.WildApricot.HTTP.PageSize,
-		MaxPages: conf.WildApricot.HTTP.MaxPages,
-		Timeout:  conf.WildApricot.HTTP.ClientTimeout,
-		Retries:  conf.WildApricot.HTTP.Retries,
-		Delay:    conf.WildApricot.HTTP.RetryDelay,
+		Timeout: conf.WildApricot.HTTP.ClientTimeout,
+		Retries: conf.WildApricot.HTTP.Retries,
+		Delay:   conf.WildApricot.HTTP.RetryDelay,
+
+		PageSize:  conf.WildApricot.HTTP.PageSize,
+		PageDelay: conf.WildApricot.HTTP.PageDelay,
+		MaxPages:  conf.WildApricot.HTTP.MaxPages,
 	}
 
 	N, err := wildapricot.GetUpdated(credentials.AccountID, token, t, api)
@@ -57,11 +59,13 @@ func getMembers(conf *config.Config, credentials *credentials) (*types.Members, 
 	}
 
 	api := wildapricot.API{
-		PageSize: conf.WildApricot.HTTP.PageSize,
-		MaxPages: conf.WildApricot.HTTP.MaxPages,
-		Timeout:  conf.WildApricot.HTTP.ClientTimeout,
-		Retries:  conf.WildApricot.HTTP.Retries,
-		Delay:    conf.WildApricot.HTTP.RetryDelay,
+		Timeout: conf.WildApricot.HTTP.ClientTimeout,
+		Retries: conf.WildApricot.HTTP.Retries,
+		Delay:   conf.WildApricot.HTTP.RetryDelay,
+
+		PageSize:  conf.WildApricot.HTTP.PageSize,
+		PageDelay: conf.WildApricot.HTTP.PageDelay,
+		MaxPages:  conf.WildApricot.HTTP.MaxPages,
 	}
 
 	contacts, err := wildapricot.GetContacts(credentials.AccountID, token, api)
@@ -97,11 +101,13 @@ func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, er
 	}
 
 	api := wildapricot.API{
-		PageSize: conf.WildApricot.HTTP.PageSize,
-		MaxPages: conf.WildApricot.HTTP.MaxPages,
-		Timeout:  conf.WildApricot.HTTP.ClientTimeout,
-		Retries:  conf.WildApricot.HTTP.Retries,
-		Delay:    conf.WildApricot.HTTP.RetryDelay,
+		Timeout: conf.WildApricot.HTTP.ClientTimeout,
+		Retries: conf.WildApricot.HTTP.Retries,
+		Delay:   conf.WildApricot.HTTP.RetryDelay,
+
+		PageSize:  conf.WildApricot.HTTP.PageSize,
+		PageDelay: conf.WildApricot.HTTP.PageDelay,
+		MaxPages:  conf.WildApricot.HTTP.MaxPages,
 	}
 
 	memberGroups, err := wildapricot.GetMemberGroups(credentials.AccountID, token, api)

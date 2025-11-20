@@ -14,12 +14,13 @@ import (
 )
 
 type API struct {
-	PageSize int
-	MaxPages int
-
 	Timeout time.Duration
 	Retries int
 	Delay   time.Duration
+
+	PageSize  uint32
+	MaxPages  uint32
+	PageDelay time.Duration
 }
 
 type permission struct {
@@ -36,8 +37,11 @@ type authorisation struct {
 	Permissions  []permission `json:"Permissions"`
 }
 
-const MinPageSize = 2
+const MinPageSize = 25
 const MaxPageSize = 100
+const MinPageDelay = 0 * time.Millisecond
+const MaxPageDelay = 30 * time.Second
+const DefaultPageDelay = 100 * time.Millisecond
 const MinPages = 10
 const MaxPages = 50
 
@@ -85,8 +89,10 @@ func Authorize(apiKey string, timeout time.Duration) (string, error) {
 
 func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 	list := []Contact{}
-	pageSize := uint32(api.PageSize)
-	maxPages := uint32(api.MaxPages)
+
+	pageSize := api.PageSize
+	pageDelay := api.PageDelay
+	maxPages := api.MaxPages
 	pages := uint32(0)
 	page := 0
 
@@ -94,6 +100,12 @@ func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 		pageSize = MinPageSize
 	} else if pageSize > MaxPageSize {
 		pageSize = MaxPageSize
+	}
+
+	if pageDelay < MinPageDelay {
+		pageDelay = DefaultPageDelay
+	} else if pageDelay > MaxPageDelay {
+		pageDelay = MaxPageDelay
 	}
 
 	if maxPages < MinPages {
@@ -119,6 +131,7 @@ func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 		}
 
 		pages++
+		time.Sleep(pageDelay)
 	}
 
 	return nil, fmt.Errorf("failed to retrieve entire contact list in %v page requests", pages)
@@ -171,8 +184,10 @@ func getContacts(accountId uint32, token string, pageSize uint32, page uint32, a
 
 func GetMemberGroups(accountId uint32, token string, api API) ([]MemberGroup, error) {
 	list := []MemberGroup{}
-	pageSize := uint32(api.PageSize)
-	maxPages := uint32(api.MaxPages)
+
+	pageSize := api.PageSize
+	pageDelay := api.PageDelay
+	maxPages := api.MaxPages
 	pages := uint32(0)
 	page := 0
 
@@ -180,6 +195,12 @@ func GetMemberGroups(accountId uint32, token string, api API) ([]MemberGroup, er
 		pageSize = MinPageSize
 	} else if pageSize > MaxPageSize {
 		pageSize = MaxPageSize
+	}
+
+	if pageDelay < MinPageDelay {
+		pageDelay = DefaultPageDelay
+	} else if pageDelay > MaxPageDelay {
+		pageDelay = MaxPageDelay
 	}
 
 	if maxPages < MinPages {
@@ -205,6 +226,7 @@ func GetMemberGroups(accountId uint32, token string, api API) ([]MemberGroup, er
 		}
 
 		pages++
+		time.Sleep(pageDelay)
 	}
 
 	return nil, fmt.Errorf("failed to retrieve entire group list in %v page requests", pages)

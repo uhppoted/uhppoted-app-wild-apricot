@@ -4,6 +4,7 @@
 
 ### Updated
 1. Added pagination support to _get-members_ and _get-groups_. 
+2. Updated to Go 1.25.
 
 
 ## [0.8.11](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.11) - 2025-07-01

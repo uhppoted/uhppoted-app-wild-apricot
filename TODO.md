@@ -3,7 +3,7 @@
 ## In Progress
 
 - [ ] Implement pagination (cf. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/13)
-    - [ ] page delay
+    - [x] page delay
     - [x] get-members
     - [x] get-members-with-pin
     - [x] ~~get-updated-members~~
@@ -20,10 +20,13 @@
     - [x] load-acl-with-pin
     - [x] CHANGELOG
     - [x] README
-    - [ ] release
-        - [ ] set MinPageSize, MinPages, etc
+    - [x] release
+        - [x] remove scheduled build from nightly.yml
+        - [x] update to Go 1.25
+        - [x] set MinPageSize, MinPages, etc
         - [ ] update README
-        - [ ] uhppoted-lib
+        - [ ] update CHANGELOG
+        - [x] uhppoted-lib
         - [ ] uhppoted-app-wild-apricot
 
     - https://gethelp.wildapricot.com/en/articles/2911-preparing-your-api-integrations-for-pagination

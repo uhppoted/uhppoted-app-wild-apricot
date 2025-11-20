@@ -1,10 +1,11 @@
-DIST       ?= development
-CLI         = ./bin/uhppoted-app-wild-apricot
-WORKDIR     = ../runtime/wild-apricot
-CREDENTIALS = $(WORKDIR)/.credentials.json
-RULES       = $(WORKDIR)/debug.grl
-# RULES       = $(WORKDIR)/wild-apricot.grl
+DIST          ?= development
+CLI            = ./bin/uhppoted-app-wild-apricot
+WORKDIR        = .workdir
+CREDENTIALS    = $(WORKDIR)/.credentials.json
+CONFIG         = $(WORKDIR)/uhppoted.conf
+RULES          = $(WORKDIR)/wild-apricot.grl
 RULES_WITH_PIN = $(WORKDIR)/wild-apricot-with-pin.grl
+RULES_DEBUG    = $(WORKDIR)/debug.grl
 
 DATETIME  = $(shell date "+%Y-%m-%d %H:%M:%S")
 DEBUG    ?= --debug
@@ -60,10 +61,9 @@ vet: build
 	go vet ./...
 
 lint: build
-	echo "*** WARNING: pending update to staticcheck to Go 1.24.4"
-	# env GOOS=darwin  GOARCH=amd64 staticcheck ./...
-	# env GOOS=linux   GOARCH=amd64 staticcheck ./...
-	# env GOOS=windows GOARCH=amd64 staticcheck ./...
+	env GOOS=darwin  GOARCH=amd64 staticcheck ./...
+	env GOOS=linux   GOARCH=amd64 staticcheck ./...
+	env GOOS=windows GOARCH=amd64 staticcheck ./...
 
 vuln:
 	govulncheck ./...
@@ -127,66 +127,86 @@ version: build
 # ACL COMMANDS
 
 get-members: build
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf get-members --credentials $(CREDENTIALS)
-#	$(CLI) --debug get-members --credentials $(CREDENTIALS) --file "$(WORKDIR)/members.tsv"
-#	cat "$(WORKDIR)/members.tsv"
+	$(CLI) --debug --config $(CONFIG) get-members --credentials $(CREDENTIALS)
+
+get-members-tsv: build
+	$(CLI) --debug --config $(CONFIG) get-members --credentials $(CREDENTIALS) --file "$(WORKDIR)/members.tsv"
+	cat "$(WORKDIR)/members.tsv"
 
 get-members-with-pin: build
-	$(CLI) --config ../runtime/wild-apricot/uhppoted.conf get-members --credentials $(CREDENTIALS) --with-pin
-	$(CLI) --config ../runtime/wild-apricot/uhppoted.conf get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
+	$(CLI) --debug --config $(CONFIG) get-members --credentials $(CREDENTIALS) --with-pin
+
+get-members-with-pin-tsv: build
+	$(CLI) --debug --config $(CONFIG) get-members --credentials $(CREDENTIALS) --with-pin --file "$(WORKDIR)/members.tsv"
 	cat "$(WORKDIR)/members.tsv"
 
 get-groups: build
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf  get-groups --credentials $(CREDENTIALS)
-#	$(CLI) --debug get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
-#	cat "$(WORKDIR)/groups.tsv"
+	$(CLI) --debug --config $(CONFIG) get-groups --credentials $(CREDENTIALS)
+
+get-groups-tsv: build
+	$(CLI) --debug --config $(CONFIG) get-groups --credentials $(CREDENTIALS) --file "$(WORKDIR)/groups.tsv"
+	cat "$(WORKDIR)/groups.tsv"
 
 get-doors: build
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf get-doors
-	# $(CLI) --debug get-doors --file "$(WORKDIR)/doors.tsv"
-	# cat "$(WORKDIR)/doors.tsv"
+	$(CLI)  --debug --config $(CONFIG) get-doors
+
+get-doors-tsv: build
+	$(CLI)  --debug --config $(CONFIG) get-doors --file "$(WORKDIR)/doors.tsv"
+	cat "$(WORKDIR)/doors.tsv"
 
 get-acl: build
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules $(RULES)
+	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 get-acl-with-pin: build
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
-	# $(CLI) --debug get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
-	# $(CLI) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin --file "$(WORKDIR)/ACL.tsv"
-	# cat "$(WORKDIR)/ACL.tsv"
+	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
+
+get-acl-with-pin-tsv: build
+	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin --file "$(WORKDIR)/ACL.tsv"
+	cat "$(WORKDIR)/ACL.tsv"
 
 get-acl-file: build
-	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
+	$(CLI)  --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules "file://../runtime/wild-apricot/wild-apricot.grl" --file "$(WORKDIR)/ACL.tsv"
 
 get-acl-drive: build
-	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1dwc9HFCbjCf4YB2siexk--coI_xOAtul"
+	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules "https://drive.google.com/uc?export=download&id=1dwc9HFCbjCf4YB2siexk--coI_xOAtul"
 
 compare-acl: build
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
-	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
-	# cat "$(WORKDIR)/ACL.rpt"
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES)
+
+compare-acl-tsv: build
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-with-pin: build
-	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --report "$(WORKDIR)/ACL.rpt"
-	# cat "$(WORKDIR)/ACL.rpt"
-	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary
-	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary --report "$(WORKDIR)/ACL.rpt"
-	# cat "$(WORKDIR)/ACL.rpt"
+	$(CLI) --debug --config $(CONFIG) ccompare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+
+compare-acl-with-pin-tsv: build
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
 
 compare-acl-summary: build
-	$(CLI)  --debug --config ../runtime/wild-apricot/uhppoted.conf compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary
-	# $(CLI) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "$(WORKDIR)/ACL.rpt"
-	# cat "$(WORKDIR)/ACL.rpt"
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary
+
+compare-acl-summary-tsv: build
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --summary --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
+
+compare-acl-summary-with-pin-tsv: build
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary
+	$(CLI) --debug --config $(CONFIG) compare-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin --summary --report "$(WORKDIR)/ACL.rpt"
+	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
-#	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report
-#	$(CLI) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log ../runtime/wild-apricot/ACL.log --report ../runtime/wild-apricot/ACL.report.tsv
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf load-acl --credentials $(CREDENTIALS) --rules $(RULES)
+# 	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report
+	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES)
+
+load-acl-tsv: build
+# 	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report.tsv
+	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report.tsv
 
 load-acl-with-pin: build
-	# $(CLI) --debug load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
-	$(CLI) --debug --config ../runtime/wild-apricot/uhppoted.conf load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --with-pin
+
 
 
