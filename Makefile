@@ -155,10 +155,10 @@ get-doors-tsv: build
 	cat "$(WORKDIR)/doors.tsv"
 
 get-acl: build
-	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
+	$(CLI) --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES)
 
 get-acl-with-pin: build
-	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
+	$(CLI) --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin
 
 get-acl-with-pin-tsv: build
 	$(CLI) --debug --config $(CONFIG) get-acl --credentials $(CREDENTIALS) --rules $(RULES_WITH_PIN) --with-pin --file "$(WORKDIR)/ACL.tsv"
@@ -198,8 +198,14 @@ compare-acl-summary-with-pin-tsv: build
 	cat "$(WORKDIR)/ACL.rpt"
 
 load-acl: build
-# 	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report
-	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES)
+	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run
+	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES)
+# 	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --force --dry-run 
+# 	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --force
+# 	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report --dry-run 
+# 	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report
+# 	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report --force --dry-run 
+# 	$(CLI) --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report --force
 
 load-acl-tsv: build
 # 	$(CLI) --debug --config $(CONFIG) load-acl --credentials $(CREDENTIALS) --rules $(RULES) --dry-run --force --log $(WORKDIR)/ACL.log --report $(WORKDIR)/ACL.report.tsv

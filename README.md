@@ -14,9 +14,10 @@ Supported operating systems:
 
 ### Current Release
 
-**[v0.8.11](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.11) - 2025-07-01**
+**[v0.8.12](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.12) - 2025-11-20**
 
-1. Updated to Go 1.24.
+1. Updated to Go 1.25.
+2. Added pagination support to _get-members_ and _get-groups_. 
 
 
 ## Installation
@@ -43,6 +44,7 @@ It also uses the following additional configuration items:
 | `wild-apricot.http.retries`         | 3              | Number of times retry a failed API request                                   | 
 | `wild-apricot.http.retry-delay`     | 5s             | Interval between retries of a failed API request                             |
 | `wild-apricot.http.page-size`       | 100            | Number of records per page to retrieve from Wild Apricot (min. 25, max. 100) |
+| `wild-apricot.http.page-delay`      | 100ms          | Interval between fetching pages for a get-members or get-groups request      |
 | `wild-apricot.http.max-pages`       | 10             | Maximum number of pages to retrieve from Wild Apricot (min. 10, max. 50)     |
 | `wild-apricot.facility-code`        | Facility code  | Facility code prepended to card numbers that are 5 digits or less            |
 | `wild-apricot.fields.card-number`   | Card Number    | Contact field name to use for card number                                    |
@@ -235,6 +237,7 @@ The above commands build the `uhppoted-app-wild-apricot` executable to the `bin`
 | [github.com/hyperjumptech/grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) | Grule rule engine for processing ACL rules |
 | github.com/sirupsen/logrus                                                   | Indirect dependency from [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) |
 | golang.org/x/sys                                                             | Library for Windows system calls |
+
 
 ## uhppoted-app-wild-apricot
 
