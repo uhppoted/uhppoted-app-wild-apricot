@@ -6,11 +6,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/uhppoted/uhppote-core/uhppote"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/commands"
 	"github.com/uhppoted/uhppoted-lib/command"
 	"github.com/uhppoted/uhppoted-lib/config"
 )
+
+const VERSION string = "v0.8.13"
 
 var cli = []uhppoted.Command{
 	&commands.GetMembersCmd,
@@ -22,7 +23,7 @@ var cli = []uhppoted.Command{
 
 	&uhppoted.Version{
 		Application: commands.APP,
-		Version:     uhppote.VERSION,
+		Version:     VERSION,
 	},
 }
 

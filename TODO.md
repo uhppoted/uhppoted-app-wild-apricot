@@ -2,6 +2,12 @@
 
 ## In Progress
 
+- [ ] Use standalone version
+    - [x] Set VERSION in main.go
+    - [ ] Update release script
+
+- [ ] Aggregate _prepending facility code_ warning
+
 
 ## TODO
 
