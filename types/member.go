@@ -174,6 +174,14 @@ func (m *Member) Get(field interface{}) string {
 func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.MemberGroup, cardnumber, pin, facilityCode string, displayOrder []string) (*Members, []error) {
 	errors := []error{}
 
+	warnings := struct {
+		info     []string
+		warnings []string
+	}{
+		info:     []string{},
+		warnings: []string{},
+	}
+
 	fields := map[field]string{
 		fCardNumber: normalise(cardnumber),
 		fPIN:        normalise(pin),
@@ -210,9 +218,9 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 			if m.CardNumber != nil && *m.CardNumber > 0 && *m.CardNumber < 100000 && facilityCode != "" {
 				cardNo := fmt.Sprintf("%v%05v", facilityCode, m.CardNumber)
 				if v, err := strconv.ParseUint(cardNo, 10, 32); err != nil {
-					log.Warnf("prepending facility code '%v' to card number '%v' for member %v (%v)", facilityCode, m.CardNumber, m.id, err)
+					warnings.warnings = append(warnings.warnings, fmt.Sprintf("prepending facility code '%v' to card number '%v' for member %v (%v)", facilityCode, m.CardNumber, m.id, err))
 				} else {
-					log.Infof("prepending facility code '%v' to card %v for member %v\n", facilityCode, m.CardNumber, m.id)
+					warnings.info = append(warnings.info, fmt.Sprintf("prepending facility code '%v' to card %v for member %v\n", facilityCode, m.CardNumber, m.id))
 					nn := uint32(v)
 					m.CardNumber = (*CardNumber)(&nn)
 
@@ -221,6 +229,22 @@ func MakeMemberList(contacts []wildapricot.Contact, memberGroups []wildapricot.M
 
 			members = append(members, *m)
 		}
+	}
+
+	if len(warnings.warnings) > 0 {
+		log.Warnf("error prepending facility code to %v cards", len(warnings.warnings))
+	}
+
+	if len(warnings.info) > 0 {
+		log.Warnf("prepended facility code to %v cards", len(warnings.info))
+	}
+
+	for _, w := range warnings.warnings {
+		log.Debugf("%v", w)
+	}
+
+	for _, w := range warnings.info {
+		log.Debugf("%v", w)
 	}
 
 	return &Members{

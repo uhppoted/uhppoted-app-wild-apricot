@@ -5,6 +5,7 @@
 ### Updated
 1. Added pagination support to _get-members_ and _get-groups_. 
 2. Bumped to Go 1.25.
+3. Aggregated _prepending facility code_ warnings for _get-members_.
 
 
 ## [0.8.11](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.11) - 2025-07-01

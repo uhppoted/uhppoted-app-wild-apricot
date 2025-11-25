@@ -127,7 +127,7 @@ version: build
 # ACL COMMANDS
 
 get-members: build
-	$(CLI) --debug --config $(CONFIG) get-members --credentials $(CREDENTIALS)
+	$(CLI) --config $(CONFIG) get-members --credentials $(CREDENTIALS)
 
 get-members-tsv: build
 	$(CLI) --debug --config $(CONFIG) get-members --credentials $(CREDENTIALS) --file "$(WORKDIR)/members.tsv"

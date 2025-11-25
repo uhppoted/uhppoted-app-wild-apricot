@@ -12,6 +12,7 @@ import (
 	lib "github.com/uhppoted/uhppoted-lib/acl"
 	"github.com/uhppoted/uhppoted-lib/config"
 
+	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
 	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
@@ -69,10 +70,12 @@ func (cmd *GetMembers) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *GetMembers) Execute(args ...interface{}) error {
+func (cmd *GetMembers) Execute(args ...any) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug
+
+	log.SetDebug(options.Debug)
 
 	// ... check parameters
 	if strings.TrimSpace(cmd.credentials) == "" {

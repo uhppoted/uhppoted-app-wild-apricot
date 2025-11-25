@@ -2,11 +2,14 @@
 
 ## In Progress
 
-- [ ] Use standalone version
+- [x] Use standalone version
     - [x] Set VERSION in main.go
-    - [ ] Update release script
+    - [x] Update release script
 
-- [ ] Aggregate _prepending facility code_ warning
+- [x] Aggregate _prepending facility code_ warning
+    - [x] Aggregate error messages
+    - [x] Aggregate info messages
+    - [x] Display per card messages if `--debug`
 
 
 ## TODO

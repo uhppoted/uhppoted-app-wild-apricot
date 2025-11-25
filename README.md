@@ -302,8 +302,9 @@ Command line:
                 - /usr/local/etc/com.github.uhppoted/uhppoted.conf (MacOS)
                 - ./uhppoted.conf (Windows)
 
-  --debug       Displays verbose debugging information, in particular the communications
-                with the UHPPOTE controllers
+  --debug       Displays verbose debugging information, in particular:
+                - the communications with the UHPPOTE controllers
+                - the cards that required a prepended facility code
 ```
 
 ### `get-groups`

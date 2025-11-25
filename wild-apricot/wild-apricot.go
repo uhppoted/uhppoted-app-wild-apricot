@@ -6,11 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
 )
 
 type API struct {
@@ -124,9 +125,9 @@ func GetContacts(accountId uint32, token string, api API) ([]Contact, error) {
 			page += len(contacts)
 
 			if len(contacts) == 1 {
-				info("retrieved %v member (total: %v)", len(contacts), len(list))
+				log.Infof("retrieved %v member (total: %v)", len(contacts), len(list))
 			} else {
-				info("retrieved %v members (total: %v)", len(contacts), len(list))
+				log.Infof("retrieved %v members (total: %v)", len(contacts), len(list))
 			}
 		}
 
@@ -219,9 +220,9 @@ func GetMemberGroups(accountId uint32, token string, api API) ([]MemberGroup, er
 			page += len(groups)
 
 			if len(groups) == 1 {
-				info("retrieved %v group (total: %v)", len(groups), len(list))
+				log.Infof("retrieved %v group (total: %v)", len(groups), len(list))
 			} else {
-				info("retrieved %v groups (total: %v)", len(groups), len(list))
+				log.Infof("retrieved %v groups (total: %v)", len(groups), len(list))
 			}
 		}
 
@@ -336,19 +337,9 @@ func get(rq *http.Request, timeout time.Duration, retries int, retryDelay time.D
 			return nil, err
 		}
 
-		warn(err)
+		log.Warnf("%v", err)
 		time.Sleep(retryDelay)
 	}
 
 	return response, nil
-}
-
-func info(f string, args ...any) {
-	format := fmt.Sprintf("%-5s %v", "INFO", f)
-
-	log.Printf(format, args...)
-}
-
-func warn(err error) {
-	log.Printf("%-5s %v", "WARN", err)
 }
