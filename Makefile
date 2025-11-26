@@ -1,8 +1,8 @@
 DIST          ?= development
 CLI            = ./bin/uhppoted-app-wild-apricot
 WORKDIR        = .workdir
-CREDENTIALS    = $(WORKDIR)/.credentials.json
-CONFIG         = $(WORKDIR)/uhppoted.conf
+CREDENTIALS   ?= $(WORKDIR)/.credentials.json
+CONFIG        ?= $(WORKDIR)/uhppoted.conf
 RULES          = $(WORKDIR)/wild-apricot.grl
 RULES_WITH_PIN = $(WORKDIR)/wild-apricot-with-pin.grl
 RULES_DEBUG    = $(WORKDIR)/debug.grl

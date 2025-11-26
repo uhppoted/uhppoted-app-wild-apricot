@@ -1,11 +1,17 @@
 # CHANGELOG
 
+## [0.8.13](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.13) - 2025-11-26
+
+### Updated
+1. Fixed version number.
+3. Aggregated _prepending facility code_ warnings for _get-members_.
+
+
 ## [0.8.12](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.12) - 2025-11-20
 
 ### Updated
 1. Added pagination support to _get-members_ and _get-groups_. 
 2. Bumped to Go 1.25.
-3. Aggregated _prepending facility code_ warnings for _get-members_.
 
 
 ## [0.8.11](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.11) - 2025-07-01
