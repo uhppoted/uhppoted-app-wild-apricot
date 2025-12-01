@@ -11,7 +11,7 @@ import (
 	"github.com/uhppoted/uhppoted-lib/config"
 )
 
-const VERSION string = "v0.8.13"
+const VERSION string = "v0.8.14"
 
 var cli = []uhppoted.Command{
 	&commands.GetMembersCmd,
