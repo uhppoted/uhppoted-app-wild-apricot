@@ -1,3 +1,5 @@
+VERSION       ?= debug
+SEMVER        := ^v[0-9]+\.[0-9]+\.[0-9]+$$
 DIST          ?= development
 CLI            = ./bin/uhppoted-app-wild-apricot
 WORKDIR        = .workdir
@@ -46,7 +48,7 @@ format:
 
 build: format
 	mkdir -p bin
-	go build -trimpath -o bin ./...
+	go build -ldflags "-X main.VERSION=$(VERSION)" -trimpath -o bin ./...
 
 test: build
 	go test ./...
@@ -84,7 +86,11 @@ build-all: build test vet lint
 	env GOOS=darwin  GOARCH=arm64         GOWORK=off go build -trimpath -o dist/$(DIST)/darwin-arm64 ./...
 	env GOOS=windows GOARCH=amd64         GOWORK=off go build -trimpath -o dist/$(DIST)/windows      ./...
 
-release: update-release build-all
+check:
+	@echo "$(VERSION)" | grep -E "$(SEMVER)" > /dev/null || \
+		{ echo ">>>> VERSION '$(VERSION)' is not a valid version"; exit 1; }
+
+release: check update-release build-all
 	find . -name ".DS_Store" -delete
 	tar --directory=dist/$(DIST)/linux        --exclude=".DS_Store" -cvzf dist/$(DIST)-linux-x64.tar.gz    .
 	tar --directory=dist/$(DIST)/arm          --exclude=".DS_Store" -cvzf dist/$(DIST)-arm-x64.tar.gz      .

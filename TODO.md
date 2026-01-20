@@ -5,6 +5,8 @@
 - [x] Use standalone version
     - [x] Set VERSION in main.go
     - [x] Update release script
+    - [x] Move VERSION to Makefile (cf. https://github.com/uhppoted/uhppoted/issues/73)
+
 
 - [x] Aggregate _prepending facility code_ warning
     - [x] Aggregate error messages
