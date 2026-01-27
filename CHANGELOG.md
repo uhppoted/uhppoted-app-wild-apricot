@@ -1,7 +1,9 @@
 # CHANGELOG
 
-## Unreleased
+## [0.9.0](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.9.0) - 2026-01-27
 
+### Updated
+1. Updated dependencies.
 
 
 ## [0.8.13](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.13) - 2025-11-26

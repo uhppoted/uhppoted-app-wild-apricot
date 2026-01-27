@@ -14,6 +14,10 @@ Supported operating systems:
 
 ### Current Release
 
+**[v0.9.0](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.9.0) - 2026-01-27**
+1. Updated dependencies.
+
+
 **[v0.8.13](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.8.13) - 2025-11-26**
 
 1. Fixed version number.
