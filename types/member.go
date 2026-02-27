@@ -60,7 +60,7 @@ type Membership struct {
 type Field struct {
 	ID    string
 	Name  string
-	Value interface{}
+	Value any
 }
 
 type field int
@@ -77,7 +77,7 @@ func (f field) String() string {
 	return [...]string{"Card Number", "Registered", "Expires", "Suspended"}[f]
 }
 
-func (m *Member) Is(membership interface{}) bool {
+func (m *Member) Is(membership any) bool {
 	if m != nil {
 		switch v := membership.(type) {
 		case int64:
@@ -155,7 +155,7 @@ func (m *Member) HasGroup(group any) bool {
 	return false
 }
 
-func (m *Member) Get(field interface{}) string {
+func (m *Member) Get(field any) string {
 	if m != nil {
 		switch v := field.(type) {
 		case string:

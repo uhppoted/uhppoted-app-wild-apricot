@@ -14,7 +14,7 @@ func TestGrantWithDoorsOnly(t *testing.T) {
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
 		EndDate:    core.ToDate(2021, time.June, 30),
-		Granted: map[string]interface{}{
+		Granted: map[string]any{
 			"dungeon":    true,
 			"greathall":  true,
 			"gryffindor": true,
@@ -27,7 +27,7 @@ func TestGrantWithDoorsOnly(t *testing.T) {
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
 		EndDate:    core.ToDate(2021, time.June, 30),
-		Granted:    map[string]interface{}{},
+		Granted:    map[string]any{},
 		Revoked:    map[string]struct{}{},
 	}
 
@@ -44,7 +44,7 @@ func TestGrantWithDoorProfile(t *testing.T) {
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
 		EndDate:    core.ToDate(2021, time.June, 30),
-		Granted: map[string]interface{}{
+		Granted: map[string]any{
 			"dungeon":    29,
 			"greathall":  true,
 			"gryffindor": true,
@@ -57,7 +57,7 @@ func TestGrantWithDoorProfile(t *testing.T) {
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
 		EndDate:    core.ToDate(2021, time.June, 30),
-		Granted:    map[string]interface{}{},
+		Granted:    map[string]any{},
 		Revoked:    map[string]struct{}{},
 	}
 
@@ -74,7 +74,7 @@ func TestGrantWithDoorAndProfile(t *testing.T) {
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
 		EndDate:    core.ToDate(2021, time.June, 30),
-		Granted: map[string]interface{}{
+		Granted: map[string]any{
 			"dungeon": 29,
 		},
 		Revoked: map[string]struct{}{},
@@ -85,7 +85,7 @@ func TestGrantWithDoorAndProfile(t *testing.T) {
 		CardNumber: 6000001,
 		StartDate:  startOfYear(),
 		EndDate:    core.ToDate(2021, time.June, 30),
-		Granted:    map[string]interface{}{},
+		Granted:    map[string]any{},
 		Revoked:    map[string]struct{}{},
 	}
 

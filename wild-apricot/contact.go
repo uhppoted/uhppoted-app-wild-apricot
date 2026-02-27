@@ -29,7 +29,7 @@ type MembershipLevel struct {
 }
 
 type field struct {
-	Name       string      `json:"FieldName"`
-	SystemCode string      `json:"SystemCode"`
-	Value      interface{} `json:"Value"`
+	Name       string `json:"FieldName"`
+	SystemCode string `json:"SystemCode"`
+	Value      any    `json:"Value"`
 }

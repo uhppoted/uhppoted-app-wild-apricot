@@ -25,7 +25,7 @@ func TestAsTable(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  core.MustParseDate("1880-02-29"),
 				EndDate:    endOfYear(),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"Great Hall":      true,
 					"Whomping Willow": true,
 					"Dungeon":         29,
@@ -38,7 +38,7 @@ func TestAsTable(t *testing.T) {
 				CardNumber: 2000001,
 				StartDate:  core.MustParseDate("1981-07-01"),
 				EndDate:    endOfYear(),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -46,7 +46,7 @@ func TestAsTable(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.MustParseDate("2021-06-30"),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"Great Hall": true,
 					"Hogsmeade":  true,
 				},
@@ -59,7 +59,7 @@ func TestAsTable(t *testing.T) {
 				CardNumber: 6000002,
 				StartDate:  core.MustParseDate("2020-06-25"),
 				EndDate:    core.MustParseDate("2021-06-30"),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"Great Hall": true,
 					"Hogsmeade":  true,
 				},
@@ -110,7 +110,7 @@ func TestHash(t *testing.T) {
 		CardNumber: 1000001,
 		StartDate:  core.ToDate(1880, time.February, 29),
 		EndDate:    core.ToDate(2021, time.December, 31), // FIXME EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
-		Granted: map[string]interface{}{
+		Granted: map[string]any{
 			"Great Hall":      true,
 			"Whomping Willow": true,
 			"Dungeon":         29,
@@ -124,7 +124,7 @@ func TestHash(t *testing.T) {
 		CardNumber: 2000001,
 		StartDate:  core.ToDate(1981, time.July, 1),
 		EndDate:    core.ToDate(2021, time.December, 31), // FIXME EndDate:    time.Date(2021, time.December, 31, 23, 59, 59, 0, time.Local).AddDate(0, 1, 0),
-		Granted:    map[string]interface{}{},
+		Granted:    map[string]any{},
 		Revoked:    map[string]struct{}{},
 	}
 
@@ -134,7 +134,7 @@ func TestHash(t *testing.T) {
 			CardNumber: 6000001,
 			StartDate:  core.ToDate(2021, time.January, 1),
 			EndDate:    core.ToDate(2021, time.June, 30),
-			Granted: map[string]interface{}{
+			Granted: map[string]any{
 				"Great Hall": true,
 				"Hogsmeade":  true,
 			},
@@ -147,7 +147,7 @@ func TestHash(t *testing.T) {
 			CardNumber: 6000001,
 			StartDate:  core.ToDate(2021, time.January, 1),
 			EndDate:    core.ToDate(2021, time.June, 30),
-			Granted: map[string]interface{}{
+			Granted: map[string]any{
 				"Great Hall": 29,
 				"Hogsmeade":  true,
 			},
@@ -160,7 +160,7 @@ func TestHash(t *testing.T) {
 			CardNumber: 6000001,
 			StartDate:  core.ToDate(2021, time.January, 1),
 			EndDate:    core.ToDate(2021, time.June, 30),
-			Granted: map[string]interface{}{
+			Granted: map[string]any{
 				"Great Hall": true,
 				"Hogsmeade":  true,
 			},
@@ -174,7 +174,7 @@ func TestHash(t *testing.T) {
 			CardNumber: 6000001,
 			StartDate:  core.ToDate(2021, time.January, 1),
 			EndDate:    core.ToDate(2021, time.June, 30),
-			Granted: map[string]interface{}{
+			Granted: map[string]any{
 				"Great Hall": true,
 				"Hogsmeade":  true,
 			},

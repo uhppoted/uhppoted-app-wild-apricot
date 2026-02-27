@@ -10,8 +10,8 @@ type MemberGroup struct {
 	Contacts    int    `json:"ContactsCount"`
 }
 
-func (mg *MemberGroup) Flatten() (map[string]interface{}, error) {
-	flattened := map[string]interface{}{}
+func (mg *MemberGroup) Flatten() (map[string]any, error) {
+	flattened := map[string]any{}
 
 	if mg != nil {
 		flattened["id"] = mg.ID

@@ -61,7 +61,7 @@ func (cmd *GetGroups) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *GetGroups) Execute(args ...interface{}) error {
+func (cmd *GetGroups) Execute(args ...any) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug

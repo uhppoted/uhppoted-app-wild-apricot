@@ -14,11 +14,11 @@ type record struct {
 	PIN        uint32
 	StartDate  core.Date
 	EndDate    core.Date
-	Granted    map[string]interface{}
+	Granted    map[string]any
 	Revoked    map[string]struct{}
 }
 
-func (r *record) SetCardNumber(card interface{}) {
+func (r *record) SetCardNumber(card any) {
 	if r != nil {
 		switch v := card.(type) {
 		case string:
@@ -80,7 +80,7 @@ func (r *record) SetEndDate(t any) {
 	}
 }
 
-func (r *record) Grant(permissions ...interface{}) {
+func (r *record) Grant(permissions ...any) {
 	if r != nil {
 		// parse Grant(door, profile)
 		if len(permissions) == 2 {

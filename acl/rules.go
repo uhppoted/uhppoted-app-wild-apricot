@@ -89,7 +89,7 @@ func (rules *Rules) MakeACL(members types.Members, doors []string) (*ACL, error)
 			Name:      m.Name,
 			StartDate: startOfYear(),
 			EndDate:   endOfYear(),
-			Granted:   map[string]interface{}{},
+			Granted:   map[string]any{},
 			Revoked:   map[string]struct{}{},
 		}
 
@@ -123,7 +123,7 @@ func (rules *Rules) MakeACLWithPIN(members types.Members, doors []string) (*ACL,
 			PIN:       m.PIN,
 			StartDate: startOfYear(),
 			EndDate:   endOfYear(),
-			Granted:   map[string]interface{}{},
+			Granted:   map[string]any{},
 			Revoked:   map[string]struct{}{},
 		}
 

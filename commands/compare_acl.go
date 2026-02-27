@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"path/filepath"
-	"sort"
+	"slices"
 	"strings"
 	"time"
 
@@ -87,7 +87,7 @@ func (cmd *CompareACL) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *CompareACL) Execute(args ...interface{}) error {
+func (cmd *CompareACL) Execute(args ...any) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug
@@ -317,7 +317,7 @@ func summarize(diff lib.SystemDiff) *lib.Table {
 		keys = append(keys, k)
 	}
 
-	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+	slices.Sort(keys)
 
 	header := []string{"Controller", "Incorrect", "Missing", "Unexpected"}
 	data := [][]string{}
@@ -339,17 +339,11 @@ func summarize(diff lib.SystemDiff) *lib.Table {
 				deleted = append(deleted, c.CardNumber)
 			}
 
-			sort.Slice(updated, func(i, j int) bool { return updated[i] < updated[j] })
-			sort.Slice(added, func(i, j int) bool { return added[i] < added[j] })
-			sort.Slice(deleted, func(i, j int) bool { return deleted[i] < deleted[j] })
+			slices.Sort(updated)
+			slices.Sort(added)
+			slices.Sort(deleted)
 
-			N := len(updated)
-			if len(added) > N {
-				N = len(added)
-			}
-			if len(deleted) > N {
-				N = len(deleted)
-			}
+			N := max(len(deleted), max(len(added), len(updated)))
 
 			for i := 0; i < N; i++ {
 				row := []string{
@@ -433,7 +427,7 @@ func detail(members types.Members, diff lib.SystemDiff) *lib.Table {
 		keys = append(keys, k)
 	}
 
-	sort.Slice(keys, func(i, j int) bool { return keys[i] < keys[j] })
+	slices.Sort(keys)
 
 	timestamp := time.Now().Format("2006-01-02 15:03:04")
 	header := []string{"Timestamp", "Name", "Card Number", "Action"}

@@ -14,7 +14,7 @@ func TestMemberGroupFlatten(t *testing.T) {
 		Contacts:    5,
 	}
 
-	expected := map[string]interface{}{
+	expected := map[string]any{
 		"id":          uint32(654321),
 		"name":        "Gryffindor",
 		"description": "Group for Gryffindoor students",
@@ -35,7 +35,7 @@ func TestMemberGroupFlatten(t *testing.T) {
 func TestMemberGroupFlattenWithNil(t *testing.T) {
 	var mg *MemberGroup
 
-	expected := map[string]interface{}{}
+	expected := map[string]any{}
 
 	m, err := mg.Flatten()
 	if err != nil {

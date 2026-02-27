@@ -153,7 +153,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  core.ToDate(1880, time.February, 29),
 				EndDate:    endOfYear(),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -161,7 +161,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 2000001,
 				StartDate:  core.ToDate(1981, time.July, 1),
 				EndDate:    endOfYear(),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -169,7 +169,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -177,7 +177,7 @@ func TestMakeACL(t *testing.T) {
 				CardNumber: 6000002,
 				StartDate:  core.ToDate(2020, time.June, 25),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 		},
@@ -238,7 +238,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  core.ToDate(1880, time.February, 29),
 				EndDate:    endOfYear(),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -246,7 +246,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 2000001,
 				StartDate:  core.ToDate(1981, time.July, 1),
 				EndDate:    endOfYear(),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -254,7 +254,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -262,7 +262,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 6000002,
 				StartDate:  core.ToDate(2020, time.June, 25),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 			record{
@@ -270,7 +270,7 @@ func TestMakeACLWithDuplicateCards(t *testing.T) {
 				CardNumber: 1000001,
 				StartDate:  core.ToDate(2001, time.February, 28),
 				EndDate:    endOfYear(),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked:    map[string]struct{}{},
 			},
 		},
@@ -314,7 +314,7 @@ func TestGrant(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"whompingwillow": true,
 				},
 				Revoked: map[string]struct{}{},
@@ -355,7 +355,7 @@ func TestGrantWithDoorWithTimeProfile(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"whompingwillow": 29,
 				},
 				Revoked: map[string]struct{}{},
@@ -396,7 +396,7 @@ func TestGrantWithDoorAndTimeProfile(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"whompingwillow": 55,
 				},
 				Revoked: map[string]struct{}{},
@@ -436,7 +436,7 @@ func TestVariadicGrant(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"whompingwillow": true,
 					"gryffindor":     true,
 					"greathall":      true,
@@ -491,7 +491,7 @@ func TestRevoke(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},
 				},
@@ -532,7 +532,7 @@ func TestVariadicRevoke(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted:    map[string]interface{}{},
+				Granted:    map[string]any{},
 				Revoked: map[string]struct{}{
 					"whompingwillow": struct{}{},
 					"dungeon":        struct{}{},
@@ -587,7 +587,7 @@ func TestGrantAndRevoke(t *testing.T) {
 				CardNumber: 6000001,
 				StartDate:  startOfYear(),
 				EndDate:    core.ToDate(2021, time.June, 30),
-				Granted: map[string]interface{}{
+				Granted: map[string]any{
 					"whompingwillow": true,
 				},
 				Revoked: map[string]struct{}{

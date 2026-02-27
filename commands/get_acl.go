@@ -80,7 +80,7 @@ func (cmd *GetACL) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *GetACL) Execute(args ...interface{}) error {
+func (cmd *GetACL) Execute(args ...any) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug

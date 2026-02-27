@@ -56,7 +56,7 @@ func (cmd *GetDoors) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *GetDoors) Execute(args ...interface{}) error {
+func (cmd *GetDoors) Execute(args ...any) error {
 	options := args[0].(*Options)
 
 	cmd.debug = options.Debug

@@ -30,11 +30,13 @@ update:
 	go get -u github.com/hyperjumptech/grule-rule-engine
 	go get -u golang.org/x/sys
 	go mod tidy
+	go fix ./...
 
 update-release:
 	go get -u github.com/uhppoted/uhppote-core
 	go get -u github.com/uhppoted/uhppoted-lib
 	go mod tidy
+	go fix ./...
 
 update-all:
 	go get -u github.com/uhppoted/uhppote-core
@@ -42,6 +44,7 @@ update-all:
 	go get -u github.com/hyperjumptech/grule-rule-engine
 	go get -u golang.org/x/sys
 	go mod tidy
+	go fix ./...
 
 format: 
 	go fmt ./...

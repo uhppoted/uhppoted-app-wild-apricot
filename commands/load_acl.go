@@ -91,7 +91,7 @@ func (cmd *LoadACL) FlagSet() *flag.FlagSet {
 	return flagset
 }
 
-func (cmd *LoadACL) Execute(args ...interface{}) error {
+func (cmd *LoadACL) Execute(args ...any) error {
 	timestamp := time.Now()
 	options := args[0].(*Options)
 
@@ -439,7 +439,7 @@ func (cmd *LoadACL) report(rpt map[uint32]lib.Report, members types.Members) err
 		for _, card := range f.Cards {
 			row := make([]string, len(header))
 
-			for i := 0; i < len(row); i++ {
+			for i := range row {
 				row[i] = ""
 			}
 
