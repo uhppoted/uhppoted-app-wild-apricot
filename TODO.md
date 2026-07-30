@@ -1,20 +1,8 @@
 # TODO
 
-## In Progress
+- [x] Migrate to codeberg.org (cf. https://codeberg.org/uhppoted/uhppoted/issues/1)
 
-- [x] Use standalone version
-    - [x] Set VERSION in main.go
-    - [x] Update release script
-    - [x] Move VERSION to Makefile (cf. https://github.com/uhppoted/uhppoted/issues/73)
-
-
-- [x] Aggregate _prepending facility code_ warning
-    - [x] Aggregate error messages
-    - [x] Aggregate info messages
-    - [x] Display per card messages if `--debug`
-
-
-## TODO
+## To Be Done
 
 - [ ] Clean up endOfYear in rules::MakeACL:
 ```

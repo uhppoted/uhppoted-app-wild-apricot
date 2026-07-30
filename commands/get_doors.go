@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
 )
 
 var GetDoorsCmd = GetDoors{

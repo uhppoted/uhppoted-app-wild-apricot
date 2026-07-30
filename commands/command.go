@@ -8,10 +8,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/uhppoted/uhppote-core/uhppote"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
-	"github.com/uhppoted/uhppoted-lib/config"
-	lib "github.com/uhppoted/uhppoted-lib/os"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/log"
+	"codeberg.org/uhppoted/uhppoted-core/uhppote"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
+	lib "codeberg.org/uhppoted/uhppoted-lib/os"
 )
 
 const APP = "uhppoted-app-wild-apricot"

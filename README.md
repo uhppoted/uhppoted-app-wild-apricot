@@ -32,7 +32,7 @@ Supported operating systems:
 
 ## Installation
 
-Executables for all the supported operating systems are packaged in the [releases](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases). The provided archives contain the executables for all the operating systems - operating system specific tarballs can be found in the [uhppoted](https://github.com/uhppoted/uhppoted/releases) releases.
+Executables for all the supported operating systems are packaged in the [releases](https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/releases). The provided archives contain the executables for all the operating systems - operating system specific tarballs can be found in the [uhppoted](https://codeberg.org/uhppoted/uhppoted/releases) releases.
 
 Installation is straightforward - download the archive and extract it to a folder of your choice and then place the executable in a filder in your PATH. The `uhppoted-app-wild-apricot` utility requires the following additional information:
 
@@ -43,7 +43,7 @@ Installation is straightforward - download the archive and extract it to a folde
 
 ### `uhppoted.conf`
 
-`uhppoted.conf` is the communal configuration file shared by all the `uhppoted` project modules and is (or will eventually be) documented in [uhppoted](https://github.com/uhppoted/uhppoted). `uhppoted-app-wild-apricot` requires the 
+`uhppoted.conf` is the communal configuration file shared by all the `uhppoted` project modules and is (or will eventually be) documented in [uhppoted](https://codeberg.org/uhppoted/uhppoted). `uhppoted-app-wild-apricot` requires the 
 _devices_ section to resolve non-local controller IP addresses and door to controller door identities. 
 
 It also uses the following additional configuration items:
@@ -61,7 +61,7 @@ It also uses the following additional configuration items:
 | `wild-apricot.display-order.groups` | _(alphabetic)_ | Optional output ordering for the member list groups                          |
 | `wild-apricot.display-order.doors`  | _(alphabetic)_ | Optional output ordering for the ACL doors                                   |
 
-A sample _[uhppoted.conf](https://github.com/uhppoted/uhppoted/blob/master/app-notes/wild-apricot/uhppoted.conf)_ file is included in the `uhppoted` distribution.
+A sample _[uhppoted.conf](https://codeberg.org/uhppoted/uhppoted/blob/master/app-notes/wild-apricot/uhppoted.conf)_ file is included in the `uhppoted` distribution.
 
 ### `credentials.json`
 
@@ -151,7 +151,7 @@ _He Who Shall Not Be Named_.
    (_where `100` is a predefined time profile_).
 
 3. The _grules_ file must have markers at the start and end of the file as a basic validity check for downloaded files e.g. Google Drive
-   shares occasionally download as empty files without error (ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2)
+   shares occasionally download as empty files without error (ref. https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/issues/2)
 
    - The first non-blank line should be 
    ```
@@ -223,14 +223,14 @@ rule Beginner "Grants an active beginner member access to locker" {
 Assuming you have `Go` and `make` installed:
 
 ```
-git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
+git clone https://codeberg.org/uhppoted/uhppoted-app-wild-apricot.git
 cd uhppoted-app-wild-apricot
 make build
 ```
 
 If you prefer not to use `make`:
 ```
-git clone https://github.com/uhppoted/uhppoted-app-wild-apricot.git
+git clone https://codeberg.org/uhppoted/uhppoted-app-wild-apricot.git
 cd uhppoted-app-wild-apricot
 mkdir bin
 go build -trimpath -o bin ./...
@@ -242,8 +242,6 @@ The above commands build the `uhppoted-app-wild-apricot` executable to the `bin`
 
 | *Dependency*                                                                 | *Description*                              |
 | ---------------------------------------------------------------------------- | ------------------------------------------ |
-| [com.github/uhppoted/uhppote-core](https://github.com/uhppoted/uhppote-core) | Device level API implementation            |
-| [com.github/uhppoted/uhppoted-lib](https://github.com/uhppoted/uhppoted-lib) | Shared application library                 |
 | [github.com/hyperjumptech/grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) | Grule rule engine for processing ACL rules |
 | github.com/sirupsen/logrus                                                   | Indirect dependency from [grule-rule-engine](https://github.com/hyperjumptech/grule-rule-engine) |
 | golang.org/x/sys                                                             | Library for Windows system calls |

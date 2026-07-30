@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppote-core/uhppote"
-	lib "github.com/uhppoted/uhppoted-lib/acl"
-	"github.com/uhppoted/uhppoted-lib/config"
-	"github.com/uhppoted/uhppoted-lib/lockfile"
+	"codeberg.org/uhppoted/uhppoted-core/uhppote"
+	lib "codeberg.org/uhppoted/uhppoted-lib/acl"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-lib/lockfile"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/acl"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var CompareACLCmd = CompareACL{
@@ -219,7 +219,7 @@ func (cmd *CompareACL) compare(u uhppote.IUHPPOTE, devices []uhppote.Device, car
 		}
 	}
 
-	acl, warnings, err := lib.ParseTable(asTable(cards), devices, cmd.strict)
+	acl, warnings, err := lib.ParseTable(asTable(cards), devices, cmd.strict, false, false)
 	if err != nil {
 		return nil, err
 	}
@@ -345,7 +345,7 @@ func summarize(diff lib.SystemDiff) *lib.Table {
 
 			N := max(len(deleted), max(len(added), len(updated)))
 
-			for i := 0; i < N; i++ {
+			for i := range N {
 				row := []string{
 					fmt.Sprintf("%v", k),
 					"",

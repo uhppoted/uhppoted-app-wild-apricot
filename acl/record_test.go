@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	core "github.com/uhppoted/uhppote-core/types"
+	core "codeberg.org/uhppoted/uhppoted-core/types"
 )
 
 func TestGrantWithDoorsOnly(t *testing.T) {

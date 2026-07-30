@@ -5,8 +5,8 @@ import (
 	"math"
 	"sort"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
-	api "github.com/uhppoted/uhppoted-lib/acl"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	api "codeberg.org/uhppoted/uhppoted-lib/acl"
 )
 
 type Groups []Group

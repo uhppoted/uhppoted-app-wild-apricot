@@ -9,11 +9,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	lib "github.com/uhppoted/uhppoted-lib/acl"
-	"github.com/uhppoted/uhppoted-lib/config"
+	lib "codeberg.org/uhppoted/uhppoted-lib/acl"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/log"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var GetMembersCmd = GetMembers{

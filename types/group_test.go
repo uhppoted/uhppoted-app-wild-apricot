@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
 func TestGroupConstructor(t *testing.T) {

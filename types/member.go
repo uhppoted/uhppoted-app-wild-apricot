@@ -12,11 +12,11 @@ import (
 	"strings"
 	"time"
 
-	core "github.com/uhppoted/uhppote-core/types"
-	lib "github.com/uhppoted/uhppoted-lib/acl"
+	core "codeberg.org/uhppoted/uhppoted-core/types"
+	lib "codeberg.org/uhppoted/uhppoted-lib/acl"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/log"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/log"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
 )
 
 type Members struct {
@@ -555,7 +555,7 @@ func transcode(contact wildapricot.Contact, sysgroups []Group, fields map[field]
 							}
 						}
 
-						// Ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/6
+						// Ref. https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/issues/6
 						//      Replaced with actual group name from groups list - Wild Apricot does not keep
 						//      the member group names synchronized with the actual group names leading to
 						//      confusion when resolving permissions by group name.

@@ -15,7 +15,7 @@ import (
 	"github.com/hyperjumptech/grule-rule-engine/logger"
 	"github.com/hyperjumptech/grule-rule-engine/pkg"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 type Rules struct {
@@ -31,7 +31,7 @@ func NewRules(ruleset []byte, debug bool) (*Rules, error) {
 	}
 
 	// ... check for header and footer
-	// Ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2
+	// Ref. https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/issues/2
 
 	first := ""
 	last := ""

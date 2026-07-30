@@ -6,9 +6,9 @@ import (
 	"testing"
 	"time"
 
-	core "github.com/uhppoted/uhppote-core/types"
+	core "codeberg.org/uhppoted/uhppoted-core/types"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var C1000001 = types.CardNumber(1000001)

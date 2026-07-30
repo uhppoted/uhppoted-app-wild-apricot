@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/commands"
-	"github.com/uhppoted/uhppoted-lib/command"
-	"github.com/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/commands"
+	"codeberg.org/uhppoted/uhppoted-lib/command"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
 )
 
 var VERSION string = "development"

@@ -7,10 +7,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
-	"github.com/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/acl"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/wild-apricot"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
 )
 
 func revised(conf *config.Config, credentials *credentials, timestamp *time.Time) (bool, error) {
@@ -125,7 +125,7 @@ func getGroups(conf *config.Config, credentials *credentials) (*types.Groups, er
 	return groups, nil
 }
 
-// Ref. https://github.com/uhppoted/uhppoted-app-wild-apricot/issues/2
+// Ref. https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/issues/2
 func getRules(uri string, workdir string, dbg bool) (*acl.Rules, error) {
 	ruleset, err := fetch(uri)
 	if err != nil {

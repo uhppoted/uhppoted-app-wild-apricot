@@ -9,12 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	lib "github.com/uhppoted/uhppoted-lib/acl"
-	"github.com/uhppoted/uhppoted-lib/config"
-	"github.com/uhppoted/uhppoted-lib/lockfile"
+	lib "codeberg.org/uhppoted/uhppoted-lib/acl"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-lib/lockfile"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/acl"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var GetACLCmd = GetACL{
@@ -181,7 +181,7 @@ func (cmd *GetACL) Execute(args ...any) error {
 	}
 
 	_, devices := getDevices(conf, cmd.debug)
-	_, warnings, err := lib.ParseTable(asTable(ACL), devices, false)
+	_, warnings, err := lib.ParseTable(asTable(ACL), devices, false, false, false)
 	if err != nil {
 		return err
 	}

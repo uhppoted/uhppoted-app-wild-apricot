@@ -10,13 +10,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/uhppoted/uhppote-core/uhppote"
-	lib "github.com/uhppoted/uhppoted-lib/acl"
-	"github.com/uhppoted/uhppoted-lib/config"
-	"github.com/uhppoted/uhppoted-lib/lockfile"
+	"codeberg.org/uhppoted/uhppoted-core/uhppote"
+	lib "codeberg.org/uhppoted/uhppoted-lib/acl"
+	"codeberg.org/uhppoted/uhppoted-lib/config"
+	"codeberg.org/uhppoted/uhppoted-lib/lockfile"
 
-	"github.com/uhppoted/uhppoted-app-wild-apricot/acl"
-	"github.com/uhppoted/uhppoted-app-wild-apricot/types"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/acl"
+	"codeberg.org/uhppoted/uhppoted-app-wild-apricot/types"
 )
 
 var LoadACLCmd = LoadACL{
@@ -299,7 +299,7 @@ func (cmd *LoadACL) Execute(args ...any) error {
 // }
 
 func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *lib.Table) (map[uint32]lib.Report, []error, error) {
-	acl, warnings, err := lib.ParseTable(cards, devices, cmd.strict)
+	acl, warnings, err := lib.ParseTable(cards, devices, cmd.strict, false, false)
 	if err != nil {
 		return nil, warnings, err
 	}
@@ -310,9 +310,9 @@ func (cmd *LoadACL) load(u uhppote.IUHPPOTE, devices []uhppote.Device, cards *li
 
 	putACL := func(acl lib.ACL) (map[uint32]lib.Report, []error) {
 		if cmd.withPIN {
-			return lib.PutACLWithPIN(u, acl, cmd.dryrun)
+			return lib.PutACL(u, acl, cmd.dryrun, true, false)
 		} else {
-			return lib.PutACL(u, acl, cmd.dryrun)
+			return lib.PutACL(u, acl, cmd.dryrun, false, false)
 		}
 	}
 
