@@ -3,8 +3,8 @@ module codeberg.org/uhppoted/uhppoted-app-wild-apricot
 go 1.26
 
 require (
-	codeberg.org/uhppoted/uhppoted-core v0.0.0-20260723154335-7d132936dee1
-	codeberg.org/uhppoted/uhppoted-lib v0.0.0-20260730164853-a9c9795085df
+	codeberg.org/uhppoted/uhppoted-core v0.9.1-0.20260907151552-26aaacb96609
+	codeberg.org/uhppoted/uhppoted-lib v0.9.1-0.20260907152125-1db48d9e8c37
 	github.com/hyperjumptech/grule-rule-engine v1.20.4
 	golang.org/x/sys v0.47.0
 )
