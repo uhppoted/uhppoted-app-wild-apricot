@@ -3,7 +3,7 @@
 ## Unreleased
 
 ### Updated
-1. Updated to Go v1.26.
+1. Updated to Go v1.27.
 2. Updated to _modern_ Go with `go fix`.
 3. Migrated from _github.com/uhppoted/uhppoted-app-wild-apricot_ to _codeberg.org/uhppoted/uhppoted-app-wild-apricot_.
 
