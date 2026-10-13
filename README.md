@@ -21,7 +21,7 @@ _Maintenance release_.
 
 1. Migrated from _github_ to _codeberg_.
 2. Updated to Go v1.27.
-2. Updated dependencies for security patches.
+3. Updated dependencies for security patches.
 
 
 ## Installation
