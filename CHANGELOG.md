@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## Unreleased
+
+
 ## [0.9.1](https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.9.1) - 2026-10-13
 
 ### Updated
@@ -8,7 +11,7 @@
 3. Migrated from _github.com/uhppoted/uhppoted-app-wild-apricot_ to _codeberg.org/uhppoted/uhppoted-app-wild-apricot_.
 
 
-## [0.9.0](https://codeberg.org/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.9.0) - 2026-01-27
+## [0.9.0](https://github.com/uhppoted/uhppoted-app-wild-apricot/releases/tag/v0.9.0) - 2026-01-27
 
 ### Updated
 1. Updated dependencies.
